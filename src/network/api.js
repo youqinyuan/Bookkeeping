@@ -4,6 +4,7 @@ const userLoginRequest = p => request.post('/accounts/login', p) // 登录
 const addGoodsRequest = p => request.post('/goodsControl/addGoods', p) // 添加商品（电商/自营商品）
 const upDataGoodsRequest = p => request.post('/goodsControl/updateGoods', p) // 修改商品-（电商/自营商品）
 const queryGoodsDetailRequest = p => request.get('/goodsControl/onlineGoodsDetail', p) // 查询商品详情(电商/自营)
+const queryofflineGoodsDetail = p => request.get('/goodsControl/offlineGoodsDetail', p) // 查询商品详情(非电商)
 const getBusinessOptionsRequest = p => request.get('/merchant/manage/allMerchantIdAndName', p) // 拉取所有商户列表（正常运营的非自营商户）
 const getGoodsClassRequest = p => request.get('/goodsCategory/getAllGoodsCategory', p) // 获取商品分类
 const getOrderList = orderList => request.get(`/order/queryOperateOrderList`, orderList) // 获取订单列表
@@ -25,12 +26,19 @@ const addPlatTag = p => request.post('/goodsControl/addPlatTag', p) // 添加自
 const merchantGoodsList = p => request.get('/goodsControl/merchantGoodsList', p) // 商品管理-商家商品管理列表
 const updateGoodsAdWeights = p => request.post('/goodsControl/updateGoodsAdWeights', p) // 商品管理-更改商品广告值
 const updateGoodsGrabbedNumber = p => request.post('/goodsControl/updateGoodsGrabbedNumber', p) // 商品管理-更改商品已抢件数
+const addClass = p => request.post('/goodsCategory/add', p) // 新增一条分类
+const deleteClass = p => request.delete('/goodsCategory/deleteById', p) // 根据ID删除商品分类
+const updateClass = p => request.post('/goodsCategory/updateById', p) // 根据ID更新商品分类
+const sortClass = p => request.post('/goodsCategory/sortByParentId', p) // 修改分类排序
+const merchantGoodsAuditList = p => request.get('/goodsControl/merchantGoodsAuditList', p) // 商品管理-商家商品审核管理列表
+const updateGoodsAuditStatus = p => request.post('/goodsControl/updateGoodsAuditStatus', p) // 商品管理-更新商品审核状态
 
 export {
   userLoginRequest,
   addGoodsRequest,
   upDataGoodsRequest,
   queryGoodsDetailRequest,
+  queryofflineGoodsDetail,
   getBusinessOptionsRequest,
   getGoodsClassRequest,
   getOrderList,
@@ -49,5 +57,11 @@ export {
   addPlatTag,
   merchantGoodsList,
   updateGoodsAdWeights,
-  updateGoodsGrabbedNumber
+  updateGoodsGrabbedNumber,
+  addClass,
+  deleteClass,
+  updateClass,
+  sortClass,
+  merchantGoodsAuditList,
+  updateGoodsAuditStatus
 }

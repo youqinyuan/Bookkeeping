@@ -850,14 +850,16 @@ export default {
       for (let i = 0; i < keyArr.length; i++) {
         let item = keyArr[i]
 
-        this.userInputSpecDetail[0][index] = detail[item].orgPrice
-        this.userInputSpecDetail[1][index] = detail[item].stock
-        this.userInputSpecDetail[2][index] = detail[item].dctPrice
-        this.userInputSpecDetail[3][index] = detail[item].dctRate
+        this.userInputSpecDetail[0][i] = detail[item].orgPrice
+        this.userInputSpecDetail[1][i] = detail[item].stock
+        this.userInputSpecDetail[2][i] = detail[item].dctPrice
+        this.userInputSpecDetail[3][i] = detail[item].dctRate
         this.salesArr.push(detail[item].sales)
-        this.cashback[index].money = Math.floor((detail[item].orgPrice * detail[item].dctRate) * 10) / 100
-        this.cashback[index].specCashBacks = detail[item].specCashBacks
+        this.cashback[i].money = Math.floor((detail[item].orgPrice * detail[item].dctRate) * 10) / 100
+        this.cashback[i].specCashBacks = detail[item].specCashBacks
       }
+
+      // console.log(this.userInputSpecDetail)
 
       this.cashback.map((item, dex) => {
         if (item.specCashBacks.length > 0) {
@@ -1443,6 +1445,7 @@ export default {
       let val = ''
 
       this.RenderGoodsSpec = this.deepCopy(array)
+      console.log(this.RenderGoodsSpec)
 
       for (let i = 0; i < 4; i++) {
         ar = []
@@ -1453,6 +1456,8 @@ export default {
       }
 
       this.userInputSpecDetail = arr
+
+      console.log(arr)
 
       this.setCashbackDefault(len)
     },

@@ -3,10 +3,11 @@
         <el-dialog
             title=""
             :visible.sync="DialogVisible"
-            width="30%"
+            width="400px"
             center>
             <div style="text-align: center">
                 <el-input-number v-model="changeVaule" @change="handleChange" :min="0"  label=""></el-input-number>
+                <div class="simulation">{{changeVaule}}</div>
             </div>
 
             <span slot="footer" class="dialog-footer">
@@ -72,12 +73,19 @@ export default {
                     this.$message.error(res.data.message)
                 }
             })
-            console.log(this.changeVaule)
         }
     },
 };
 </script>
 
 <style scoped lang="less">
-   
+   .simulation{
+        width: 80px;
+        height: 40px;
+        line-height: 40px;
+        position: absolute;
+        top: 55px;
+        left: 160px;
+        z-index: 1000
+   }
 </style>

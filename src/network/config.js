@@ -1,12 +1,13 @@
 import axios from 'axios'
-import elementUi from 'element-ui'
 import router from '@/router/index'
+import { Loading, MessageBox } from 'element-ui'
 import { setCookie, getCookie } from '@/common/cookie.js'
 
 // axios 配置
-axios.defaults.timeout = 300000
+axios.defaults.timeout = 30000
 axios.defaults.baseURL = process.env.API_ROOT
 
+var loadinginstace
 // http request 拦截器
 axios.interceptors.request.use(
   config => {
@@ -15,9 +16,22 @@ axios.interceptors.request.use(
         config.headers.token = getCookie().opadminToken
       }
     })
+    // element ui Loading方法
+    loadinginstace = Loading.service({
+      lock: true,
+      text: '请求中……',
+      background: 'rgba(0, 0, 0, 0.7)'
+    })
     return config
   },
   err => {
+    MessageBox({
+      title: '错误',
+      message: '请求超时',
+      callback: action => {
+        loadinginstace.close()
+      }
+    })
     return err
   }
 )
@@ -30,12 +44,17 @@ axios.interceptors.response.use(
     } else if (response.data.messageCode === 'MSG_2001') {
       router.push('/')
     }
+    loadinginstace.close()
     return response
   },
   error => {
     if (error.code === 'ECONNABORTED' && error.message.indexOf('timeout') !== -1) {
-      elementUi.MessageBox('请求超时', '错误', {
-        confirmButtonText: '确定'
+      MessageBox({
+        title: '错误',
+        message: '请求超时',
+        callback: action => {
+          loadinginstace.close()
+        }
       })
     }
 

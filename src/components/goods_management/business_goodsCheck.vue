@@ -52,6 +52,9 @@
                     prop="goodsName"
                     label="名称"
                     show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span @click="goDetails(scope.row.id,scope.row.categoryName)" style="color:#008000;cursor: pointer;">{{scope.row.goodsName}}</span>
+                    </template>    
                 </el-table-column>
                 <el-table-column
                     prop="businessName"
@@ -87,9 +90,10 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    label="平台价">
+                    prop="dctPrice"
+                    label="成本价">
                     <template slot-scope="scope">
-                        <span>{{scope.row.orgPrice*scope.row.dctRate/100}}元</span>
+                        <span>{{scope.row.dctPrice}}元</span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -100,34 +104,15 @@
                     </template>                    
                 </el-table-column>
                 <el-table-column
-                    prop="grabbedNumber"
-                    label="以抢数量">
-                    <template slot-scope="scope">
-                        <span @click="openChangeCount(scope.row.id,scope.row.grabbedNumber)" style="color:red;cursor: pointer;">{{scope.row.grabbedNumber}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="adWeights"
-                    label="广告值">
-                    <template slot-scope="scope">
-                        <span @click="openAD(scope.row.id,scope.row.adWeights)" style="color:red;cursor: pointer;">{{scope.row.adWeights}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="interactCount"
-                    label="评价数量">
-                </el-table-column>
-                <el-table-column
-                    prop="goodInteractRate"
-                    label="好评率">
-                    <template slot-scope="scope">
-                       <span>{{scope.row.goodInteractRate}}%</span>
-                    </template>                  
-                </el-table-column>
-                <el-table-column
                     prop="name"
                     label="所属商家"
                     show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column label="操作" width="100">
+                    <template slot-scope="scope">
+                        <span style="color: #169BD5;cursor: pointer;margin-right:20px" @click="pass(scope.row.id)">通过</span>
+                        <span style="color: #169BD5;cursor: pointer;" @click="refuse(scope.row.id)">拒绝</span>
+                    </template> 
                 </el-table-column>                                                                                           
             </el-table>
             <div class="totalNum">总计：{{pageTotal}}条</div>
@@ -141,20 +126,11 @@
                 ></el-pagination>
             </div>
         </div>
-
-
-        <!-- 广告值弹窗组件 -->
-        <adValuePop ref="ad"></adValuePop>
-
-        <!-- 修改以抢数量弹窗 -->
-        <changeCountPop ref="changeCount"></changeCountPop>
     </div>
 </template>
 
 <script> 
-import {merchantGoodsList,getMerchantBusinessList,getGoodsClassRequest} from '@/network/api'
-import adValuePop from './common/adValuePop'
-import changeCountPop from './common/changeCountPop'
+import {merchantGoodsAuditList,getMerchantBusinessList,getGoodsClassRequest,updateGoodsAuditStatus} from '@/network/api'
 export default {
     props: {
 
@@ -166,7 +142,7 @@ export default {
             goodsName:null,// 商品名称
             businessName:null,// 所属商家
             Category:[],// 分类行业
-            valueCategory:"",// 已选行业分类ID
+            valueCategory:1,// 已选行业分类ID
             defaultParams: {
                 label: 'name',
                 value: 'id',
@@ -178,8 +154,7 @@ export default {
         };
     },
     components: {
-        adValuePop,
-        changeCountPop
+        
     },
     computed: {
 
@@ -199,7 +174,7 @@ export default {
         // 获取商家商品列表
         getMerchantGoodsList(data){
             let param = {...data}
-            merchantGoodsList({params: param}).then(res =>{
+            merchantGoodsAuditList({params: param}).then(res =>{
                 // console.log(res)
                 if (res.data.content) {
                     this.tableData = res.data.content.items;
@@ -251,11 +226,11 @@ export default {
         // 切换行业分类
         handleChangeCategory(val){
             console.log(val)
-            if(val === 11){
+            if(val === 1){
+                this.showGoodsClass = true;
+            }else{
                 this.showGoodsClass = false;
                 this.selectedGoodsId = ""
-            }else{
-                this.showGoodsClass = true;
             }
         },
         // 搜索
@@ -270,14 +245,76 @@ export default {
             this.getMerchantGoodsList(obj)
         },
 
-        // 打开广告弹窗
-        openAD(id,adWeights){
-            this.$refs.ad.open(id,adWeights)
+        // 跳转详情
+        goDetails(id,categoryName){
+            this.$router.push({
+                path:'/goodscheckDetails',
+                query:{
+                    id:id,
+                    categoryName:categoryName
+                }
+            })
         },
 
-        // 打开改变以抢数量弹窗
-        openChangeCount(id,adWeights){
-            this.$refs.changeCount.open(id,adWeights)
+        // 通过
+        pass(id){
+            let parms = {
+                goodsId:id,
+                status:2
+            }
+            this.$confirm('', '确定通过审核吗?', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    center: true
+                }).then(() => {
+                    updateGoodsAuditStatus(this.qs.stringify(parms)).then(res =>{
+                        console.log(res)
+                        if(res.data.messageCode == "MSG_1001"){
+                            this.$message({
+                                type: 'success',
+                                message: res.data.message
+                            }); 
+                            this.search(1)                           
+                        }else{
+                            this.$message.error(res.data.message)
+                        }
+                    })
+
+                }).catch(() => {
+                             
+                });
+        },
+        // 拒绝
+        refuse(id){
+            this.$prompt('', '确认拒绝通过吗?', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                inputPlaceholder:"请输入拒绝理由,200字以内",
+                inputType:"textarea",
+                center: true,
+                inputPattern:  /\S/,
+                inputErrorMessage: '理由不能为空'
+            }).then(({ value }) => {
+                let parms = {
+                    goodsId:id,
+                    status:3,
+                    remark:value
+                }
+                updateGoodsAuditStatus(this.qs.stringify(parms)).then(res =>{
+                    console.log(res)
+                    if(res.data.messageCode == "MSG_1001"){
+                        this.$message({
+                            type: 'success',
+                            message: res.data.message
+                        }); 
+                        this.search(1)                           
+                    }else{
+                        this.$message.error(res.data.message)
+                    }
+                })
+            }).catch(() => {
+                      
+            });            
         }
     },
 };

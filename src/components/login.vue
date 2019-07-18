@@ -82,6 +82,10 @@ export default {
     })
   },
 
+  mounted () {
+    clearCookie('opadminToken')
+  },
+
   methods: {
     // 登录
     loginFunc () {
@@ -110,6 +114,7 @@ export default {
         if (this.checked) {
           setCookie('userName', loginName, 7)
           setCookie('userPwd', password, 7)
+          this.$store.commit('changeName',res.data.content.name);
         } else {
           clearCookie('userName')
           clearCookie('userPwd')

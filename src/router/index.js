@@ -22,7 +22,7 @@ export default new Router({
       component: resolve => require(['@/components/home'], resolve),
       children: [
         {
-          path: '/index/:name',
+          path: '/index',
           name: 'Index',
           component: resolve => require(['@/components/index'], resolve)
         },
@@ -42,9 +42,19 @@ export default new Router({
           component: resolve => require(['@/components/goods_management/business_goodsManage'], resolve)
         },
         {
+          path: '/businessGoodsCheck',
+          name: 'businessGoodsCheck',
+          component: resolve => require(['@/components/goods_management/business_goodsCheck'], resolve)
+        },
+        {
           path: '/addGoods',
           name: 'AddGoods',
           component: resolve => require(['@/components/goods_management/add_goods'], resolve)
+        },
+        {
+          path: '/goodscheckDetails',
+          name: 'goodscheckDetails',
+          component: resolve => require(['@/components/goods_management/goods_checkDetails'], resolve)
         },
         {
           path: '/businessOrder',

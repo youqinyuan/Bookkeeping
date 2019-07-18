@@ -1,3 +1,6 @@
 .contents{
     padding: 30px;
 }
+.el-upload-dragger{
+    width: 178px !important;
+}

@@ -48,7 +48,7 @@
         <el-row type="flex" justify="space-between">
           <el-col :span="12" class="l-tle">{{ navText }}</el-col>
           <el-col :span="12" class="r-tle">
-            <span>{{ userNameRen }}</span>
+            <span>{{ name }}</span>
             <span class="quit" @click="quitLogin()">退出登录</span>
           </el-col>
         </el-row>
@@ -68,7 +68,6 @@ import { clearCookie } from '@/common/cookie.js'
 export default {
   data () {
     return {
-      userNameRen: '',
       navText: '',
       activeName: 0,
       defaultNavList: [],
@@ -109,7 +108,10 @@ export default {
             },
             {
               title: '商家商品审核管理',
-              active: false
+              active: false,
+              path:{
+                path:'/businessGoodsCheck'
+              }
             }
           ]
         },
@@ -138,8 +140,17 @@ export default {
   },
 
   created () {
-    this.userNameRen = this.$route.params.name
-    this.defaultNav()
+    this.defaultNav() 
+  },
+
+  mounted(){
+    console.log(this.$store.state.name)
+  },
+
+  computed:{
+    name(){
+		    return this.$store.state.name
+		},
   },
 
   watch: {
