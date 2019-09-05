@@ -145,7 +145,6 @@ export default {
         getDetails () {
             let id = this.$route.query.id
             queryGoodsDetailRequest({params: {id}}).then(res=>{
-                // console.log(res)
                 if(res.data.messageCode == "MSG_1001"){
                     let result = res.data.content
                     this.details = result
@@ -162,7 +161,6 @@ export default {
         // handleSpecs(data,detail){
         //     let arr = []
         //     // let arrImg = []
-        //     // console.log(data)
         //     let copyData = JSON.parse(JSON.stringify(data))
         //     let tree = copyData.shift()
         //     let add = (father, arr) => {
@@ -174,7 +172,6 @@ export default {
         //         add(next, arr)
         //     }
         //     add(tree,copyData)
-        //     console.log(tree)
         //     this.goodsSpecs = tree
         // }
 
@@ -285,7 +282,6 @@ export default {
 
                 return true
             }
-            // console.log(arr)
             this.recGoodsSpecDetail(arr)
         },
         // 处理商品规格详情输入数据格式

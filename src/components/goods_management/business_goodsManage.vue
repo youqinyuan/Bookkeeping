@@ -37,6 +37,7 @@
 
         <div class="inline_box">
             <el-button type="primary" @click="search(1)">搜索</el-button>
+            <el-button type="success" @click="add">添 加</el-button>
         </div>   
 
 
@@ -128,7 +129,14 @@
                     prop="name"
                     label="所属商家"
                     show-overflow-tooltip>
-                </el-table-column>                                                                                           
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template slot-scope="scope">
+                        <span style="color: #169BD5;cursor: pointer;" @click="check(scope.$index, scope.row)">查看</span>
+                        <span v-if="scope.row.issueStatus == 1" style="color: #169BD5;cursor: pointer;" @click="changeStatus(scope.$index, scope.row)">下架</span>
+                        <span v-if="scope.row.issueStatus == 2" style="color: red;cursor: pointer;" @click="changeStatus(scope.$index, scope.row)">上架</span>
+                    </template>
+                </el-table-column>                                                                                          
             </el-table>
             <div class="totalNum">总计：{{pageTotal}}条</div>
             <div class="order-bottom" v-if="tableData.length>0">
@@ -137,6 +145,7 @@
                 layout="prev, pager, next"
                 :total="pageTotal"
                 :page-size="10"
+                :current-page="currentPage"
                 @current-change="pageChange($event)"
                 ></el-pagination>
             </div>
@@ -152,7 +161,7 @@
 </template>
 
 <script> 
-import {merchantGoodsList,getMerchantBusinessList,getGoodsClassRequest} from '@/network/api'
+import {merchantGoodsList,getMerchantBusinessList,getGoodsClassRequest,updateGoodsIssueStatus} from '@/network/api'
 import adValuePop from './common/adValuePop'
 import changeCountPop from './common/changeCountPop'
 export default {
@@ -162,6 +171,7 @@ export default {
     data() {
         return {
             tableData:[],
+            currentPage:1,
             pageTotal:"",
             goodsName:null,// 商品名称
             businessName:null,// 所属商家
@@ -200,7 +210,6 @@ export default {
         getMerchantGoodsList(data){
             let param = {...data}
             merchantGoodsList({params: param}).then(res =>{
-                // console.log(res)
                 if (res.data.content) {
                     this.tableData = res.data.content.items;
                     this.pageTotal = res.data.content.totalSize
@@ -214,6 +223,7 @@ export default {
         // 翻页
         pageChange(val){
             this.search(val)
+            this.currentPage = val
         },
         // 获取行业分类
         getMerchantBusinessList(){
@@ -245,12 +255,11 @@ export default {
         },
         // 切换商品状态
         handleChangeGoods(value){
-            console.log(value);
+
         },
 
         // 切换行业分类
         handleChangeCategory(val){
-            console.log(val)
             if(val === 11){
                 this.showGoodsClass = false;
                 this.selectedGoodsId = ""
@@ -268,6 +277,7 @@ export default {
             obj.businessId = this.valueCategory
             obj.categoryId= this.selectedGoodsId == "" ? "":this.selectedGoodsId[this.selectedGoodsId.length-1];
             this.getMerchantGoodsList(obj)
+            this.currentPage = 1
         },
 
         // 打开广告弹窗
@@ -278,7 +288,63 @@ export default {
         // 打开改变以抢数量弹窗
         openChangeCount(id,adWeights){
             this.$refs.changeCount.open(id,adWeights)
-        }
+        },
+
+        // 添加
+        add(){
+            this.$router.push({
+                path:'/addGoods',
+                query:{
+                    type:1
+                }
+            })
+        },
+
+         // 查看
+        check(index,row){
+            this.$router.push({
+                path:'/addGoods',
+                query:{
+                    type:2,
+                    id:row.id
+                }
+            })
+        },
+
+        // 更改商品状态
+        changeStatus(index,row){
+            let message = row.issueStatus == 1? "确认下架吗" : "确认上架吗"
+            let parms = {
+                goodsId:Number(row.id),
+                issueStatus:row.issueStatus == 1?2:1
+            }
+            this.$confirm(message, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                updateGoodsIssueStatus(this.qs.stringify(parms)).then((res) =>{
+                    let type,message
+                    if (res.data.messageCode == "MSG_4001") {
+                        type = 'warning'
+                        message = '商品库存不足，请先添加库存!'
+                    }else if(res.data.messageCode == "MSG_1001"){
+                        type = 'success'
+                        message = '处理成功'
+                        this.search(1)
+                    }else{
+                        type = 'warning'
+                        message = res.data.message
+                    }
+                    this.$message({
+                        type: type,
+                        message: message
+                    });
+                })
+                
+            }).catch(() => {         
+            }); 
+        },
     },
 };
 </script>

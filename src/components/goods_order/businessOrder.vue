@@ -33,7 +33,7 @@
             下单时间：
             <el-date-picker
             v-model="dateChangeVal"
-            type="daterange"
+            type="datetimerange"
             start-placeholder="起始时间"
             end-placeholder="截止时间"
             @change="dateChange"
@@ -43,17 +43,13 @@
       <div class="searchTop-right">
         <el-button type="primary" @click="searchEvent">搜索</el-button>
         <el-button type="info" @click="exportExcel">导出</el-button>
+        <el-button type="info" @click="seachExport">查询内容全部导出</el-button>
       </div>
     </div>
     <div class="order-table">
-      <el-checkbox label="全选" v-model="checkAll" @change="checkAllEvent"></el-checkbox>
-      <el-checkbox-group v-model="checkList" @change="selGoodChange">
-        <el-table :data="tableData" stripe style="width: 100%" key="scope.row.orderNumber">
-          <el-table-column label="订单编号" width="220">
-            <template slot-scope="scope">
-              <el-checkbox :label="scope.row.orderNumber"></el-checkbox>
-            </template>
-          </el-table-column>
+        <el-table :data="tableData" @selection-change="handleSelectionChange" border ref="multipleTable" style="width: 100%">
+          <el-table-column type="selection" width="55"></el-table-column>
+          <el-table-column prop="orderNumber" label="订单编号" width="220"></el-table-column>
           <el-table-column prop="userName" label="用户名" width="160"></el-table-column>
           <el-table-column prop="mobileNumber" label="联系方式" width="160"></el-table-column>
           <el-table-column prop="orderAmount" label="订单金额" width="160"></el-table-column>
@@ -97,11 +93,11 @@
               <el-button type="text" v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8" @click="lookRefundTxt(scope.row.id)">退款原因</el-button>
               <el-button type="text" v-if="scope.row.latestStatus==11" @click="lookRefundTxt(scope.row.id)">拒绝原因</el-button>
               <el-button type="text" v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8 || scope.row.latestStatus==11" @click="refundEvent(scope.row.id)">退款</el-button>
+
               <!-- <el-button type="text" v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8" @click="refundNo(scope.row.id)">拒绝退款</el-button> -->
             </template>
           </el-table-column>
         </el-table>
-      </el-checkbox-group>
     </div>
     <div class="totalNum">总计：{{pageTotal}}条</div>
     <div class="order-bottom" v-if="tableData.length>0">
@@ -135,10 +131,10 @@
         title="退款"
         :visible.sync="refundState"
         width="30%">
-        <span>请与商家用户沟通后退款</span>
+        <span>确定要退款吗</span>
         <span slot="footer" class="dialog-footer">
-            <el-button @click="refundState = false">取 消</el-button>
-            <el-button type="primary" @click="refundOk">已沟通确认退款</el-button>
+            <el-button @click="refundNo">拒 绝</el-button>
+            <el-button type="primary" @click="refundOk">确 定</el-button>
         </span>
     </el-dialog>
     <!-- 拒绝退款弹窗 -->
@@ -153,17 +149,23 @@
         <el-button type="primary" @click="saveRefundNoTxt">保 存</el-button>
       </div>
     </el-dialog>
+
+    <!-- 发货弹窗  -->
+    <shipPop ref="ship"></shipPop>
   </div>
 </template>
 
 <script>
-import { getOrderList, getLogisticsCompanyList, addOrderLogistics, refundAudit, getMerchantBusinessList, queryOrderReason, getExcel } from '@/network/api'
+import { getOrderList, getLogisticsCompanyList, addOrderLogistics, refundAudit, getMerchantBusinessList, queryOrderReason, getExcel, getMerchantAuditListByWhereExcel } from '@/network/api'
+import shipPop from './common/shipPop'
 export default {
   data () {
     return {
       orderId: '',
       userPhone: '',
-      checkList: [],
+      multipleSelection: [],
+      multipleSelectionAll:[],
+      idKey: 'orderNumber',
       selStatus: '',
       dateChangeVal: '',
       orderStartTime: '',
@@ -245,6 +247,9 @@ export default {
       checkAll: false
     }
   },
+  components: {
+    shipPop
+  },
   mounted () {
     this.searchOrderList()
     this.getBusinessList()
@@ -296,10 +301,12 @@ export default {
       }
 
       getOrderList({params: param}).then(res => {
-        console.log(res)
         if (res.data.content) {
           this.tableData = res.data.content.items
           this.pageTotal = res.data.content.totalSize
+          setTimeout(()=>{
+              this.setSelectRow();
+          }, 50)
         } else {
           this.tableData = []
           this.pageTotal = 0
@@ -308,90 +315,105 @@ export default {
         this.checkList = []
       })
     },
-    // renderHeader (h, { column }) {
-    //   return h('div', [
-    //     h('el-checkbox', {
-    //       style: 'margin-top:5px;',
-    //       on: {
-    //         change: ($event, column) => this.select($event, column) // 选中事件 $event, column，这里$event=true,column是input的dom当在select里打印的时候
-    //       }
-    //     }),
-    //     h('span', column.label)
-    //   ])
-    // },
-    // select ($event, column) {
-    //   console.log($event)
-    //   if ($event) {
-    //     let checkList = []
-    //     for (let i of this.tableAllData) {
-    //       checkList.push(i.id)
-    //     }
-    //     this.checkList = checkList
-    //   } else {
-    //     this.checkList = []
-    //   }
-    // },
-    // 全选事件
-    checkAllEvent (val) {
-      if (val) {
-        let checkList = []
-        console.log(this.tableData)
-        for (let i of this.tableData) {
-          checkList.push(i.orderNumber)
+    // 设置选中的方法
+    setSelectRow() {
+        if (!this.multipleSelectionAll || this.multipleSelectionAll.length <= 0) {
+            return;
         }
-        setTimeout(() => {
-          this.checkList = checkList
-          console.log(this.checkList)
+        // 标识当前行的唯一键的名称
+        let idKey = this.idKey;
+        let selectAllIds = [];
+        let that = this;
+        this.multipleSelectionAll.forEach(row=>{
+            selectAllIds.push(row[idKey]);
         })
-      } else {
-        this.checkList = []
-      }
-      console.log(this.checkList)
+        this.$refs.multipleTable.clearSelection();
+        for(var i = 0; i < this.tableData.length; i++) {                    
+            if (selectAllIds.indexOf(this.tableData[i][idKey]) >= 0) {
+                // 设置选中，记住table组件需要使用ref="table"
+                this.$refs.multipleTable.toggleRowSelection(this.tableData[i], true);
+            }
+        }
+      },
+    // 记忆选择核心方法
+    changePageCoreRecordData () {
+        // 标识当前行的唯一键的名称
+        let idKey = this.idKey;
+        let that = this;
+        // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
+        if (this.multipleSelectionAll.length <= 0) {
+            this.multipleSelectionAll = this.multipleSelection;
+            return;
+        }
+        // 总选择里面的key集合
+        let selectAllIds = [];
+        this.multipleSelectionAll.forEach(row=>{
+            selectAllIds.push(row[idKey]);
+        })
+        let selectIds = []
+        // 获取当前页选中的id
+        this.multipleSelection.forEach(row=>{
+            selectIds.push(row[idKey]);
+            // 如果总选择里面不包含当前页选中的数据，那么就加入到总选择集合里
+            if (selectAllIds.indexOf(row[idKey]) < 0) {
+                that.multipleSelectionAll.push(row);
+            }
+        })
+        let noSelectIds = [];
+        // 得到当前页没有选中的id
+        this.tableData.forEach(row=>{
+            if (selectIds.indexOf(row[idKey]) < 0) {
+                noSelectIds.push(row[idKey]);
+            }
+        })
+        noSelectIds.forEach(id=>{
+            if (selectAllIds.indexOf(id) >= 0) {
+                for(let i = 0; i< that.multipleSelectionAll.length; i ++) {
+                    if (that.multipleSelectionAll[i][idKey] == id) {
+                        // 如果总选择中有未被选中的，那么就删除这条
+                        that.multipleSelectionAll.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        })
+      },
+    // 勾选chebox
+    handleSelectionChange(rows){
+        this.multipleSelection = rows
+        setTimeout(()=>{
+            this.changePageCoreRecordData ()
+        }, 50)
     },
     // 获取行业列表
     getBusinessList () {
       getMerchantBusinessList().then(res => {
-        console.log(res)
         this.industryClassList = res.data.content
       })
     },
     // 获取物流公司列表
     getLogisticsList () {
       getLogisticsCompanyList().then(res => {
-        console.log(res)
         this.logisticsListArr = res.data.content
       })
     },
     // 分页改变事件
     pageChange (val) {
-      console.log(val)
       this.pageNumber = val
       this.searchOrderList()
     },
-    // 多选框改变事件
-    selGoodChange (val) {
-      console.log(val)
-      if (val.length < this.tableData.length) {
-        this.checkAll = false
-      } else if (val.length === this.tableData.length) {
-        this.checkAll = true
-      }
-    },
     // 行业分类改变事件
     industryClassChange (val) {
-      console.log(val)
       this.selIndustryClass = val
       this.searchOrderList()
     },
     // 订单状态改变事件
     selStatusChange (val) {
-      console.log(val)
       this.selStatus = val
       this.searchOrderList()
     },
     // 搜索时间改变事件
     dateChange (val) {
-      console.log(val)
       this.orderStartTime = this.getDateShow(val[0])
       this.orderEndTime = this.getDateShow(val[1])
       this.searchOrderList()
@@ -416,24 +438,23 @@ export default {
       }
     },
     // 发货点击事件
-    deliverGoods (id) {
-      console.log(id)
-      this.dgform.logisticsId = ''
-      this.dgform.trackingNumber = ''
-      this.deliverGoodsState = true
-      this.dgform.orderId = id
+    // deliverGoods (id) {
+    //   this.dgform.logisticsId = ''
+    //   this.dgform.trackingNumber = ''
+    //   this.deliverGoodsState = true
+    //   this.dgform.orderId = id
+    // },
+    deliverGoods(id){
+      this.$refs.ship.open(id)
     },
     // 发货确定事件
     saveDeliverGoods () {
-      console.log(this.dgform)
       if (this.dgform.logisticsId === '') {
         this.$message('请先选择物流公司')
       } else if (this.dgform.trackingNumber === '') {
         this.$message('请先填写物流单号')
       } else {
-        console.log(this.dgform)
         addOrderLogistics(this.dgform).then(res => {
-          console.log(res)
           if (res.data.messageCode === 'MSG_1001') {
             this.searchOrderList()
             this.deliverGoodsState = false
@@ -452,8 +473,8 @@ export default {
       param.orderId = this.refundOrderId
       param.type = 1
       refundAudit(param).then(res => {
-        console.log(res)
-        if (res.data.statusCode === 200) {
+        if (res.data.messageCode == "MSG_1001") {
+          this.$message.success(res.data.message)
           this.searchOrderList()
           this.refundState = false
         } else {
@@ -476,7 +497,6 @@ export default {
         param.type = 2
         param.remark = this.rnform.refundNoTxt
         refundAudit(param).then(res => {
-          console.log(res)
           if (res.data.statusCode === 200) {
             this.searchOrderList()
             this.refundNoState = false
@@ -487,7 +507,6 @@ export default {
     // 查看退款/拒绝原因
     lookRefundTxt (id) {
       queryOrderReason(`?orderId=${id}`).then(res => {
-        console.log(res)
         this.$alert(res.data.content, '原因', {
           confirmButtonText: '知道了'
         })
@@ -495,21 +514,16 @@ export default {
     },
     // 跳转订单详情
     toOrderDetail (id) {
-      console.log(id)
       this.$router.push({path: '/orderDetail', query: {'orderid': id}})
     },
     // 导出事件
     exportExcel () {
-      if (this.checkList.length > 0) {
+      if (this.multipleSelectionAll.length > 0) {
         let ids = []
 
-        for (let i of this.tableData) {
-          for (let j of this.checkList) {
-            if (i.orderNumber === j) {
-              ids.push(i.id)
-            }
-          }
-        }
+        this.multipleSelectionAll.forEach((item)=>{
+            ids.push(item.id)
+        })
 
         getExcel(ids.toString()).then(res => {
           this.download(res)
@@ -517,6 +531,38 @@ export default {
       } else {
         this.$message('请先选择你要导出的数据')
       }
+    },
+    // 搜索导出全部内容
+    seachExport(){
+      let param = {
+        orderChannelType:2, // 订单类型:1：自营订单 2：商家订单
+      }
+      if (this.orderId) {
+        param.orderNumber = this.orderId // 订单号
+      }
+      if (this.userPhone) {
+        param.mobileNumber = this.userPhone // 用户电话
+      }
+      if (this.selStatus) {
+        param.latestStatus = this.selStatus  // 状态
+      }
+      if (this.orderStartTime) {
+        param.orderStartTime = this.orderStartTime  // 下单起始时间
+      }
+      if (this.orderEndTime) {
+        param.orderEndTime = this.orderEndTime // 下单截止时间
+      }
+      if (this.selIndustryClass) {
+        param.businessId = this.selIndustryClass  // 行业ID
+      }
+      if (this.businessName) {
+        param.business = this.businessName // 所选商家
+      }
+      
+      
+      getMerchantAuditListByWhereExcel(param).then(res=>{
+        this.download(res)
+      })
     },
     // 下载文件
     download (data) {
@@ -578,11 +624,8 @@ export default {
         }
       }
     }
-    .searchTop-right {
-    }
   }
   .order-table {
-    width: 1680px;
     margin: 0 auto;
     .el-table__header {
       th {

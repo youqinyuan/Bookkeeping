@@ -27,6 +27,61 @@ export default new Router({
           component: resolve => require(['@/components/index'], resolve)
         },
         {
+          path: '/reward',
+          name: 'reward',
+          component: resolve => require(['@/components/reward_management/reward'], resolve)
+        },
+        {
+          path: '/merchantBusinessList',
+          name: 'merchantBusinessList',
+          component: resolve => require(['@/components/merchant_management/merchantBusinessList'], resolve)
+        },
+        {
+          path: '/appplicationManagement',
+          name: 'appplicationManagement',
+          component: resolve => require(['@/components/merchant_management/appplication_management'], resolve)
+        },
+        {
+          path: '/appplicationDetails',
+          name: 'appplicationDetails',
+          component: resolve => require(['@/components/merchant_management/appplication_details'], resolve)
+        },
+        {
+          path: '/businessManagement',
+          name: 'businessManagement',
+          component: resolve => require(['@/components/merchant_management/business_management'], resolve)
+        },
+        {
+          path: '/businessDetails',
+          name: 'businessDetails',
+          component: resolve => require(['@/components/merchant_management/businessDetails'], resolve)
+        },
+        {
+          path: '/ordinaryMember',
+          name: 'ordinaryMember',
+          component: resolve => require(['@/components/user_management/ordinary_member'], resolve)
+        },
+        {
+          path: '/memberDetail',
+          name: 'memberDetail',
+          component: resolve => require(['@/components/user_management/memberDetail'], resolve)
+        },
+        {
+          path: '/plusMember',
+          name: 'plusMember',
+          component: resolve => require(['@/components/user_management/plus_member'], resolve)
+        },
+        {
+          path: '/plusDetail',
+          name: 'plusDetail',
+          component: resolve => require(['@/components/user_management/plusDetail'], resolve)
+        },
+        {
+          path: '/brokerage',
+          name: 'brokerage',
+          component: resolve => require(['@/components/user_management/brokerage'], resolve)
+        },
+        {
           path: '/goodsClassManage',
           name: 'goodsClassManage',
           component: resolve => require(['@/components/goods_management/goods_classManage'], resolve)
@@ -70,6 +125,76 @@ export default new Router({
           path: '/orderDetail',
           name: 'OrderDetail',
           component: resolve => require(['@/components/goods_order/orderDetail'], resolve)
+        },
+        {
+          path: '/bannerManage',
+          name: 'BannerManage',
+          component: resolve => require(['@/components/moth_management/banner_manage'], resolve)
+        },
+        {
+          path: '/activitiesManage',
+          name: 'activitiesManage',
+          component: resolve => require(['@/components/moth_management/activities_manage'], resolve)
+        },
+        {
+          path: '/zeroMoneyBuy',
+          name: 'zeroMoneyBuy',
+          component: resolve => require(['@/components/moth_management/zeroMoneyBuy'], resolve)
+        },
+        {
+          path: '/activeDetails',
+          name: 'activeDetails',
+          component: resolve => require(['@/components/moth_management/activeDetails'], resolve)
+        },
+        {
+          path: '/addActive',
+          name: 'addActive',
+          component: resolve => require(['@/components/moth_management/addActive'], resolve)
+        },
+        {
+          path: '/setMembershiprules',
+          name: 'setMembershiprules',
+          component: resolve => require(['@/components/rules_management/setMembershiprules'], resolve)
+        },
+        {
+          path: '/merchantrules',
+          name: 'merchantrules',
+          component: resolve => require(['@/components/rules_management/merchantrules'], resolve)
+        },
+        {
+          path: '/profitrules',
+          name: 'profitrules',
+          component: resolve => require(['@/components/rules_management/profitrules'], resolve)
+        },
+        {
+          path: '/fastBuy',
+          name: 'fastBuy',
+          component: resolve => require(['@/components/rules_management/fastBuy'], resolve)
+        },
+        {
+          path: '/userRecharge',
+          name: 'userRecharge',
+          component: resolve => require(['@/components/recharge_management/userRecharge'], resolve)
+        },
+        {
+          path: '/rechargeSet',
+          name: 'rechargeSet',
+          component: resolve => require(['@/components/recharge_management/rechargeSet'], resolve)
+        },
+        {
+          path: '/logisticsSet',
+          name: 'logisticsSet',
+          component: resolve => require(['@/components/genealogy_set/logisticsSet'], resolve)
+        },
+        {
+          path: '/citySet',
+          name: 'citySet',
+          component: resolve => require(['@/components/genealogy_set/citySet'], resolve)
+        },
+        {
+          path: '/cityDetail',
+          name: 'cityDetail',
+          component: resolve => require(['@/components/genealogy_set/cityDetail'], resolve)
         }
       ]
     }

@@ -5,7 +5,7 @@
             :visible.sync="DialogVisible"
             width="30%"
             center>
-            <el-input v-model="advaule" placeholder="不可大于10的数字，默认为0"></el-input>
+            <el-input v-model="advaule" placeholder="不可大于10000的数字，默认为0"></el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="save">保 存</el-button>
             </span>
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import {updateGoodsAdWeights} from '@/network/api'
+import {updateGoodsAdWeights,updateAdWeights} from '@/network/api'
 export default {
     props: {
 
@@ -24,6 +24,7 @@ export default {
         return {
             id:"",
             advaule:"",
+            type:"",
             DialogVisible:false
         };
     },
@@ -43,29 +44,42 @@ export default {
 
     },
     methods: {
-        open(id,adWeights){
+        open(id,adWeights,type){
             this.advaule = adWeights 
             this.id = id 
+            this.type = type
             this.DialogVisible = true
         },
-        save(){
-            let parms = {
-                goodsId:this.id,
-                adWeights:this.advaule
+        comres(res){
+            if(res.data.messageCode == "MSG_1001"){
+                this.$message({
+                    type: 'success',
+                    message: res.data.message
+                });
+                this.$parent.search(1)
+                this.DialogVisible = false
+            }else{
+                this.$message.error('请正确填写广告值')
             }
-            updateGoodsAdWeights(this.qs.stringify(parms)).then(res=>{
-                console.log(res)
-                if(res.data.messageCode == "MSG_1001"){
-                    this.$message({
-                        type: 'success',
-                        message: res.data.message
-                    });
-                    this.$parent.search(1)
-                    this.DialogVisible = false
-                }else{
-                    this.$message.error('请正确填写广告值')
+        },
+        save(){
+            if(this.type == 2){
+                let parms = {
+                    id:this.id,
+                    adWeights:this.advaule
                 }
-            })
+                updateAdWeights(this.qs.stringify(parms)).then(res=>{
+                    this.comres(res)
+                })
+            }else{
+                let parms = {
+                    goodsId:this.id,
+                    adWeights:this.advaule
+                }
+                updateGoodsAdWeights(this.qs.stringify(parms)).then(res=>{
+                    this.comres(res)
+                })
+            }
         }
     },
 };

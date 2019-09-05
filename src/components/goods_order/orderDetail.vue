@@ -58,10 +58,22 @@
         </div>
         <div class="titleStyle">物流信息</div>
         <div class="orderInfoBox">
-            <div class="orderInfoItem">物流：{{orderObj.orderLogisticsDetail ? orderObj.orderLogisticsDetail.companyName : '未发货'}}</div>
-            <div class="orderInfoItem">物流单号：{{orderObj.orderLogisticsDetail ? orderObj.orderLogisticsDetail.trackingNumber : '暂无'}}</div>
-            <div class="orderInfoItem-btn"><el-button type="primary" v-if="orderObj.latestStatus==4" @click="lookLogistics(orderObj.id)">查看物流信息</el-button></div>
-            <div class="orderInfoItem" v-if="orderObj.latestStatus==5"><span class="mark">已送达</span></div>
+          <div v-for="(item,index) in orderObj.orderLogisticsDetailList" :key="index" style="width:100%;margin-bottom:15px;">
+            <span class="orderInfoItem">{{item.goodsDetailSpecDesc}}</span>
+            <span class="orderInfoItem">物流：{{item.companyName ? item.companyName : '暂无'}}</span>
+            <span class="orderInfoItem">物流单号：{{item.trackingNumber ? item.trackingNumber : '暂无'}}</span>
+            <el-button type="primary" size="mini" v-if="orderObj.latestStatus==4" @click="modifyNum(orderObj.id,item)">修改物流单号</el-button>
+            <el-button type="primary" size="mini" v-if="orderObj.latestStatus==4" @click="lookLogistics(item.logisticsDto)">查看物流信息</el-button>
+          </div>
+
+          <div v-for="(ite) in orderObj.orderGoodsTobeShippedList" :key="ite.id" style="width:100%">
+            <span class="orderInfoItem">{{ite.goodsName}}-{{ite.specDesc}}</span>
+            <span class="orderInfoItem">物流：暂无</span>
+            <span class="orderInfoItem">物流单号：暂无</span>
+            <el-button type="primary" size="mini" v-if="orderObj.latestStatus==4" @click="AddmodifyNum(orderObj.id)">添加物流单号</el-button>
+          </div>
+            
+          <div class="orderInfoItem" v-if="orderObj.latestStatus==5"><span class="mark">已送达</span></div>
         </div>
         <div v-if="orderObj.latestStatus==7 || orderObj.latestStatus==8 || orderObj.latestStatus==10 || orderObj.latestStatus==11" class="titleStyle">退款信息</div>
         <div v-if="orderObj.latestStatus==7 || orderObj.latestStatus==8 || orderObj.latestStatus==10 || orderObj.latestStatus==11" class="orderInfoBox">
@@ -97,9 +109,8 @@
           </div>
         </div>
         <div class="bottom-btn">
-            <el-button type="primary" v-if="orderObj.latestStatus==2" @click="deliverGoods(orderObj.id)">发货</el-button>
-            <el-button type="success" v-if="orderObj.latestStatus==2" @click="refund(orderObj.id)">退款</el-button>
-            <el-button type="primary" v-if="orderObj.latestStatus==4" @click="modifyNum(orderObj.id)">修改物流单号</el-button>
+            <el-button type="primary" v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14" @click="deliverGoods(orderObj.id)">发货</el-button>
+            <el-button type="success" v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14" @click="refund(orderObj.id)">退款</el-button>
             <el-button type="success" v-if="orderObj.latestStatus==1" @click="cancelOrder(orderObj.id)">取消订单</el-button>
             <el-button type="success" v-if="orderObj.latestStatus==7 || orderObj.latestStatus==8" @click="refundEvent(orderObj.id)">退款</el-button>
             <el-button type="primary" v-if="orderObj.latestStatus==11" @click="refundEvent(orderObj.id)">退款</el-button>
@@ -168,11 +179,15 @@
                 <el-button type="primary" @click="saveRefundNoTxt">保 存</el-button>
             </div>
         </el-dialog>
+
+        <!-- 发货弹窗  -->
+        <shipPop ref="ship"></shipPop>
     </div>
 </template>
 
 <script>
 import { queryOrder, addOrderLogistics, getLogisticsCompanyList, applyRefundMerchant, queryLogistics, cancelOrderMerchant, refundAudit } from '@/network/api'
+import shipPop from './common/shipPop'
 export default {
   data () {
     return {
@@ -195,6 +210,9 @@ export default {
       modifyNumState: false
     }
   },
+  components: {
+    shipPop
+  },
   filters: {
     getDateShow: function (value) {
       let dt = new Date(value)
@@ -212,7 +230,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.$route.query)
     this.getOrderList(this.$route.query.orderid)
     this.getLogisticsList()
   },
@@ -220,34 +237,31 @@ export default {
     // 查询订单详情
     getOrderList (id) {
       queryOrder(`?orderId=${id}`).then(res => {
-        console.log(res)
         this.orderObj = res.data.content
       })
     },
     // 获取物流公司列表
     getLogisticsList () {
       getLogisticsCompanyList().then(res => {
-        console.log(res)
         this.logisticsListArr = res.data.content
       })
     },
     // 发货点击事件
-    deliverGoods (id) {
-      console.log(id)
-      this.deliverGoodsState = true
-      this.dgform.orderId = id
+    // deliverGoods (id) {
+    //   this.deliverGoodsState = true
+    //   this.dgform.orderId = id
+    // },
+    deliverGoods(id){
+      this.$refs.ship.open(id)
     },
     // 发货确定事件
     saveDeliverGoods (id) {
-      console.log(this.dgform)
       if (this.dgform.logisticsId === '') {
         this.$message('请先选择物流公司')
       } else if (this.dgform.trackingNumber === '') {
         this.$message('请先填写物流单号')
       } else {
-        console.log(this.dgform)
         addOrderLogistics(this.dgform).then(res => {
-          console.log(res)
           if (res.data.messageCode === 'MSG_1001') {
             this.getOrderList(id)
             this.$message({
@@ -261,15 +275,12 @@ export default {
     },
     // 修改物流单号确认事件
     saveModifyNum (id) {
-      console.log(this.dgform)
       if (this.dgform.logisticsId === '') {
         this.$message('请先选择物流公司')
       } else if (this.dgform.trackingNumber === '') {
         this.$message('请先填写物流单号')
       } else {
-        console.log(this.dgform)
         addOrderLogistics(this.dgform).then(res => {
-          console.log(res)
           if (res.data.messageCode === 'MSG_1001') {
             this.getOrderList(id)
             this.$message({
@@ -283,15 +294,12 @@ export default {
     },
     // 退款点击事件
     refund (id) {
-      console.log('id=', id)
       this.$confirm('确定退款吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        console.log('id=', id)
         applyRefundMerchant({orderId: id}).then(res => {
-          console.log(res)
           if (res.data.messageCode === 'MSG_1001') {
             this.getOrderList(id)
             this.$message({
@@ -313,23 +321,21 @@ export default {
       })
     },
     // 修改物流单号
-    modifyNum (id) {
-      this.dgform.logisticsId = this.orderObj.orderLogisticsDetail.logisticsId
-      this.dgform.trackingNumber = this.orderObj.orderLogisticsDetail.trackingNumber
-      this.dgform.orderId = id
-      this.modifyNumState = true
+    modifyNum (orderid,item) { // 第一个参数为订单orderid, 第二个为选择的物流信息
+      this.$refs.ship.openUnitePop(orderid,item)
+    },
+    // 添加物流单号
+    AddmodifyNum(orderid){
+      this.$refs.ship.openMultiplePop(orderid)
     },
     // 查询物流信息
-    lookLogistics (id) {
-      queryLogistics(`?orderId=${id}`).then(res => {
-        console.log(res)
-        if (res.data.content) {
-          this.lookLogisticsState = true
-          this.lookLogisticsList = res.data.content.list
-        } else {
-          this.$message('待揽件')
-        }
-      })
+    lookLogistics (logisticsDto) {
+      if(!logisticsDto){
+        this.$message('待揽件')
+        return
+      }
+      this.lookLogisticsList = logisticsDto?logisticsDto.list:null
+      this.lookLogisticsState = true
     },
     // 取消订单事件
     cancelOrder (id) {
@@ -339,7 +345,6 @@ export default {
         type: 'warning'
       }).then(() => {
         cancelOrderMerchant(id).then(res => {
-          console.log(res)
           this.getOrderList(id)
           this.$message({
             type: 'success',
@@ -364,7 +369,6 @@ export default {
       param.orderId = this.refundOrderId
       param.type = 1
       refundAudit(param).then(res => {
-        console.log(res)
         if (res.data.statusCode === 200) {
           this.getOrderList(this.$route.query.orderid)
           this.refundState = false
@@ -386,7 +390,6 @@ export default {
         param.type = 2
         param.remark = this.rnform.refundNoTxt
         refundAudit(param).then(res => {
-          console.log(res)
           if (res.data.statusCode === 200) {
             this.getOrderList(this.$route.query.orderid)
             this.refundNoState = false
@@ -434,7 +437,7 @@ export default {
             font-size: 14px;
             color: #333;
             line-height: 30px;
-            margin-right: 60px;
+            margin-right: 20px;
             >.mark{
                 color: antiquewhite;
                 font-size: 20px;

@@ -69,7 +69,6 @@ export default {
     },
     methods: {
         open(id,name,imgUrl,title){
-            // console.log(id,name,imgUrl)
             this.id = id
             this.vauleName = name
             this.imageUrl = imgUrl
@@ -77,7 +76,6 @@ export default {
             this.DialogVisible = true
         },
         changeUpload(file, fileList){
-            console.log(file)
             this.file = file
             this.imageUrl = window.URL.createObjectURL(file.raw) 
             // let reader = new FileReader()
@@ -87,7 +85,6 @@ export default {
             // }
         },
         getImgUrl(msg){
-            console.log(msg)
             this.imageUrl = msg[0]
             this.fromDatas = msg[1].raw
         },       
@@ -117,7 +114,6 @@ export default {
                     }
                 }
                 addClass(formData).then(res=>{
-                    console.log(res)
                     if(res.data.messageCode == "MSG_1001"){
                         this.$message({
                             message: res.data.message,
@@ -142,7 +138,6 @@ export default {
                     }
                 }
                 updateClass(formData).then(res=>{
-                    console.log(res)
                     if(res.data.messageCode == "MSG_1001"){
                         this.$message({
                             message: res.data.message,
@@ -161,27 +156,5 @@ export default {
 </script>
 
 <style scoped lang="less">
-    .avatar-uploader .el-upload {
-        border: 1px dashed #d9d9d9;
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-    .avatar-uploader .el-upload:hover {
-        border-color: #409EFF;
-    }
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
-        width: 178px;
-        height: 178px;
-        line-height: 178px;
-        text-align: center;
-    }
-    .avatar {
-        width: 178px;
-        height: 178px;
-        display: block;
-    }    
+    
 </style>

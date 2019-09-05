@@ -2,18 +2,18 @@
 
 import Vue from 'vue';
 import Vuex from 'vuex';
-import VuexAlong from 'vuex-along'
 import  state  from './states';
 import  getters  from './getters';
 import  mutations  from './mutations';
 import  actions  from './actions';
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
-export const store = new Vuex.Store({
+export default new Vuex.Store({
     state,
     getters,
     mutations,
     actions,
-    plugins: [VuexAlong]
+    plugins: [createPersistedState()]
 })

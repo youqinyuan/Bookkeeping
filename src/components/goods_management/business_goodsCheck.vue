@@ -122,6 +122,7 @@
                 layout="prev, pager, next"
                 :total="pageTotal"
                 :page-size="10"
+                :current-page="currentPage"
                 @current-change="pageChange($event)"
                 ></el-pagination>
             </div>
@@ -139,6 +140,7 @@ export default {
         return {
             tableData:[],
             pageTotal:"",
+            currentPage:1,
             goodsName:null,// 商品名称
             businessName:null,// 所属商家
             Category:[],// 分类行业
@@ -175,7 +177,6 @@ export default {
         getMerchantGoodsList(data){
             let param = {...data}
             merchantGoodsAuditList({params: param}).then(res =>{
-                // console.log(res)
                 if (res.data.content) {
                     this.tableData = res.data.content.items;
                     this.pageTotal = res.data.content.totalSize
@@ -189,6 +190,7 @@ export default {
         // 翻页
         pageChange(val){
             this.search(val)
+            this.currentPage = val
         },
         // 获取行业分类
         getMerchantBusinessList(){
@@ -220,12 +222,11 @@ export default {
         },
         // 切换商品状态
         handleChangeGoods(value){
-            console.log(value);
+
         },
 
         // 切换行业分类
         handleChangeCategory(val){
-            console.log(val)
             if(val === 1){
                 this.showGoodsClass = true;
             }else{
@@ -243,6 +244,7 @@ export default {
             obj.businessId = this.valueCategory
             obj.categoryId= this.selectedGoodsId == "" ? "":this.selectedGoodsId[this.selectedGoodsId.length-1];
             this.getMerchantGoodsList(obj)
+            this.currentPage = 1
         },
 
         // 跳转详情
@@ -268,7 +270,6 @@ export default {
                     center: true
                 }).then(() => {
                     updateGoodsAuditStatus(this.qs.stringify(parms)).then(res =>{
-                        console.log(res)
                         if(res.data.messageCode == "MSG_1001"){
                             this.$message({
                                 type: 'success',
@@ -301,7 +302,6 @@ export default {
                     remark:value
                 }
                 updateGoodsAuditStatus(this.qs.stringify(parms)).then(res =>{
-                    console.log(res)
                     if(res.data.messageCode == "MSG_1001"){
                         this.$message({
                             type: 'success',

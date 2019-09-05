@@ -12,6 +12,7 @@
         accordion
         class="collapse"
         v-model="activeName"
+        
       >
         <div
           v-for="(item, index) in navList"
@@ -79,9 +80,58 @@ export default {
             path: '/index'
           }
         },
-        {title: '代理商管理'},
-        {title: '商户管理'},
-        {title: '用户管理'},
+        {
+          title: '商家管理',
+          nav: [
+            {
+              title: '商家分类管理',
+              active: false,
+              path:{
+                path:'/merchantBusinessList'
+              }
+            },
+            {
+              title: '申请管理',
+              active: false,
+              path:{
+                path:'/appplicationManagement'
+              }
+            },
+            {
+              title: '商户管理',
+              active: false,
+              path:{
+                path:'/businessManagement'
+              }
+            }
+          ]
+        },
+        {
+          title: '用户管理',
+          nav: [
+            {
+              title: '普通会员管理',
+              active: false,
+              path:{
+                path:'/ordinaryMember'
+              }
+            },
+            {
+              title: 'plus会员管理',
+              active: false,
+              path:{
+                path:'/plusMember'
+              }
+            },
+            {
+              title: '会员提现申请',
+              active: false,
+              path:{
+                path:'/brokerage'
+              }
+            }
+          ]
+        },
         {
           title: '商品管理',
           nav: [
@@ -134,7 +184,112 @@ export default {
             }
           ]
         },
-        {title: '社区管理'}
+//------------------------------------------------------------------------------------------负责的路由模块--------------------------------
+
+
+
+        {
+          title: '奖励金管理',
+          nav: [
+            {
+              title: '奖金管理',
+              active: false,
+              path: {
+                path: '/reward'
+              }
+            }
+          ]
+        },
+        {
+          title: '规则管理',
+          nav: [
+            {
+              title: '会员规则设置',
+              active: false,
+              path: {
+                path: '/setMembershiprules'
+              }
+            },
+            {
+              title: '商家规则设置',
+              active: false,
+              path: {
+                path: '/merchantrules'
+              }
+            },
+            {
+              title: '利润分成设置',
+              active: false,
+              path: {
+                path: '/profitrules'
+              }
+            },
+            {
+              title: '快速分期购设置',
+              active: false,
+              path: {
+                path: '/fastBuy'
+              }
+            },
+          ]
+        },
+        {
+          title: '充值管理',
+          // nav: [
+          //   {
+          //     title: '用户充值管理',
+          //     active: false,
+          //     path: {
+          //       path: '/userRecharge'
+          //     }
+          //   },
+          //   {
+          //     title: '充值设置',
+          //     active: false,
+          //     path: {
+          //       path: '/rechargeSet'
+          //     }
+          //   }
+          // ]
+        },
+        {
+          title: '营销管理',
+          nav: [
+            {
+              title: '轮播图管理',
+              active: false,
+              path: {
+                path: '/bannerManage'
+              }
+            },
+            {
+              title: '电商活动管理',
+              active: false,
+              path: {
+                path: '/activitiesManage'
+              }
+            }
+          ]
+        },
+        {
+          title: '系统管理',
+          // nav: [
+          //   {
+          //     title: '物流设置',
+          //     active: false,
+          //     path: {
+          //       path: '/logisticsSet'
+          //     }
+          //   },
+          //   {
+          //     title: '城市区域设置',
+          //     active: false,
+          //     path: {
+          //       path: '/citySet'
+          //     }
+          //   }
+          // ]
+        },
       ]
     }
   },
@@ -144,7 +299,7 @@ export default {
   },
 
   mounted(){
-    console.log(this.$store.state.name)
+    
   },
 
   computed:{

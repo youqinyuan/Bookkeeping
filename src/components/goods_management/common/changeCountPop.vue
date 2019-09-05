@@ -53,7 +53,6 @@ export default {
             this.DialogVisible = true
         },
         handleChange (value) {
-            console.log(value);
         },
         save(){
             let parms = {
@@ -61,7 +60,6 @@ export default {
                 grabbedNumber :this.changeVaule
             }
             updateGoodsGrabbedNumber(this.qs.stringify(parms)).then(res=>{
-                console.log(res)
                 if(res.data.messageCode == "MSG_1001"){
                     this.$message({
                         type: 'success',

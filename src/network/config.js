@@ -4,7 +4,7 @@ import { Loading, MessageBox } from 'element-ui'
 import { setCookie, getCookie } from '@/common/cookie.js'
 
 // axios 配置
-axios.defaults.timeout = 30000
+axios.defaults.timeout = 600000
 axios.defaults.baseURL = process.env.API_ROOT
 
 var loadinginstace

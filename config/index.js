@@ -12,6 +12,7 @@ module.exports = {
     proxyTable: {
       '/api': {
         target: 'https://xuncaoji.yzsaas.cn:8085/opadmin',  // 接口域名
+        // target: 'https://xuncj.yzsaas.cn:8085/opadmin', // 正式
         // target: 'http://192.168.1.194:8083/opadmin',  // 接口域名
         // target: 'http://192.168.1.235:8083/opadmin',  // 接口域名
         changeOrigin: true,  //是否跨域
@@ -22,7 +23,7 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '0.0.0.0', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,

@@ -44,13 +44,11 @@
             <el-table
             ref="multipleTable"
             :data="tableData"
-            :row-key="getRowKeys"
-            @selection-change="selectionChange"
+            @selection-change="handleSelectionChange"
             style="width: 100%">
                 <el-table-column
                     type="selection"
                     width="55"
-                    :reserve-selection="true"
                    >
                 </el-table-column>
                 <el-table-column
@@ -116,6 +114,9 @@
                 <el-table-column
                     prop="interactCount"
                     label="评价数量">
+                    <template slot-scope="scope">
+                       <span>{{scope.row.interactCount == null? 0 : scope.row.interactCount}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
                     prop="goodInteractRate"
@@ -151,9 +152,10 @@
             <div class="order-bottom" v-if="tableData.length>0">
                 <el-pagination
                 background
-                layout="prev, pager, next"
+                layout="prev, pager, next, jumper"
                 :total="pageTotal"
                 :page-size="10"
+                :current-page="currentPage"
                 @current-change="pageChange($event)"
                 ></el-pagination>
             </div>
@@ -192,9 +194,10 @@ export default {
             LowerCount:"",
             tableData:[],
             pageTotal:"",
+            currentPage:1,
             multipleSelection: [],
             multipleSelectionAll:[],
-            select_orderId:[]
+            idKey: 'id'
         };
     },
     components: {
@@ -213,47 +216,112 @@ export default {
         this.search(1);
         this.getGoodsCategory()
     },
-    methods: {
-         // 获取row的key值
-        getRowKeys(row) {
-            return row.id;
-        },        
+    methods: {     
         // 获取自营商品管理列表
         getplatGoodsList(data){
             let param = {...data}
-            // console.log(param)
             platGoodsList({params: param}).then((res) =>{
-                // console.log(res)
                 if (res.data.content) {
                     this.tableData = res.data.content.items;
                     this.pageTotal = res.data.content.totalSize
+                    setTimeout(()=>{
+                        this.setSelectRow();
+                    }, 50)
                 } else {
                     this.tableData = []
                     this.pageTotal = 0
                 }
             })
         },
+        unique3(arr){
+            var result = [];   
+            var obj = {};
+            for(var i =0; i<arr.length; i++){
+                if(!obj[arr[i].id]){
+                result.push(arr[i]);
+                }
+            }
+            return result
+        },
         // 翻页
         pageChange(val){
             this.search(val)
-            // this.$refs.multipleTable.clearSelection()
-            this.multipleSelection.forEach(item => {
-                this.$refs.multipleTable.toggleRowSelection(item,true);
-            });
+            this.currentPage = val
+        },
+        // 设置选中的方法
+        setSelectRow() {
+            if (!this.multipleSelectionAll || this.multipleSelectionAll.length <= 0) {
+                return;
+            }
+            // 标识当前行的唯一键的名称
+            let idKey = this.idKey;
+            let selectAllIds = [];
+            let that = this;
+            this.multipleSelectionAll.forEach(row=>{
+                selectAllIds.push(row[idKey]);
+            })
+            this.$refs.multipleTable.clearSelection();
+            for(var i = 0; i < this.tableData.length; i++) {                    
+                if (selectAllIds.indexOf(this.tableData[i][idKey]) >= 0) {
+                    // 设置选中，记住table组件需要使用ref="table"
+                    this.$refs.multipleTable.toggleRowSelection(this.tableData[i], true);
+                }
+            }
+        },
+         // 记忆选择核心方法
+        changePageCoreRecordData () {
+            // 标识当前行的唯一键的名称
+            let idKey = this.idKey;
+            let that = this;
+            // 如果总记忆中还没有选择的数据，那么就直接取当前页选中的数据，不需要后面一系列计算
+            if (this.multipleSelectionAll.length <= 0) {
+                this.multipleSelectionAll = this.multipleSelection;
+                return;
+            }
+            // 总选择里面的key集合
+            let selectAllIds = [];
+            this.multipleSelectionAll.forEach(row=>{
+                selectAllIds.push(row[idKey]);
+            })
+            let selectIds = []
+            // 获取当前页选中的id
+            this.multipleSelection.forEach(row=>{
+                selectIds.push(row[idKey]);
+                // 如果总选择里面不包含当前页选中的数据，那么就加入到总选择集合里
+                if (selectAllIds.indexOf(row[idKey]) < 0) {
+                    that.multipleSelectionAll.push(row);
+                }
+            })
+            let noSelectIds = [];
+            // 得到当前页没有选中的id
+            this.tableData.forEach(row=>{
+                if (selectIds.indexOf(row[idKey]) < 0) {
+                    noSelectIds.push(row[idKey]);
+                }
+            })
+            noSelectIds.forEach(id=>{
+                if (selectAllIds.indexOf(id) >= 0) {
+                    for(let i = 0; i< that.multipleSelectionAll.length; i ++) {
+                        if (that.multipleSelectionAll[i][idKey] == id) {
+                            // 如果总选择中有未被选中的，那么就删除这条
+                            that.multipleSelectionAll.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            })
         },
         // 勾选chebox
-        selectionChange(rows){
-            if(this.multipleSelection.length<1){
-                this.multipleSelection = rows
-            }else{
-                this.multipleSelection = this.multipleSelection.concat(rows)
-            }
+        handleSelectionChange(rows){
+            this.multipleSelection = rows
+            setTimeout(()=>{
+                this.changePageCoreRecordData ()
+            }, 50)
         },
 
         // 获取商品分类
         getGoodsCategory(){
             getGoodsClassRequest().then((res)=>{
-                // console.log(res)
                 this.options_class = this.getTreeData(res.data.content)
             })
         },
@@ -273,11 +341,9 @@ export default {
         },
         // 切换分类
         handleChangeClass(value) {
-            console.log(value);
         },
         // 切换状态
         handleChangeStatus(value){
-            console.log(value);
         },
         // 搜索
         search(val){
@@ -289,6 +355,7 @@ export default {
             obj.issueStatus = this.value == "全部" ? "" : this.value;
             obj.stock = this.LowerCount
             this.getplatGoodsList(obj)
+            this.currentPage = 1
         },
         // 添加
         add(){
@@ -311,21 +378,19 @@ export default {
         },
         // 设置自营标签
         setPlatTag(){
-            if(this.multipleSelection.length<1){
+            if(this.multipleSelectionAll.length<1){
                 this.$message({
                     type: 'warning',
                     message: '还未勾选商品'
                 });
             }else{
                 let arr = []
-                this.multipleSelection.forEach((item)=>{
+                this.multipleSelectionAll.forEach((item)=>{
                     arr.push(item.id)
                 })
-                
-                let repeatArr = new Set(arr)
-                addPlatTag(repeatArr).then(res =>{
+                addPlatTag(arr).then(res =>{
                     if(res.data.messageCode == "MSG_1001"){
-                        this.search()
+                        this.search(1)
                         // 清空搜索勾选的数据
                         this.multipleSelection = []
                         this.$refs.multipleTable.clearSelection()
@@ -333,13 +398,14 @@ export default {
                             type: 'success',
                             message: res.data.message
                         });
+                    }else{
+                        this.$message.error(res.data.message)
                     }
                 })
             }
         },
         // 更改商品状态
         changeStatus(index,row){
-            // console.log(row)
             let message = row.issueStatus == 1? "确认下架吗" : "确认上架吗"
             let parms = {
                 goodsId:Number(row.id),
@@ -358,7 +424,10 @@ export default {
                     }else if(res.data.messageCode == "MSG_1001"){
                         type = 'success'
                         message = '处理成功'
-                        this.search()
+                        this.search(1)
+                    }else{
+                        type = 'warning'
+                        message = res.data.message
                     }
                     this.$message({
                         type: type,
@@ -366,11 +435,7 @@ export default {
                     });
                 })
                 
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消'
-                });          
+            }).catch(() => {         
             }); 
         },
 

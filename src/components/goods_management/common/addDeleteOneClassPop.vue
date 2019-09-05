@@ -60,7 +60,6 @@ export default {
                     parentId:null,
                     name:this.vaule
                 }
-                // console.log(parms)
                 addClass(this.qs.stringify(parms)).then(res=>{
                     if(res.data.messageCode == "MSG_1001"){
                         this.$message({
@@ -79,7 +78,6 @@ export default {
                     id:this.id,
                     name:this.vaule
                 }
-                // console.log(parms)
                 updateClass(this.qs.stringify(parms)).then(res=>{
                     if(res.data.messageCode == "MSG_1001"){
                         this.$message({

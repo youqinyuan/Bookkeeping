@@ -72,7 +72,6 @@ export default {
         // 获取商品分类
         getGoodsClassRequest(){
             getGoodsClassRequest().then(res =>{
-                // console.log(res)
                 this.ids = []
                 this.classList = res.data.content
                 this.classList.forEach((item,index)=>{

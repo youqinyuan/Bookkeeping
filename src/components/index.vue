@@ -13,7 +13,6 @@ export default {
 <style lang="less" scoped>
 .container {
   text-align: center;
-
   h1 {
     font-size: 40px;
   }
