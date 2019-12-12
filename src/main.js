@@ -14,6 +14,11 @@ import VueDND from 'awe-dnd'
 import qs from 'qs'
 import * as filter from './common/filter'
 
+// 图片预览插件 vue-photo-preview
+import preview from 'vue-photo-preview'
+import 'vue-photo-preview/dist/skin.css'
+Vue.use(preview)
+
 Vue.use(VueDND)
 Vue.use(ElementUI)
 Vue.use(VueClipboard);

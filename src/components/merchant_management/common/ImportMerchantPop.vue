@@ -60,7 +60,7 @@ export default {
             let a = document.createElement('a')
             a.style.display = 'none'
             a.href = url
-            a.setAttribute('download', '商户模板.xlsx')
+            a.setAttribute('download', '商户模板.xls')
             document.body.appendChild(a)
             a.click()
         },

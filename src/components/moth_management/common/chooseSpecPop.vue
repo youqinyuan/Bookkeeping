@@ -19,7 +19,7 @@
                 <span>请选择规格：</span>
                 <ul>
                     <li ref="specName" v-for="(item,index) in specsList" :key="index" @click="clickSpecs(item.details,index)" :class="{active:cur===index}">
-                        <span v-for="(itemName,index) in item.name" :key="index">{{itemName}}</span>
+                        <span v-for="itemName in item.name" :key="itemName">{{itemName}}</span>
                     </li>
                 </ul>
             </div>

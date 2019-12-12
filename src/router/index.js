@@ -5,8 +5,7 @@ Vue.use(Router)
 
 export default new Router({
   mode: 'history',
-  routes: [
-    {
+  routes: [{
       path: '/',
       redirect: '/login'
     },
@@ -20,11 +19,30 @@ export default new Router({
       name: 'Home',
       redirect: '/index',
       component: resolve => require(['@/components/home'], resolve),
-      children: [
-        {
+      children: [{
           path: '/index',
           name: 'Index',
           component: resolve => require(['@/components/index'], resolve)
+        },
+        {
+          path: '/cityPartner_apply',
+          name: 'cityPartner_apply',
+          component: resolve => require(['@/components/cityPartner_management/cityPartner_apply'], resolve)
+        },
+        {
+          path: '/cityPartner_management',
+          name: 'cityPartner_management',
+          component: resolve => require(['@/components/cityPartner_management/cityPartner_management/cityPartner_management'], resolve)
+        },
+        {
+          path: '/cityPartner_detail',
+          name: 'cityPartner_detail',
+          component: resolve => require(['@/components/cityPartner_management/cityPartner_management/cityPartner_detail'], resolve)
+        },
+        {
+          path: '/wishdraw_apply',
+          name: 'wishdraw_apply',
+          component: resolve => require(['@/components/cityPartner_management/wishdraw_apply'], resolve)
         },
         {
           path: '/reward',
@@ -77,9 +95,19 @@ export default new Router({
           component: resolve => require(['@/components/user_management/plusDetail'], resolve)
         },
         {
-          path: '/brokerage',
-          name: 'brokerage',
-          component: resolve => require(['@/components/user_management/brokerage'], resolve)
+          path: '/withDrawMethods',
+          name: 'withDrawMethods',
+          component: resolve => require(['@/components/user_management/withDraw/withDrawMethods'], resolve)
+        },
+        {
+          path: '/diamondPartner',
+          name: 'diamondPartner',
+          component: resolve => require(['@/components/user_management/diamondPartner'], resolve)
+        },
+        {
+          path: '/diamond_detail',
+          name: 'diamond_detail',
+          component: resolve => require(['@/components/user_management/diamond_detail'], resolve)
         },
         {
           path: '/goodsClassManage',
@@ -122,9 +150,29 @@ export default new Router({
           component: resolve => require(['@/components/goods_order/selfSupportOrder'], resolve)
         },
         {
+          path: '/wishPool_management',
+          name: 'wishPool_management',
+          component: resolve => require(['@/components/wishPool_management/wishPool_management'], resolve)
+        },
+        {
+          path: '/wishExcelDownLoad',
+          name: 'wishExcelDownLoad',
+          component: resolve => require(['@/components/wishPool_management/wishExcelDownLoad'], resolve)
+        },
+        {
           path: '/orderDetail',
           name: 'OrderDetail',
           component: resolve => require(['@/components/goods_order/orderDetail'], resolve)
+        },
+        {
+          path: '/refundOrder',
+          name: 'refundOrder',
+          component: resolve => require(['@/components/goods_order/refundOrder'], resolve)
+        },
+        {
+          path: '/refundDetail',
+          name: 'refundDetail',
+          component: resolve => require(['@/components/goods_order/refundDetail'], resolve)
         },
         {
           path: '/bannerManage',
@@ -135,6 +183,16 @@ export default new Router({
           path: '/activitiesManage',
           name: 'activitiesManage',
           component: resolve => require(['@/components/moth_management/activities_manage'], resolve)
+        },
+        {
+          path: '/freeBuy',
+          name: 'freeBuy',
+          component: resolve => require(['@/components/moth_management/freeBuyPage/freeBuy'], resolve)
+        },
+        {
+          path: '/zeroMoneyBuyList',
+          name: 'zeroMoneyBuyList',
+          component: resolve => require(['@/components/moth_management/zeroMoneyBuyList'], resolve)
         },
         {
           path: '/zeroMoneyBuy',
@@ -172,6 +230,16 @@ export default new Router({
           component: resolve => require(['@/components/rules_management/fastBuy'], resolve)
         },
         {
+          path: '/cashWithdrawal',
+          name: 'cashWithdrawal',
+          component: resolve => require(['@/components/rules_management/cashWithdrawal'], resolve)
+        },
+        {
+          path: '/cityPartner',
+          name: 'cityPartner',
+          component: resolve => require(['@/components/rules_management/cityPartner'], resolve)
+        },
+        {
           path: '/userRecharge',
           name: 'userRecharge',
           component: resolve => require(['@/components/recharge_management/userRecharge'], resolve)
@@ -195,16 +263,69 @@ export default new Router({
           path: '/cityDetail',
           name: 'cityDetail',
           component: resolve => require(['@/components/genealogy_set/cityDetail'], resolve)
+        },
+        {
+          path: '/setPlatformIntroduction',
+          name: 'SetPlatformIntroduction',
+          component: resolve => require(['@/components/genealogy_set/SetPlatformIntroduction'], resolve)
+        },
+        {
+          path: '/setPartnerPage',
+          name: 'SetPartnerPage',
+          component: resolve => require(['@/components/genealogy_set/SetPartnerPage'], resolve)
+        },
+        {
+          path: '/systemNotice',
+          name: 'systemNotice',
+          component: resolve => require(['@/components/genealogy_set/systemNotice/systemNotice'], resolve)
+        },
+        {
+          path: '/wxappNotice',
+          name: 'wxappNotice',
+          component: resolve => require(['@/components/genealogy_set/systemNotice/wxappNotice'], resolve)
+        },
+        {
+          path: '/forum_management',
+          name: 'forum_management',
+          component: resolve => require(['@/components/content_management/forum_management'], resolve)
+        },
+        {
+          path: '/forumDetail',
+          name: 'forumDetail',
+          component: resolve => require(['@/components/content_management/forumDetail'], resolve)
+        },
+        {
+          path: '/seed_management',
+          name: 'seed_management',
+          component: resolve => require(['@/components/integral_management/seed_management'], resolve)
+        },
+        {
+          path: '/notice',
+          name: 'notice',
+          component: resolve => require(['@/components/moth_management/notice'], resolve)
+        },
+        {
+          path: '/navigation',
+          name: 'navigation',
+          component: resolve => require(['@/components/moth_management/navigation/navigation'], resolve)
+        },
+        {
+          path: '/addNavigation',
+          name: 'addNavigation',
+          component: resolve => require(['@/components/moth_management/navigation/addNavigation'], resolve)
         }
       ]
     }
   ],
 
-  scrollBehavior (to, from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else {
-      return { x: 0, y: 0 }
+      return {
+        x: 0,
+        y: 0
+      }
     }
   }
 })

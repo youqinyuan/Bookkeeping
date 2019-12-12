@@ -1,7 +1,13 @@
 import axios from 'axios'
 import router from '@/router/index'
-import { Loading, MessageBox } from 'element-ui'
-import { setCookie, getCookie } from '@/common/cookie.js'
+import {
+  Loading,
+  MessageBox
+} from 'element-ui'
+import {
+  setCookie,
+  getCookie
+} from '@/common/cookie.js'
 
 // axios 配置
 axios.defaults.timeout = 600000

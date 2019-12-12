@@ -13,3 +13,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.svn
+
+# 这是主分支

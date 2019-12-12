@@ -27,6 +27,21 @@
           </el-select>
         </span>
         <span class="inputBox">
+          购买方式:
+          <el-select v-model="buyMode" placeholder="请选择" @change="buyModeChange">
+            <el-option
+              v-for="item in buyModeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </span>
+        <span class="inputBox">
+          物流单号:
+          <el-input class="inputStyle" v-model="trackingNumber" placeholder="请输入物流单号"></el-input>
+        </span>
+        <span class="inputBox">
           下单时间：
           <el-date-picker
             v-model="dateChangeVal"
@@ -56,18 +71,25 @@
         <el-table-column prop="userName" label="用户名"></el-table-column>
         <el-table-column prop="mobileNumber" label="联系方式" width="160"></el-table-column>
         <el-table-column prop="orderAmount" label="订单金额" width="160"></el-table-column>
+        <el-table-column prop label="购买方式" width="160">
+          <template slot-scope="scope">
+            <span v-if="scope.row.orderType == 1">正常购买</span>
+            <span v-if="scope.row.orderType == 3">新人免费体验订单</span>
+            <span v-if="scope.row.orderType == 4">信用卡用户免费领订单</span>
+            <span v-if="scope.row.orderType == 5">渠道合作活动订单</span>
+            <span v-if="scope.row.orderType == 6">FreeBuy活动订单</span>
+            <span v-if="scope.row.orderType == 7">FreeBuy订单</span>
+            <span v-if="scope.row.orderType == 8">线下-普通订单</span>
+            <span v-if="scope.row.orderType == 9">线下-FreeBuy订单</span>
+            <span v-if="scope.row.orderType == 10">FreeBuy转正常购买</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="quantity" label="商品个数" width="140"></el-table-column>
         <el-table-column prop="orderAddressDetail.detailedAddress" label="收货地址" width="160"></el-table-column>
-        <el-table-column label="物流" width="160">
-          <template slot-scope="scope">
-            <span v-if="scope.row.orderLogisticsDetail">
-              <span
-                v-if="scope.row.orderLogisticsDetail.companyName"
-              >{{scope.row.orderLogisticsDetail.companyName}}</span>
-              <span v-else>未发货</span>
-            </span>
-            <span v-else>未发货</span>
-          </template>
+        <el-table-column label="物流" width="120">
+          <template
+            slot-scope="scope"
+          >{{scope.row.orderLogisticsDetailList==''?'未发货':scope.row.orderLogisticsDetailList&&scope.row.orderLogisticsDetailList[0].companyName}}</template>
         </el-table-column>
         <el-table-column label="下单时间" width="160">
           <template slot-scope="scope">
@@ -84,7 +106,7 @@
             <span v-if="scope.row.latestStatus==5">待评价</span>
             <span v-if="scope.row.latestStatus==6">已完成</span>
             <span v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8">退款中</span>
-            <span v-if="scope.row.latestStatus==10">退款成功</span>
+            <span v-if="scope.row.latestStatus==10">交易关闭</span>
             <span v-if="scope.row.latestStatus==11">退款失败</span>
             <span v-if="scope.row.latestStatus==12">已取消</span>
           </template>
@@ -107,11 +129,21 @@
               v-if="scope.row.latestStatus==11"
               @click="lookRefundTxt(scope.row.id)"
             >拒绝原因</el-button>
+            <!-- <el-button
+              type="text"
+              v-if="scope.row.latestStatus==2 && scope.row.transStatementDetail.status!=14"
+              @click="refund(scope.row.id)"
+            >退款</el-button>-->
             <el-button
               type="text"
-              v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8 || scope.row.latestStatus==11"
+              v-if="(scope.row.latestStatus==7 || scope.row.latestStatus==8 || scope.row.latestStatus==11)&&scope.row.transStatementDetail.status != 14"
               @click="refundEvent(scope.row.id)"
             >退款</el-button>
+            <el-button
+              type="text"
+              v-if="scope.row.latestStatus==11 && scope.row.orderLogisticsDetailList==''"
+              @click="deliverGoods(scope.row.id)"
+            >发货</el-button>
             <!-- <el-button type="text" v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8" @click="refundNo(scope.row.id)">拒绝退款</el-button> -->
           </template>
         </el-table-column>
@@ -198,7 +230,8 @@ import {
   refundAudit,
   queryOrderReason,
   getExcel,
-  getMerchantAuditListByWhereExcel
+  getMerchantAuditListByWhereExcel,
+  applyRefundMerchant
 } from "@/network/api";
 import shipPop from "./common/shipPop";
 import logisticsport from "./common/logisticsport";
@@ -207,6 +240,7 @@ export default {
     return {
       orderId: "",
       userPhone: "",
+      trackingNumber: "", // 物流单号
       multipleSelection: [],
       multipleSelectionAll: [],
       idKey: "orderNumber",
@@ -251,7 +285,7 @@ export default {
         },
         {
           value: 10,
-          label: "退款成功"
+          label: "交易关闭"
         },
         {
           value: 11,
@@ -262,6 +296,45 @@ export default {
           label: "已取消"
         }
       ],
+      buyModeList: [
+        {
+          value: 1,
+          label: "正常购买"
+        },
+        {
+          value: 3,
+          label: "新人免费体验订单"
+        },
+        {
+          value: 4,
+          label: "信用卡用户免费领"
+        },
+        {
+          value: 5,
+          label: "渠道合作活动订单"
+        },
+        {
+          value: 6,
+          label: "FreeBuy活动订单"
+        },
+        {
+          value: 7,
+          label: "FreeBuy订单"
+        },
+        {
+          value: 8,
+          label: "线下-普通订单"
+        },
+        {
+          value: 9,
+          label: "线下-FreeBuy订单"
+        },
+        {
+          value: 10,
+          label: "FreeBuy转正常购买"
+        }
+      ],
+      buyMode: "",
       pageNumber: 1,
       pageTotal: 1,
       deliverGoodsState: false,
@@ -277,7 +350,8 @@ export default {
       rnform: {
         refundNoTxt: ""
       },
-      checkAll: false
+      checkAll: false,
+      loadinginstace: false //elementui菊花图
     };
   },
   components: {
@@ -328,7 +402,12 @@ export default {
       if (this.orderEndTime) {
         param.orderEndTime = this.orderEndTime;
       }
-
+      if (this.buyMode) {
+        param.orderType = this.buyMode;
+      }
+      if (this.trackingNumber) {
+        param.trackingNumber = this.trackingNumber;
+      }
       getOrderList({ params: param }).then(res => {
         if (res.data.content) {
           this.tableData = res.data.content.items;
@@ -342,12 +421,18 @@ export default {
         }
         this.checkAll = false;
         this.checkList = [];
+        this.loadinginstace.close();
       });
     },
     // 获取物流公司列表
     getLogisticsList() {
       getLogisticsCompanyList().then(res => {
         this.logisticsListArr = res.data.content;
+        this.loadinginstace = this.$loading({
+          lock: true,
+          text: "请求中……",
+          background: "rgba(0, 0, 0, 0.7)"
+        });
       });
     },
     // 分页改变事件
@@ -441,6 +526,12 @@ export default {
       let dt = new Date(value);
       return dt.getTime();
     },
+    // 根据购买方式搜索订单列表
+    buyModeChange(e) {
+      console.log(e);
+      this.buyMode = e;
+      this.searchOrderList();
+    },
     // 搜索事件
     searchEvent() {
       this.pageNumber = 1;
@@ -500,6 +591,36 @@ export default {
           this.$message(res.data.message);
         }
       });
+    },
+    // 退款点击事件
+    refund(id) {
+      this.$confirm("确定退款吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          applyRefundMerchant({ orderId: id }).then(res => {
+            if (res.data.messageCode === "MSG_1001") {
+              this.searchOrderList(id);
+              this.$message({
+                type: "success",
+                message: "退款成功"
+              });
+            } else {
+              this.$message({
+                type: "error",
+                message: "退款失败"
+              });
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消"
+          });
+        });
     },
     // 拒绝退款事件
     refundNo() {
@@ -570,6 +691,9 @@ export default {
       if (this.orderEndTime) {
         param.orderEndTime = this.orderEndTime; // 下单截止时间
       }
+      if (this.buyMode) {
+        param.orderType = this.buyMode;
+      }
 
       getMerchantAuditListByWhereExcel(param).then(res => {
         this.download(res);
@@ -584,7 +708,7 @@ export default {
       let a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
-      a.setAttribute("download", "自营订单列表.xlsx");
+      a.setAttribute("download", "自营订单列表.xls");
       document.body.appendChild(a);
       a.click();
     },

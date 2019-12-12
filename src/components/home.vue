@@ -1,23 +1,15 @@
 <template>
   <el-container class="home-container" v-cloak>
     <!-- 左侧导航 -->
-    <el-aside class="nav" width="200px">
+    <el-aside class="nav" width="150px">
       <div class="logo">
         <div class="img">
-          <img src="@/assets/logo.png" alt="logo">
+          <img src="@/assets/logo.png" alt="logo" />
         </div>
       </div>
 
-      <el-collapse
-        accordion
-        class="collapse"
-        v-model="activeName"
-        
-      >
-        <div
-          v-for="(item, index) in navList"
-          :key="index"
-        >
+      <el-collapse accordion class="collapse" v-model="activeName">
+        <div v-for="(item, index) in navList" :key="index">
           <div
             :name="index"
             v-if="index === 0"
@@ -25,12 +17,7 @@
             :class="['el-collapse-item__header', item.active ? 'active' : '']"
           >{{ item.title }}</div>
 
-          <el-collapse-item
-            v-else
-            :name="index"
-            class="collapse-item"
-            :title="item.title"
-          >
+          <el-collapse-item v-else :name="index" class="collapse-item" :title="item.title">
             <div
               :class="ite.active ? 'active' : ''"
               @click="switchNav(index, dex)"
@@ -57,184 +44,248 @@
 
       <!-- 内容 -->
       <el-main class="content">
-        <router-view/>
+        <router-view />
       </el-main>
     </el-container>
+    <!-- 蒙版 -->
+    <div class="mask" v-if="isMask"></div>
   </el-container>
 </template>
 
 <script>
-import { clearCookie } from '@/common/cookie.js'
+import { clearCookie } from "@/common/cookie.js";
 
 export default {
-  data () {
+  data() {
     return {
-      navText: '',
+      navText: "" || sessionStorage.getItem("navText"),
       activeName: 0,
       defaultNavList: [],
       navList: [
         {
-          title: '首页',
+          title: "首页",
           active: true,
           path: {
-            path: '/index'
+            path: "/index"
           }
         },
+        // {
+        //   title: "城市合伙人管理",
+        //   nav: [
+        //     {
+        //       title: "城市合伙人申请",
+        //       active: false,
+        //       path: {
+        //         path: "/cityPartner_apply"
+        //       }
+        //     },
+        //     {
+        //       title: "城市合伙人管理",
+        //       active: false,
+        //       path: {
+        //         path: "/cityPartner_management"
+        //       }
+        //     },
+        //     {
+        //       title: "提现申请",
+        //       active: false,
+        //       path: {
+        //         path: "/wishdraw_apply"
+        //       }
+        //     }
+        //   ]
+        // },
         {
-          title: '商家管理',
+          title: "商家管理",
           nav: [
             {
-              title: '商家分类管理',
+              title: "商家分类管理",
               active: false,
-              path:{
-                path:'/merchantBusinessList'
+              path: {
+                path: "/merchantBusinessList"
               }
             },
             {
-              title: '申请管理',
+              title: "申请管理",
               active: false,
-              path:{
-                path:'/appplicationManagement'
+              path: {
+                path: "/appplicationManagement"
               }
             },
             {
-              title: '商户管理',
+              title: "商户管理",
               active: false,
-              path:{
-                path:'/businessManagement'
+              path: {
+                path: "/businessManagement"
               }
             }
           ]
         },
         {
-          title: '用户管理',
+          title: "用户管理",
           nav: [
             {
-              title: '普通会员管理',
+              title: "普通会员管理",
               active: false,
-              path:{
-                path:'/ordinaryMember'
+              path: {
+                path: "/ordinaryMember"
               }
             },
             {
-              title: 'plus会员管理',
+              title: "合伙人管理",
               active: false,
-              path:{
-                path:'/plusMember'
+              path: {
+                path: "/plusMember"
               }
             },
             {
-              title: '会员提现申请',
+              title: "钻石合伙人管理",
               active: false,
-              path:{
-                path:'/brokerage'
+              path: {
+                path: "/diamondPartner"
+              }
+            },
+            {
+              title: "会员提现申请",
+              active: false,
+              path: {
+                path: "/withDrawMethods"
               }
             }
           ]
         },
         {
-          title: '商品管理',
+          title: "商品管理",
           nav: [
             {
-              title: '商品分类管理',
-              active: false,
-              path:{
-                path:'/goodsClassManage'
-              }
-            },
-            {
-              title: '自营商品管理',
+              title: "商品分类管理",
               active: false,
               path: {
-                path:'/selfGoodsManage'
+                path: "/goodsClassManage"
               }
             },
             {
-              title: '商家商品管理',
+              title: "自营商品管理",
               active: false,
-              path:{
-                path:'/businessGoodsManage'
+              path: {
+                path: "/selfGoodsManage"
               }
             },
             {
-              title: '商家商品审核管理',
+              title: "商家商品管理",
               active: false,
-              path:{
-                path:'/businessGoodsCheck'
+              path: {
+                path: "/businessGoodsManage"
+              }
+            },
+            {
+              title: "商家商品审核管理",
+              active: false,
+              path: {
+                path: "/businessGoodsCheck"
               }
             }
           ]
         },
         {
-          title: '订单管理',
+          title: "订单管理",
           nav: [
             {
-              title: '自营订单管理',
+              title: "自营订单管理",
               active: false,
               path: {
-                path: '/selfSupportOrder'
+                path: "/selfSupportOrder"
               }
             },
             {
-              title: '商家订单管理',
+              title: "商家订单管理",
               active: false,
               path: {
-                path: '/businessOrder'
+                path: "/businessOrder"
               }
-            }
-          ]
-        },
-//------------------------------------------------------------------------------------------负责的路由模块--------------------------------
-
-
-
-        {
-          title: '奖励金管理',
-          nav: [
+            },
             {
-              title: '奖金管理',
+              title: "退款订单管理",
               active: false,
               path: {
-                path: '/reward'
+                path: "/refundOrder"
               }
             }
           ]
         },
         {
-          title: '规则管理',
+          title: "心愿池管理",
           nav: [
             {
-              title: '会员规则设置',
+              title: "心愿池管理",
               active: false,
               path: {
-                path: '/setMembershiprules'
+                path: "/wishPool_management"
               }
-            },
-            {
-              title: '商家规则设置',
-              active: false,
-              path: {
-                path: '/merchantrules'
-              }
-            },
-            {
-              title: '利润分成设置',
-              active: false,
-              path: {
-                path: '/profitrules'
-              }
-            },
-            {
-              title: '快速分期购设置',
-              active: false,
-              path: {
-                path: '/fastBuy'
-              }
-            },
+            }
           ]
         },
         {
-          title: '充值管理',
+          title: "奖励金管理",
+          nav: [
+            {
+              title: "奖金管理",
+              active: false,
+              path: {
+                path: "/reward"
+              }
+            }
+          ]
+        },
+        {
+          title: "规则管理",
+          nav: [
+            {
+              title: "会员规则设置",
+              active: false,
+              path: {
+                path: "/setMembershiprules"
+              }
+            },
+            {
+              title: "城市合伙人规则设置",
+              active: false,
+              path: {
+                path: "/cityPartner"
+              }
+            },
+            {
+              title: "商家规则设置",
+              active: false,
+              path: {
+                path: "/merchantrules"
+              }
+            },
+            // {
+            //   title: "利润分成设置",
+            //   active: false,
+            //   path: {
+            //     path: "/profitrules"
+            //   }
+            // },
+            {
+              title: "快速分期购设置",
+              active: false,
+              path: {
+                path: "/fastBuy"
+              }
+            },
+            {
+              title: "手续费设置",
+              active: false,
+              path: {
+                path: "/cashWithdrawal"
+              }
+            }
+          ]
+        },
+        {
+          title: "充值管理"
           // nav: [
           //   {
           //     title: '用户充值管理',
@@ -253,135 +304,206 @@ export default {
           // ]
         },
         {
-          title: '营销管理',
+          title: "积分管理",
           nav: [
             {
-              title: '轮播图管理',
+              title: "种子管理",
               active: false,
               path: {
-                path: '/bannerManage'
-              }
-            },
-            {
-              title: '电商活动管理',
-              active: false,
-              path: {
-                path: '/activitiesManage'
+                path: "/seed_management"
               }
             }
           ]
         },
         {
-          title: '系统管理',
-          // nav: [
-          //   {
-          //     title: '物流设置',
-          //     active: false,
-          //     path: {
-          //       path: '/logisticsSet'
-          //     }
-          //   },
-          //   {
-          //     title: '城市区域设置',
-          //     active: false,
-          //     path: {
-          //       path: '/citySet'
-          //     }
-          //   }
-          // ]
+          title: "营销管理",
+          nav: [
+            {
+              title: "轮播图管理",
+              active: false,
+              path: {
+                path: "/bannerManage"
+              }
+            },
+            {
+              title: "电商活动管理",
+              active: false,
+              path: {
+                path: "/activitiesManage"
+              }
+            },
+            {
+              title: "FreeBuy活动页",
+              active: false,
+              path: {
+                path: "/freeBuy"
+              }
+            },
+            {
+              title: "导航营销",
+              active: false,
+              path: {
+                path: "/navigation"
+              }
+            },
+            {
+              title: "公告管理",
+              active: false,
+              path: {
+                path: "/notice"
+              }
+            }
+          ]
         },
+        {
+          title: "内容管理",
+          nav: [
+            {
+              title: "论坛管理",
+              active: false,
+              path: {
+                path: "/forum_management"
+              }
+            }
+          ]
+        },
+        {
+          title: "系统管理",
+          nav: [
+            // {
+            //   title: '物流设置',
+            //   active: false,
+            //   path: {
+            //     path: '/logisticsSet'
+            //   }
+            // },
+            {
+              title: "城市区域设置",
+              active: false,
+              path: {
+                path: "/citySet"
+              }
+            },
+            {
+              title: "平台介绍页面设置",
+              active: false,
+              path: {
+                path: "/setPlatformIntroduction"
+              }
+            },
+            {
+              title: "合伙人页面设置",
+              active: false,
+              path: {
+                path: "/setPartnerPage"
+              }
+            },
+            {
+              title: "系统通知",
+              active: false,
+              path: {
+                path: "/systemNotice"
+              }
+            }
+          ]
+        }
       ]
+    };
+  },
+
+  created() {
+    this.defaultNav();
+    this.$store.commit("showMask", false);
+  },
+
+  mounted() {},
+
+  computed: {
+    name() {
+      return this.$store.state.name;
+    },
+    isMask() {
+      return this.$store.state.isMask;
     }
   },
 
-  created () {
-    this.defaultNav() 
-  },
-
-  mounted(){
-    
-  },
-
-  computed:{
-    name(){
-		    return this.$store.state.name
-		},
-  },
-
   watch: {
-    '$route': 'setNavInfo'
+    $route: "setNavInfo"
   },
 
   methods: {
     // 深度克隆
-    cloneDeep (data) {
-      let strData = JSON.stringify(data)
+    cloneDeep(data) {
+      let strData = JSON.stringify(data);
 
-      return JSON.parse(strData)
+      return JSON.parse(strData);
     },
 
     // 储存原始导航栏数据
-    defaultNav () {
-      this.defaultNavList = this.cloneDeep(this.navList)
-      this.defaultNavList[0].active = false
+    defaultNav() {
+      this.defaultNavList = this.cloneDeep(this.navList);
+      this.defaultNavList[0].active = false;
 
-      this.setNavInfo()
+      this.setNavInfo();
     },
 
     // 设置导航信息
-    setNavInfo () {
-      let nowPath = this.$route.path
-      let navList = this.cloneDeep(this.defaultNavList)
+    setNavInfo() {
+      let nowPath = this.$route.path;
+      let navList = this.cloneDeep(this.defaultNavList);
 
-      if (nowPath === '/index') {
-        this.navText = '首页'
-        return true
+      if (nowPath === "/index") {
+        this.navText = "首页";
+        return true;
       } else {
         this.navList.map((item, index) => {
-          item.nav && item.nav.map((ite, dex) => {
-            if (ite.path !== undefined && ite.path.path === nowPath) {
-              this.activeName = index
-              navList[index].nav[dex].active = true
-              this.navText = navList[index].title + '-' + navList[index].nav[dex].title
-            }
-          })
-        })
+          item.nav &&
+            item.nav.map((ite, dex) => {
+              if (ite.path !== undefined && ite.path.path === nowPath) {
+                this.activeName = index;
+                navList[index].nav[dex].active = true;
+                this.navText =
+                  navList[index].title + "-" + navList[index].nav[dex].title;
+                sessionStorage.setItem("navText", this.navText); //添加缓存
+              }
+            });
+        });
 
-        this.navList = navList
+        this.navList = navList;
       }
     },
 
     // 导航切换 (选中栏目)
-    switchNav (index, dex = 0) {
-      let defaultNavList = this.cloneDeep(this.defaultNavList)
-      let href = null
+    switchNav(index, dex = 0) {
+      let defaultNavList = this.cloneDeep(this.defaultNavList);
+      let href = null;
 
       if (index === 0) {
-        defaultNavList[0].active = true
-        href = defaultNavList[0].path
+        defaultNavList[0].active = true;
+        href = defaultNavList[0].path;
       } else {
-        defaultNavList[index].nav[dex].active = true
-        href = defaultNavList[index].nav[dex].path
+        defaultNavList[index].nav[dex].active = true;
+        href = defaultNavList[index].nav[dex].path;
       }
 
-      this.activeName = index
-      this.navList = defaultNavList
+      this.activeName = index;
+      this.navList = defaultNavList;
 
-      this.jump(href)
+      this.jump(href);
     },
 
     // 页面跳转
-    jump (path) {
-      path && this.$router.push(path)
+    jump(path) {
+      path && this.$router.push(path);
     },
 
     // 退出登录
-    quitLogin () {
-      clearCookie('opadminToken')
-      this.$router.replace('/')
+    quitLogin() {
+      clearCookie("opadminToken");
+      this.$router.replace("/");
     }
   }
-}
+};
 </script>
 
 <style lang="less" scoped>
@@ -483,5 +605,13 @@ export default {
     width: 0;
     height: 0;
   }
+}
+.mask {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 99;
 }
 </style>
