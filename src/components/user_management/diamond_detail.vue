@@ -11,12 +11,11 @@
       <div class="items">电话：{{content.mobileNumber}}</div>
       <div class="items">成为钻石合伙人时间：{{content.openTime | dateFormat}}</div>
       <div class="items">到期时间：{{content.expireTime | dateFormat}}</div>
-      <div class="items" v-if="content.registrySource == 1">注册来源：App</div>
-      <div class="items" v-if="content.registrySource == 2">注册来源：小程序</div>
-      <div class="items" v-if="content.registrySource == 3">注册来源：H5</div>
-      <div class="items" v-if="content.registrySource == 4">注册来源：导入</div>
+      <div class="items">注册来源：{{content.registrySource | registrySource}}</div>
       <div class="items">正常购买次数：{{content.buyCount}}次</div>
       <div class="items">freebuy购买次数：{{content.freeBuyCount}}次</div>
+      <div class="items">充值次数：{{content.rechargeCount}}次</div>
+      <div class="items">上级电话：{{content.referrerMobileNumber}}</div>
       <div>
         <div
           class="items"
@@ -25,8 +24,131 @@
         >收货地址：所在地区：{{item.cityName}}-{{item.districtName}} 。 详细地址：{{item.detailedAddress}}</div>
       </div>
     </div>
+
+    <!-- 待返记录 -->
+    <div class="common" style="margin-top:20px;">
+      <div class="title">待返记录</div>
+      <div class="table">
+        <div class="table_top">
+          <span>待返余额：{{content.amountNoCashBackSum}}元 (总计{{noCashBackItemsSize}}条)</span>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="noCashBackItemsSize"
+            :page-size="10"
+            @current-change="pageChangenoCashBackItems($event)"
+          ></el-pagination>
+        </div>
+        <el-table :data="noCashBackItemsData" border style="width: 100%">
+          <el-table-column prop="status" label="状态" align="center" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if="scope.row.status == 1">正常状态</span>
+              <span v-if="scope.row.status == 2">转让中</span>
+              <span v-if="scope.row.status == 3">转让完成</span>
+              <span v-if="scope.row.status == 4">终止返现</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="tradeTime" label="开始时间" align="center">
+            <template slot-scope="scope">{{scope.row.tradeTime | dateFormat}}</template>
+          </el-table-column>
+          <el-table-column prop="goodsName" label="商品名称" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column
+            prop="noCashBackAmount"
+            label="待返金额"
+            align="center"
+            show-overflow-tooltip
+          ></el-table-column>
+          <el-table-column prop="period" label="返现周期" align="center"></el-table-column>
+          <el-table-column prop="amountReturned" label="已返金额" align="center"></el-table-column>
+          <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+          <el-table-column prop="transferRemak" label="转让信息" align="center"></el-table-column>
+        </el-table>
+      </div>
+    </div>
+
+    <!-- 余额来源记录 -->
+    <div class="common">
+      <div class="title">余额来源记录</div>
+      <div class="table">
+        <div class="table_top">
+          <span>余额：{{content.balance}}元 (总计{{balanceItemsSize}}条)</span>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="balanceItemsSize"
+            :page-size="10"
+            @current-change="pagebalanceItems($event)"
+          ></el-pagination>
+        </div>
+        <el-table :data="balanceItemsData" border style="width: 100%">
+          <el-table-column prop="tradeTime" label="时间" align="center">
+            <template slot-scope="scope">{{scope.row.tradeTime | dateFormat}}</template>
+          </el-table-column>
+          <el-table-column prop="tradeAmount" label="金额" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="remark" label="来源" align="center"></el-table-column>
+        </el-table>
+      </div>
+    </div>
+
+    <!-- 邀请好友记录 -->
+    <div class="common">
+      <div class="title">邀请好友记录</div>
+      <div class="table">
+        <div class="table_top">
+          <span>总计邀请：{{content.teamCount}}人 (总计{{teamItemsSize}}条)</span>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="teamItemsSize"
+            :page-size="10"
+            @current-change="pageteamItems($event)"
+          ></el-pagination>
+        </div>
+        <el-table :data="teamItemsData" border style="width: 100%">
+          <el-table-column prop="registryTime" label="时间" align="center">
+            <template slot-scope="scope">{{scope.row.registryTime | dateFormat}}</template>
+          </el-table-column>
+          <el-table-column prop="mobileNumber" label="下级注册号" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="roleName" label="身份" align="center"></el-table-column>
+        </el-table>
+      </div>
+    </div>
+
+    <!-- 充值记录 -->
+    <div class="common">
+      <div class="title">充值记录</div>
+      <div class="table">
+        <div class="table_top">
+          <span>总计充值：{{content.amountRechargeSum}}元 (总计{{rechargeItemsSize}}条)</span>
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="rechargeItemsSize"
+            :page-size="10"
+            @current-change="pagerechargeItems($event)"
+          ></el-pagination>
+        </div>
+        <el-table :data="rechargeItemsData" border style="width: 100%">
+          <el-table-column prop="tradeTime" label="充值时间" align="center">
+            <template slot-scope="scope">{{scope.row.tradeTime | dateFormat}}</template>
+          </el-table-column>
+          <el-table-column prop="tradeAmount" label="充值金额" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="remark" label="充值方式" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="status" label="是否退款" align="center">
+            <template slot-scope="scope">
+              <span v-if="scope.row.status == 1">是</span>
+              <span v-if="scope.row.status == 2">否</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </div>
+
     <!-- 钻石合伙人身份收益 -->
-    <div class="title" style="margin-top:10px;">钻石合伙人身份收益（{{content.isExpired == 1? '已到期':'未到期'}}）：</div>
+    <div
+      class="title"
+      style="margin-top:10px;border-bottom:1px solid #ccc;"
+    >钻石合伙人身份收益（{{content.isExpired == 1? '已到期':'未到期'}}）：</div>
     <div
       style="margin-top:10px;"
     >下级数量：钻石合伙人数量：{{content.diamondTeamCount}}个，合伙人：{{content.plusTeamCount}}个，普通用户：{{content.normalTeamCount}}个</div>
@@ -40,7 +162,6 @@
       <span class="demonstration">发展钻石合伙人收益记录表：（总计{{openDiamondMemberIncomeItemsTotal}}条）</span>
       <el-pagination
         @current-change="handleCurrentChange1"
-        :current-page.sync="currentPage1"
         :page-size="10"
         layout="prev, pager, next"
         :total="openDiamondMemberIncomeItemsTotal"
@@ -61,7 +182,6 @@
       <span class="demonstration">发展用消费收益记录表：（总计{{teamBuyGoodsIncomeItemsTotal}}条）</span>
       <el-pagination
         @current-change="handleCurrentChange2"
-        :current-page.sync="currentPage2"
         :page-size="10"
         layout="prev, pager, next"
         :total="teamBuyGoodsIncomeItemsTotal"
@@ -92,24 +212,15 @@
         </el-table-column>
         <el-table-column prop="orderType" label="购买方式" align="center" width="160">
           <template slot-scope="scope">
-            <span v-if="scope.row.orderType == 0">正常购买</span>
-            <span v-if="scope.row.orderType == 1">正常购买</span>
-            <span v-if="scope.row.orderType == 3">新人免费体验订单</span>
-            <span v-if="scope.row.orderType == 4">信用卡用户免费领订单</span>
-            <span v-if="scope.row.orderType == 5">渠道合作活动订单</span>
-            <span v-if="scope.row.orderType == 6">FreeBuy活动订单</span>
-            <span v-if="scope.row.orderType == 7">FreeBuy订单</span>
-            <span v-if="scope.row.orderType == 8">线下-普通订单</span>
-            <span v-if="scope.row.orderType == 9">线下-FreeBuy订单</span>
-            <span v-if="scope.row.orderType == 10">FreeBuy转正常购买</span>
-            <span v-if="scope.row.orderType == 11">钻石合伙人订单</span>
+            <span>{{scope.row.orderType | orderType}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="goodsName" label="购买商品" align="center" width="160"></el-table-column>
         <el-table-column prop="gainAmount" label="返佣" align="center"></el-table-column>
       </el-table>
     </div>
-    <div class="title" style="margin-top:20px;">消费信息：</div>
+    <!-- 消费信息 -->
+    <div class="title" style="margin-top:20px;border-bottom:1px solid #ccc;">消费信息：</div>
     <div style="display:flex">
       <!-- 线上消费信息 -->
       <div>
@@ -119,7 +230,6 @@
           >线上消费：{{content.onlineConsumeSum}}元（总计：{{onlineConsumeItemsTotal}}条）</span>
           <el-pagination
             @current-change="handleCurrentChange3"
-            :current-page.sync="currentPage3"
             :page-size="10"
             layout="prev, pager, next"
             :total="onlineConsumeItemsTotal"
@@ -135,17 +245,7 @@
             <el-table-column prop="storeName" label="商家" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column prop="orderType" label="购买方式" align="center" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span v-if="scope.row.orderType == 0">正常购买</span>
-                <span v-if="scope.row.orderType == 1">正常购买</span>
-                <span v-if="scope.row.orderType == 3">新人免费体验订单</span>
-                <span v-if="scope.row.orderType == 4">信用卡用户免费领订单</span>
-                <span v-if="scope.row.orderType == 5">渠道合作活动订单</span>
-                <span v-if="scope.row.orderType == 6">FreeBuy活动订单</span>
-                <span v-if="scope.row.orderType == 7">FreeBuy订单</span>
-                <span v-if="scope.row.orderType == 8">线下-普通订单</span>
-                <span v-if="scope.row.orderType == 9">线下-FreeBuy订单</span>
-                <span v-if="scope.row.orderType == 10">FreeBuy转正常购买</span>
-                <span v-if="scope.row.orderType == 11">钻石合伙人订单</span>
+                <span>{{scope.row.orderType | orderType}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="goodsName" label="购买商品" align="center" show-overflow-tooltip></el-table-column>
@@ -161,7 +261,6 @@
           >线下消费：{{content.offlineConsumeSum}}元（总计：{{offlineConsumeItemsTotal}}条）</span>
           <el-pagination
             @current-change="handleCurrentChange4"
-            :current-page.sync="currentPage4"
             :page-size="10"
             layout="prev, pager, next"
             :total="offlineConsumeItemsTotal"
@@ -177,17 +276,7 @@
             <el-table-column prop="storeName" label="商家" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column prop="orderType" label="购买方式" align="center" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span v-if="scope.row.orderType == 0">正常购买</span>
-                <span v-if="scope.row.orderType == 1">正常购买</span>
-                <span v-if="scope.row.orderType == 3">新人免费体验订单</span>
-                <span v-if="scope.row.orderType == 4">信用卡用户免费领订单</span>
-                <span v-if="scope.row.orderType == 5">渠道合作活动订单</span>
-                <span v-if="scope.row.orderType == 6">FreeBuy活动订单</span>
-                <span v-if="scope.row.orderType == 7">FreeBuy订单</span>
-                <span v-if="scope.row.orderType == 8">线下-普通订单</span>
-                <span v-if="scope.row.orderType == 9">线下-FreeBuy订单</span>
-                <span v-if="scope.row.orderType == 10">FreeBuy转正常购买</span>
-                <span v-if="scope.row.orderType == 11">钻石合伙人订单</span>
+                <span>{{scope.row.orderType | orderType}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="goodsName" label="购买商品" align="center" show-overflow-tooltip></el-table-column>
@@ -215,19 +304,32 @@ export default {
   data() {
     return {
       id: "",
+      // 所有信息
       content: {},
-      currentPage1: 1,
-      currentPage2: 1,
-      currentPage3: 1,
-      currentPage4: 1,
-      openDiamondMemberIncomeItemsTotal: 0, //发展钻石合伙人收益记录表数量
-      openDiamondMemberIncomeItems: [], //发展钻石合伙人收益记录表
-      teamBuyGoodsIncomeItemsTotal: 0, //发展用消费收益记录表数量
-      teamBuyGoodsIncomeItems: [], //发展用消费收益记录表
-      onlineConsumeItemsTotal: 0, // 线上消费总数
-      onlineConsumeItems: [], // 线上消费数据
-      offlineConsumeItemsTotal: 0, // 线下消费总数
-      offlineConsumeItems: [] // 线下消费数据
+      // 待返明细和条数
+      noCashBackItemsData: [],
+      noCashBackItemsSize: 0,
+      // 余额来源记录
+      balanceItemsData: [],
+      balanceItemsSize: 0,
+      // 邀请好友记录
+      teamItemsData: [],
+      teamItemsSize: 0,
+      // 充值记录
+      rechargeItemsData: [],
+      rechargeItemsSize: 0,
+      // 发展钻石合伙人收益记录
+      openDiamondMemberIncomeItems: [],
+      openDiamondMemberIncomeItemsTotal: 0,
+      // 发展用消费收益记录
+      teamBuyGoodsIncomeItems: [],
+      teamBuyGoodsIncomeItemsTotal: 0,
+      // 线上消费
+      onlineConsumeItems: [],
+      onlineConsumeItemsTotal: 0,
+      // 线下消费
+      offlineConsumeItems: [],
+      offlineConsumeItemsTotal: 0
     };
   },
   created() {
@@ -247,15 +349,31 @@ export default {
         if (res.data.messageCode == "MSG_1001") {
           let data = res.data.content;
           this.content = res.data.content;
+          // 待返记录明细和条数
+          this.noCashBackItemsData = data.noCashBackItems.items;
+          this.noCashBackItemsSize = data.noCashBackItems.totalSize;
+          // 余额来源记录
+          this.balanceItemsData = data.balanceItems.items;
+          this.balanceItemsSize = data.balanceItems.totalSize;
+          // 邀请好友记录
+          this.teamItemsData = data.teamItems.items;
+          this.teamItemsSize = data.teamItems.totalSize;
+          // 充值记录
+          this.rechargeItemsData = data.rechargeItems.items;
+          this.rechargeItemsSize = data.rechargeItems.totalSize;
+          // 发展钻石合伙人收益记录
           this.openDiamondMemberIncomeItemsTotal =
             data.openDiamondMemberIncomeItems.totalSize;
           this.openDiamondMemberIncomeItems =
             data.openDiamondMemberIncomeItems.items;
+          // 发展用消费收益记录
           this.teamBuyGoodsIncomeItemsTotal =
             data.teamBuyGoodsIncomeItems.totalSize;
           this.teamBuyGoodsIncomeItems = data.teamBuyGoodsIncomeItems.items;
+          // 线上消费
           this.onlineConsumeItemsTotal = data.onlineConsumeItems.totalSize;
           this.onlineConsumeItems = data.onlineConsumeItems.items;
+          // 线下消费
           this.offlineConsumeItemsTotal = data.offlineConsumeItems.totalSize;
           this.offlineConsumeItems = data.offlineConsumeItems.items;
         } else {
@@ -263,79 +381,89 @@ export default {
         }
       });
     },
-    // 仅返回发展钻石合伙人收益记录
-    handleCurrentChange1(val) {
+
+    // 根据flag查询单项信息
+    diamondMemberDetailItmes(val, flag) {
       let parms = {
         pageNumber: val,
         pageSize: 10,
         id: this.id,
-        flag: 7
+        flag: flag
       };
       diamondMemberDetail({ params: parms }).then(res => {
         if (res.data.messageCode == "MSG_1001") {
-          let data = res.data.content.openDiamondMemberIncomeItems;
-          this.currentPage1 = val;
-          this.openDiamondMemberIncomeItems = data.items;
+          let data = res.data.content;
+          switch (flag) {
+            case 2:
+              this.onlineConsumeItems = data.onlineConsumeItems.items;
+              break;
+            case 3:
+              this.offlineConsumeItems = data.offlineConsumeItems.items;
+              break;
+            case 7:
+              this.openDiamondMemberIncomeItems =
+                data.openDiamondMemberIncomeItems.items;
+              break;
+            case 8:
+              this.teamBuyGoodsIncomeItems = data.teamBuyGoodsIncomeItems.items;
+              break;
+            case 10:
+              this.noCashBackItemsData = data.noCashBackItems.items;
+              break;
+            case 11:
+              this.balanceItemsData = data.balanceItems.items;
+              break;
+            case 12:
+              this.teamItemsData = data.teamItems.items;
+              break;
+            case 13:
+              this.rechargeItemsData = data.rechargeItems.items;
+              break;
+          }
         } else {
           this.$message.error(res.data.message);
         }
       });
     },
+
+    // 待返记录翻页
+    pageChangenoCashBackItems(val) {
+      this.diamondMemberDetailItmes(val, 10);
+    },
+
+    // 余额来源记录翻页
+    pagebalanceItems(val) {
+      this.diamondMemberDetailItmes(val, 11);
+    },
+
+    // 邀请好友记录翻页
+    pageteamItems(val) {
+      this.diamondMemberDetailItmes(val, 12);
+    },
+
+    // 充值记录
+    pagerechargeItems() {
+      this.diamondMemberDetailItmes(val, 13);
+    },
+
+    // 仅返回发展钻石合伙人收益记录
+    handleCurrentChange1(val) {
+      this.diamondMemberDetailItmes(val, 7);
+    },
+
     // 仅返回发展用户消费收益记录
     handleCurrentChange2(val) {
-      let parms = {
-        pageNumber: val,
-        pageSize: 10,
-        id: this.id,
-        flag: 8
-      };
-      diamondMemberDetail({ params: parms }).then(res => {
-        if (res.data.messageCode == "MSG_1001") {
-          let data = res.data.content.teamBuyGoodsIncomeItems;
-          this.currentPage2 = val;
-          this.teamBuyGoodsIncomeItems = data.items;
-        } else {
-          this.$message.error(res.data.message);
-        }
-      });
+      this.diamondMemberDetailItmes(val, 8);
     },
 
     // 仅返回线上消费信息
     handleCurrentChange3(val) {
-      let parms = {
-        pageNumber: val,
-        pageSize: 10,
-        id: this.id,
-        flag: 2
-      };
-      diamondMemberDetail({ params: parms }).then(res => {
-        if (res.data.messageCode == "MSG_1001") {
-          let data = res.data.content.onlineConsumeItems;
-          this.currentPage3 = val;
-          this.onlineConsumeItems = data.items;
-        } else {
-          this.$message.error(res.data.message);
-        }
-      });
+      this.diamondMemberDetailItmes(val, 2);
     },
 
     // 仅返回线下消费信息
     handleCurrentChange4(val) {
-      let parms = {
-        pageNumber: val,
-        pageSize: 10,
-        id: this.id,
-        flag: 3
-      };
-      diamondMemberDetail({ params: parms }).then(res => {
-        if (res.data.messageCode == "MSG_1001") {
-          let data = res.data.content.offlineConsumeItems;
-          this.currentPage4 = val;
-          this.offlineConsumeItems = data.items;
-        } else {
-          this.$message.error(res.data.message);
-        }
-      });
+      this.diamondMemberDetailItmes(val, 3);
     }
   }
 };
@@ -354,6 +482,29 @@ export default {
     .items {
       padding: 15px 0px;
       margin-right: 80px;
+    }
+  }
+  .common {
+    margin-bottom: 30px;
+    .title {
+      border-bottom: 1px solid #cccccc;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .content_table {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      .table {
+        width: 500px;
+      }
+    }
+    .table_top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
     }
   }
 }

@@ -214,6 +214,18 @@ export default {
           ]
         },
         {
+          title: "分期购管理",
+          nav: [
+            {
+              title: "分期购申请",
+              active: false,
+              path: {
+                path: "/stagesApply"
+              }
+            }
+          ]
+        },
+        {
           title: "心愿池管理",
           nav: [
             {
@@ -351,6 +363,18 @@ export default {
               active: false,
               path: {
                 path: "/notice"
+              }
+            }
+          ]
+        },
+        {
+          title: "数据统计",
+          nav: [
+            {
+              title: "订单数据统计",
+              active: false,
+              path: {
+                path: "/orderData"
               }
             }
           ]
@@ -512,10 +536,15 @@ export default {
   height: 100vh;
   overflow: hidden;
   background: #ffffff;
-
+  // 隐藏滚动条 - chrome浏览器
+  .nav::-webkit-scrollbar {
+    width: 0 !important;
+  }
   .nav {
     height: 100vh;
     background: #333333;
+    // 隐藏滚动条 - 兼容IE10+
+    -ms-overflow-style: none;
 
     .logo {
       display: flex;

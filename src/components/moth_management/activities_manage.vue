@@ -7,7 +7,7 @@
         <div>渠道合作活动</div>
         <div>(新人免费体验)</div>
       </div>
-      <!-- <div class="items">自定义活动页</div> -->
+      <div class="items" @click="nav('./supportPage')">赞助活动</div>
     </div>
   </div>
 </template>

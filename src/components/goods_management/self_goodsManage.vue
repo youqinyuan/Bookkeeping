@@ -181,7 +181,7 @@ export default {
         children: "nextLevelData"
       },
       options_class: [],
-      selectedOptions_class: "",
+      selectedOptions_class: "全部",
       options_status: [
         {
           value: "",
@@ -323,7 +323,14 @@ export default {
     // 获取商品分类
     getGoodsCategory() {
       getGoodsClassRequest().then(res => {
-        this.options_class = this.getTreeData(res.data.content);
+        let content = res.data.content;
+        let data = {
+          id: "全部",
+          name: "全部",
+          nextLevelData: []
+        };
+        content.splice(0, 0, data);
+        this.options_class = this.getTreeData(content);
       });
     },
     // 递归方法
@@ -351,7 +358,7 @@ export default {
       obj.pageSize = 10;
       obj.goodsName = this.name;
       obj.categoryId =
-        this.selectedOptions_class == ""
+        this.selectedOptions_class == "全部"
           ? ""
           : this.selectedOptions_class[this.selectedOptions_class.length - 1];
       obj.issueStatus = this.value == "全部" ? "" : this.value;
@@ -386,8 +393,8 @@ export default {
       })
         .then(() => {
           let param = {
-            ids:ids
-          }
+            ids: ids
+          };
           deleteGoods(param).then(res => {
             if (res.data.messageCode == "MSG_1001") {
               this.search(1);

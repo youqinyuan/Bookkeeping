@@ -34,6 +34,7 @@ const getExcel = ids => request.get('/order/getMerchantAuditListExcel', {
   },
   responseType: 'blob'
 }) // 导出excel
+
 const getMerchantAuditListByWhereExcel = p => request.get('/order/getMerchantAuditListByWhereExcel', {
   params: p,
   responseType: 'blob'
@@ -48,9 +49,16 @@ const getLogisticsExcelTemplet = p => request.get('/order/getLogisticsExcelTempl
 
 
 
-// dupeng
+// 首页
 const getDashboard = p => request.get('/dashboard/getDashboard', p) // 获取首页仪表盘信息
 
+// 分期购申请
+const applyGoodsStages = p => request.get('/installment/applyGoods', p) // 查询商品分期购申请
+const refuseStages = p => request.post('/installment/refuse', p) // 拒绝申请
+const exportInstallmentGoodsExcel = p => request.get('/installment/exportInstallmentGoodsExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 导出excel
 
 // 商家管理模块
 const getMerchantBusinessList = p => request.get('/merchant/getMerchantBusinessList', p) // 获取商户行业分类列表
@@ -200,6 +208,21 @@ const exportWishGoodsExcel = p => request.get('/wishGoods/exportWishGoodsExcel',
   responseType: 'blob'
 }) //心愿管理导出查询内容
 
+const addSupport = p => request.post('/marketingAuspicesGoods/add', p) // 添加赞助活动商品
+const queryPageListSupport = p => request.get('/marketingAuspicesGoods/queryPageList', p) // 获取赞助活动列表
+const updateIssueStatusSupport = p => request.post('/marketingAuspicesGoods/updateIssueStatus', p) // 赞助商品的上架和下架
+const updateOrderNumberSupport = p => request.post('/marketingAuspicesGoods/updateOrderNumber', p) // 设置赞助商品的排序值
+const getAuspicesParamConfig = p => request.get('/paramConfig/getAuspicesParamConfig', p) // 获取赞助规则
+const updateAuspicesParamConfig = p => request.post('/paramConfig/updateAuspicesParamConfig', p) // 修改赞助规则
+
+
+// 订单数据统计
+const queryOrderListOrderData = p => request.get('order/data/queryOrderList', p) // 查询订单数据统计列表
+const queryOrderListOrderDataExcel = p => request.get('order/data/queryOrderListExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 导出查询订单数据统计列表
+
 
 // 内容管理
 const findPageListForum = p => request.get('/forum/topic/findPageList', p) // 分页查询论坛内容
@@ -227,6 +250,17 @@ const updateNoticeSet = p => request.post('/wechat/updateNoticeSet', p) // 更�
 export {
   getDashboard,
   removeForumcomment,
+  applyGoodsStages,
+  exportInstallmentGoodsExcel,
+  updateIssueStatusSupport,
+  updateAuspicesParamConfig,
+  queryPageListSupport,
+  queryOrderListOrderDataExcel,
+  updateOrderNumberSupport,
+  queryOrderListOrderData,
+  addSupport,
+  getAuspicesParamConfig,
+  refuseStages,
   findPageListForum,
   removeForum,
   updateIsTopForum,

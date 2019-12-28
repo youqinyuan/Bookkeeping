@@ -132,6 +132,14 @@ export default {
         {
           id: 9,
           name: "FreeBuy活动页"
+        },
+        {
+          id: 10,
+          name: "分期购活动页"
+        },
+        {
+          id: 11,
+          name: "赞助活动页"
         }
       ],
       valueOne: "",

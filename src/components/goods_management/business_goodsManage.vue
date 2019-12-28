@@ -172,7 +172,7 @@ export default {
         children: "nextLevelData"
       },
       options_class: [],
-      selectedGoodsId: "", // 已选商品分类ID
+      selectedGoodsId: "全部", // 已选商品分类ID
       showGoodsClass: true,
       multipleSelection: [] // checkbox 选中数据
     };
@@ -214,13 +214,25 @@ export default {
     getMerchantBusinessList() {
       getMerchantBusinessList().then(res => {
         this.Category = res.data.content;
+        let data = {
+          id: "",
+          name: "全部"
+        };
+        this.Category.splice(0, 0, data);
       });
     },
 
     // 获取商品分类
     getGoodsCategory() {
       getGoodsClassRequest().then(res => {
-        this.options_class = this.getTreeData(res.data.content);
+        let content = res.data.content;
+        let data = {
+          id: "全部",
+          name: "全部",
+          nextLevelData: []
+        };
+        content.splice(0, 0, data);
+        this.options_class = this.getTreeData(content);
       });
     },
 
@@ -263,7 +275,7 @@ export default {
       obj.merchantName = this.businessName;
       obj.businessId = this.valueCategory;
       obj.categoryId =
-        this.selectedGoodsId == ""
+        this.selectedGoodsId == "全部"
           ? ""
           : this.selectedGoodsId[this.selectedGoodsId.length - 1];
       this.getMerchantGoodsList(obj);

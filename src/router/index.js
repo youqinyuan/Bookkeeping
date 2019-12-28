@@ -313,6 +313,21 @@ export default new Router({
           path: '/addNavigation',
           name: 'addNavigation',
           component: resolve => require(['@/components/moth_management/navigation/addNavigation'], resolve)
+        },
+        {
+          path: '/stagesApply',
+          name: 'stagesApply',
+          component: resolve => require(['@/components/stages_management/stagesApply'], resolve)
+        },
+        {
+          path: '/orderData',
+          name: 'orderData',
+          component: resolve => require(['@/components/data/orderData'], resolve)
+        },
+        {
+          path: '/supportPage',
+          name: 'supportPage',
+          component: resolve => require(['@/components/moth_management/support/supportPage'], resolve)
         }
       ]
     }

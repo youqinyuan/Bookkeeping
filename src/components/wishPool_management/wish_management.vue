@@ -32,7 +32,7 @@
         <el-table-column label="注册电话" prop="mobileNumber" align="center"></el-table-column>
         <el-table-column label="提交心愿时间" align="center">
           <template slot-scope="scoped">
-            <span>{{scoped.row.createTime | getDateShow}}</span>
+            <span>{{scoped.row.createTime | dateFormat}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -71,17 +71,21 @@
     </div>
     <!-- 心愿完整内容弹框 -->
     <div class="wishDialog" v-if="showWishContent">
+      <div class="dialogTips">查看心愿内容</div>
+      <div class="dialogTitle">心愿名称、链接等信息</div>
+      <div class="wishContent">{{wishContent.wishContent?wishContent.wishContent:'无'}}</div>
+      <div class="dialogTitle">心愿规格、颜色、大小等信息</div>
+      <div class="wishContent">{{wishContent.contentDetail?wishContent.contentDetail:'无'}}</div>
+      <div class="dialogTitle">心愿图片</div>
       <div class="imgWrap" v-if="wishContent.imageList.length>0">
         <img
-          style="width:400px;"
           preview="1"
           v-for="(item,index) in wishContent.imageList"
           :key="index"
           :src="item.imageUrl"
         />
       </div>
-      <div class="noImg" v-else>暂无图片</div>
-      <div class="wishContent">{{wishContent.wishContent}}</div>
+      <div class="noImg" v-else>无</div>
       <div class="wishContentBtn">
         <el-button type="primary" @click="closeWishContent">确 定</el-button>
       </div>
@@ -136,22 +140,6 @@ export default {
   },
   components: {
     chooseGoodsPop
-  },
-  filters: {
-    getDateShow: function(value) {
-      let dt = new Date(value);
-      let y = dt.getFullYear();
-      let m = dt.getMonth() + 1;
-      let d = dt.getDate();
-      let h = dt.getHours();
-      let mi = dt.getMinutes();
-      y = y < 10 ? "0" + y : y;
-      m = m < 10 ? "0" + m : m;
-      d = d < 10 ? "0" + d : d;
-      h = h < 10 ? "0" + h : h;
-      mi = mi < 10 ? "0" + mi : mi;
-      return `${y}-${m}-${d} ${h}:${mi}`;
-    }
   },
   created() {
     this.search(1);
@@ -256,47 +244,52 @@ export default {
 </script>
 <style lang="less" scoped>
 .wishDialog {
-  max-width: 800px;
-  min-width: 400px;
-  border-radius: 4px;
+  width: 40%;
+  border-radius: 10px;
   background-color: #fff;
-  padding: 10px 0px;
+  padding: 20px;
   position: fixed;
   top: 22%;
-  left: 32%;
+  left: 30%;
   z-index: 100;
-  .imgWrap {
-    max-width: 800px;
-    min-width: 400px;
-    height: 200px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    display: flex;
-    align-items: center;
-    img {
-      min-width: 200px;
-      max-width: 200px;
-      height: 200px;
-    }
+  .dialogTips {
+    font-size: 16px;
   }
-  .noImg {
-    max-width: 800px;
-    min-width: 400px;
-    height: 200px;
-    line-height: 200px;
-    text-align: center;
-    color: #999;
+  .dialogTitle {
+    padding: 20px 0px;
+    font-weight: bold;
+    font-size: 15px;
   }
   .wishContent {
     width: 100%;
-    padding: 10px;
     word-wrap: break-word;
+    font-size: 14px;
+  }
+  .imgWrap {
+    width: 100%;
+    height: 150px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    img {
+      width: 150px;
+      height: 150px;
+      flex-shrink: 0;
+      margin-right: 6px;
+    }
+  }
+  .noImg {
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
   }
   .wishContentBtn {
     width: 100%;
+    padding: 0px 20px;
+    box-sizing: border-box;
     display: flex;
-    margin-top: 4px;
-    justify-content: center;
+    margin-top: 10px;
+    justify-content: flex-end;
   }
 }
 .bottom {

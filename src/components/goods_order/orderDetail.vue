@@ -36,12 +36,24 @@
         <span v-if="orderObj.orderType==8">购买方式：线下-普通订单</span>
         <span v-if="orderObj.orderType==9">购买方式：线下-FreeBuy订单</span>
         <span v-if="orderObj.orderType==10">购买方式：FreeBuy转正常购买</span>
+        <span v-if="orderObj.orderType==11">钻石合伙人订单</span>
+        <span v-if="orderObj.orderType==12">爱心捐助订单</span>
+        <span v-if="orderObj.orderType==13">好友赞助订单</span>
+        <span v-if="orderObj.orderType==14">FreeBuy赞助订单</span>
       </div>
       <div class="orderInfoItem">备注：{{remark?remark:'无'}}</div>
       <div
         class="orderInfoItem"
         v-if="orderObj.useSeed == 1"
       >种子抵扣：{{orderObj.deductionAmount}}元（消费{{orderObj.deductionSeed}}种子）</div>
+      <div class="orderInfoItem">
+        订单优惠总金额：{{orderObj.totalDiscount}}元（
+        <span
+          v-if="orderObj.useSeed == 1"
+        >积分减{{orderObj.deductionAmount}}元，</span>
+        <span>钻石合伙人{{orderObj.discountRatio}}折减{{orderObj.discountAmount}}元</span>
+        <span v-if="orderObj.useCoupon == 1">，钻石合伙人购物金减{{orderObj.shoppingAmount}}元</span>）
+      </div>
     </div>
     <div class="titleStyle">商品信息</div>
     <div class="orderInfoBox">
@@ -73,9 +85,10 @@
               <span v-if="ite.period==item.returnedPeriod+1">{{ite.returnTime | dateFormat}}</span>
             </span>
           </span>
-          )
+          ))
         </span>
-        ) 购买数量：{{item.quantity}}个
+        <span>购买数量：{{item.quantity}}个。</span>
+        <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
       </div>
     </div>
     <div class="titleStyle">用户信息</div>
@@ -203,7 +216,7 @@
         type="success"
         v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14"
         @click="refund(orderObj.id)"
-      >退款</el-button> -->
+      >退款</el-button>-->
       <el-button
         type="success"
         v-if="(orderObj.latestStatus==7 || orderObj.latestStatus==8 || orderObj.latestStatus==11) && orderObj.transStatementDetail.status!=14"

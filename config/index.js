@@ -13,7 +13,7 @@ module.exports = {
       '/api': {
         target: 'https://xuncaoji.yzsaas.cn:8085/opadmin', // 接口域名
         // target: 'https://xuncj.yzsaas.cn:8085/opadmin', // 正式
-        // target: 'http://192.168.1.108:8083/opadmin',  // 接口域名
+        // target: 'http://132.232.167.245:8081/opadmin', // 接口域名
         // target: 'http://192.168.1.235:8083/opadmin',  // 接口域名
         changeOrigin: true, //是否跨域
         pathRewrite: {

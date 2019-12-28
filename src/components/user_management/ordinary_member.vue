@@ -26,6 +26,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="referrerName" label="上级" align="center"></el-table-column>
+      <el-table-column prop="referrerMobileNumber" label="上级电话" align="center"></el-table-column>
       <el-table-column prop="balance" label="钱包余额(元)" width="130px" align="center">
         <template slot-scope="scope">
           <span
@@ -35,6 +36,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="buyCount" label="正常购买次数" width="100px" align="center"></el-table-column>
+      <el-table-column prop="rechargeCount" label="充值次数" width="100px" align="center"></el-table-column>
       <el-table-column prop="freeBuyCount" label="freebuy购买次数" width="100px" align="center"></el-table-column>
       <el-table-column prop="consumeBalance" label="累计消费金额(元)" align="center" width="140px"></el-table-column>
       <el-table-column label="操作" width="290" align="center">

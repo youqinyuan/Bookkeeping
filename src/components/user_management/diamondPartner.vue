@@ -34,11 +34,14 @@
             <span>{{scope.row.openTime | dateFormat}}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="referrerName" label="上级" align="center"></el-table-column>
+        <el-table-column prop="referrerMobileNumber" label="上级电话" align="center"></el-table-column>
         <el-table-column prop="diamondTeamCount" label="邀请钻石合伙人数量" align="center"></el-table-column>
         <el-table-column prop="plusTeamCount" label="邀请合伙人数量" align="center"></el-table-column>
         <el-table-column prop="teamCount" label="邀请用户数量" align="center"></el-table-column>
         <el-table-column prop="incomeAmount" label="总计收益（元）" align="center"></el-table-column>
         <el-table-column prop="commissionBalance" label="佣金金额" align="center"></el-table-column>
+        <el-table-column prop="rechargeCount" label="充值次数" align="center"></el-table-column>
         <el-table-column prop="buyCount" label="正常购买次数" align="center"></el-table-column>
         <el-table-column prop="freeBuyCount" label="freebuy购买次数" align="center"></el-table-column>
         <el-table-column prop="balance" label="账户余额（元）" align="center"></el-table-column>

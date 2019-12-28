@@ -109,13 +109,10 @@
                 v-if="!goodsDetailJson.essentialInfo.disabled"
                 @click="deleteVideo"
               />
-              <video
-                :src="videoSrc"
-                accept="video/*"
-                controls="controls"
-                width="300"
-                height="150"
-              >您的浏览器不支持 video 标签。</video>
+              <video :src="videoSrc" accept="video/*" controls="controls" width="300" height="150">
+                您的浏览器不支持 video
+                标签。
+              </video>
             </div>
           </el-form-item>
         </el-col>
@@ -281,6 +278,7 @@
             <div class="fill">折扣</div>
             <div>成本调控比例(%)</div>
             <div>赠送种子(积分)</div>
+            <div>赞助次数</div>
             <div>返现</div>
             <div>销量</div>
           </div>
@@ -303,12 +301,12 @@
               </el-row>
             </el-col>
 
-            <el-col v-for="(item, index) in 8" :key="'item' + index">
+            <el-col v-for="(item, index) in 9" :key="'item' + index">
               <el-row
                 v-for="(ite, dex) in RenderGoodsSpec[RenderGoodsSpec.length - 1]"
                 :key="'item' + dex"
               >
-                <el-col v-if="index < 6">
+                <el-col v-if="index < 7">
                   <div class="hh">
                     <el-input
                       v-model="userInputSpecDetail[index][dex]"
@@ -318,7 +316,7 @@
                   </div>
                 </el-col>
 
-                <el-col v-if="index === 6">
+                <el-col v-if="index === 7">
                   <div class="hh" style="width:100%;text-align: center;min-width:80px">
                     <el-button
                       type="text"
@@ -334,7 +332,7 @@
                   </div>
                 </el-col>
 
-                <el-col v-if="index === 7">
+                <el-col v-if="index === 8">
                   <div class="hh">
                     <div style="text-align: center;line-height: 40px;">{{ salesArr[dex] }}</div>
                   </div>
@@ -352,11 +350,11 @@
             </el-col>
             <el-col v-show="batchPrice.switch">
               <el-form-item>
-                <el-input v-model="batchPrice.moneyNum"></el-input>
+                <el-input v-model="batchPrice.moneyNum" style="width:90px;"></el-input>
                 <el-button
                   type="text"
                   @click="batchSave('batchPrice')"
-                  style="margin-right: 15px;"
+                  style="margin-right: 10px;"
                 >保存</el-button>
               </el-form-item>
             </el-col>
@@ -367,11 +365,11 @@
             </el-col>
             <el-col v-show="batchStock.switch">
               <el-form-item>
-                <el-input v-model.number="batchStock.moneyNum"></el-input>
+                <el-input v-model.number="batchStock.moneyNum" style="width:90px;"></el-input>
                 <el-button
                   type="text"
                   @click="batchSave('batchStock')"
-                  style="margin-right: 15px;"
+                  style="margin-right: 10px;"
                 >保存</el-button>
               </el-form-item>
             </el-col>
@@ -382,8 +380,8 @@
             </el-col>
             <el-col v-show="chengben.switch">
               <el-form-item>
-                <el-input v-model="chengben.moneyNum"></el-input>
-                <el-button type="text" @click="batchSave('chengben')" style="margin-right: 15px;">保存</el-button>
+                <el-input v-model="chengben.moneyNum" style="width:90px;"></el-input>
+                <el-button type="text" @click="batchSave('chengben')" style="margin-right: 10px;">保存</el-button>
               </el-form-item>
             </el-col>
             <el-col style="width: 40px !important;">
@@ -393,8 +391,8 @@
             </el-col>
             <el-col v-show="zhekou.switch">
               <el-form-item>
-                <el-input v-model="zhekou.moneyNum"></el-input>
-                <el-button type="text" @click="batchSave('zhekou')" style="margin-right: 15px;">保存</el-button>
+                <el-input v-model="zhekou.moneyNum" style="width:60px;"></el-input>
+                <el-button type="text" @click="batchSave('zhekou')" style="margin-right: 10px;">保存</el-button>
               </el-form-item>
             </el-col>
             <el-col style="width: 90px !important;">
@@ -404,8 +402,23 @@
             </el-col>
             <el-col v-show="bili.switch">
               <el-form-item>
-                <el-input v-model="bili.moneyNum"></el-input>
-                <el-button type="text" @click="batchSave('bili')" style="margin-right: 15px;">保存</el-button>
+                <el-input v-model="bili.moneyNum" style="width:80px;"></el-input>
+                <el-button type="text" @click="batchSave('bili')" style="margin-right: 10px;">保存</el-button>
+              </el-form-item>
+            </el-col>
+            <el-col style="width: 90px !important;">
+              <el-form-item>
+                <el-button type="text" @click="batchOperation('supportNum')">赞助次数</el-button>
+              </el-form-item>
+            </el-col>
+            <el-col v-show="supportNum.switch">
+              <el-form-item>
+                <el-input v-model="supportNum.moneyNum" style="width:60px;"></el-input>
+                <el-button
+                  type="text"
+                  @click="batchSave('supportNum')"
+                  style="margin-right: 10px;"
+                >保存</el-button>
               </el-form-item>
             </el-col>
 
@@ -952,8 +965,13 @@ export default {
         switch: false // 显示隐藏
       },
       bili: {
-        // 批量折扣
-        moneyNum: "", // 折扣
+        // 成本调控比例
+        moneyNum: "", // 比例
+        switch: false // 显示隐藏
+      },
+      supportNum: {
+        // 赞助次数
+        moneyNum: "", // 次数
         switch: false // 显示隐藏
       },
       batchFx: true, // 是否禁用批量设置返现
@@ -1124,10 +1142,16 @@ export default {
       }
 
       if (!periodItems) {
-        this.cashbackDetail.periodScope.periodItems = [{ periods: "" }];
+        this.cashbackDetail.periodScope.periodItems = [
+          {
+            periods: ""
+          }
+        ];
         return;
       } else {
-        this.cashbackDetail.periodScope.periodItems.push({ periods: "" });
+        this.cashbackDetail.periodScope.periodItems.push({
+          periods: ""
+        });
       }
       console.log(this.cashbackDetail);
     },
@@ -1157,11 +1181,15 @@ export default {
     // 获取商品详情
     async getGoodsDetail(id) {
       await this.getGoodsClass();
-      let res = await queryGoodsDetailRequest({ params: { id } });
+      let res = await queryGoodsDetailRequest({
+        params: {
+          id
+        }
+      });
 
       if (res.data.messageCode === "MSG_1001") {
         let content = res.data.content;
-        console.log(content);
+        // console.log(content);
 
         this.form.goodsName = content.name;
         this.form.goodsDcb = content.sharedDesc;
@@ -1259,6 +1287,7 @@ export default {
 
     // 处理接口返回商品规格数据
     handleStockDetail(detail) {
+      console.log(detail);
       let index = 0;
       let len = this.userInputSpecDetail[0].length;
       let keyArr = Object.keys(detail).sort();
@@ -1277,6 +1306,7 @@ export default {
           ? detail[item].costControlRatio
           : null;
         this.userInputSpecDetail[5][i] = detail[item].sendSeed;
+        this.userInputSpecDetail[6][i] = detail[item].supportCount;
         this.salesArr.push(detail[item].sales);
         this.cashback[i].money =
           Math.floor(detail[item].orgPrice * detail[item].dctRate * 10) / 100;
@@ -1284,9 +1314,18 @@ export default {
         this.cashback[i].specId = detail[item].specId;
         this.cashback[i].periodScope =
           detail[item].specPeriodScope == null
-            ? { minPeriod: "", maxPeriod: "", periodItems: [{ periods: "" }] }
+            ? {
+                minPeriod: "",
+                maxPeriod: "",
+                periodItems: [
+                  {
+                    periods: ""
+                  }
+                ]
+              }
             : detail[item].specPeriodScope;
       }
+      console.log(this.userInputSpecDetail);
 
       this.cashback.map((item, dex) => {
         if (item.specCashBacks.length > 0) {
@@ -1443,29 +1482,21 @@ export default {
 
       this.handleStockDetailParam(); // 处理商品规格详细信息参数
       stockDetail = this.stockDetailParam;
-      // 验证成本调控比例的输入格式
-      let rxp = /^-?(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/;
+
+      // 校验商品规格输入内容
       for (let item in stockDetail) {
-        // 验证成本调控比例的格式
-        if (stockDetail[item].costControlRatio) {
-          if (
-            !rxp.test(stockDetail[item].costControlRatio) ||
-            stockDetail[item].costControlRatio > 100 ||
-            stockDetail[item].costControlRatio < -100
-          ) {
-            this.$message.error("成本调控比例格式不正确");
-            return;
-          }
-        }
-        // 验证商品规格是否填写完整
         if (
-          !stockDetail[item].dctPrice ||
-          !stockDetail[item].dctRate ||
-          !stockDetail[item].orgPrice ||
-          !stockDetail[item].stock
+          !this.checkSpec(
+            stockDetail[item].orgPrice,
+            stockDetail[item].stock,
+            stockDetail[item].dctPrice,
+            stockDetail[item].dctRate,
+            stockDetail[item].costControlRatio,
+            stockDetail[item].sendSeed,
+            stockDetail[item].supportCount
+          )
         ) {
-          this.$message.error("请将商品规格填写完整");
-          return;
+          return false;
         }
       }
 
@@ -1628,7 +1659,12 @@ export default {
 
     // 获取商家列表数据
     async getBusinessOptions() {
-      let businessOptions = [{ label: "自营", value: null }];
+      let businessOptions = [
+        {
+          label: "自营",
+          value: null
+        }
+      ];
       let res = await getBusinessOptionsRequest();
 
       if (res.data.messageCode === "MSG_1001") {
@@ -1886,6 +1922,7 @@ export default {
       let keyArr = [];
       let nowIndex = 0;
       let len = this.goodsSpec.length;
+      console.log(len);
 
       this.goodsSpecTle = this.deepCopy(this.goodsSpec);
       this.specImgParam = this.deepCopy(this.specImg);
@@ -1951,7 +1988,7 @@ export default {
       let arr = [];
       let len = array[array.length - 1].length;
       let val = "";
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 7; i++) {
         ar = [];
         for (let j = 0; j < len; j++) {
           ar.push(val);
@@ -2021,6 +2058,8 @@ export default {
         index = 3;
       } else if (type === "bili") {
         index = 4;
+      } else if (type === "supportNum") {
+        index = 6;
       }
 
       if (this[type].moneyNum === "") {
@@ -2115,12 +2154,18 @@ export default {
           periodScope: {
             minPeriod: 0.5,
             maxPeriod: 48,
-            periodItems: [{ periods: 0.5 }, { periods: 48 }]
+            periodItems: [
+              {
+                periods: 0.5
+              },
+              {
+                periods: 48
+              }
+            ]
           }
         });
       }
       console.log(arr);
-      console.log(this.cashback);
       if (this.cashback.length > 0) {
         for (var i = 0; i < arr.length; i++) {
           arr[i] = this.cashback[i] == undefined ? arr[i] : this.cashback[i];
@@ -2321,6 +2366,8 @@ export default {
       let cost = null; // 成本价
       let discount = null; // 折扣
       let costControlRatio = null; //成本调控比例
+      let sendSeed = null; //赠送种子
+      let supportCount = null; // 赞助次数
 
       if (!(len > 0)) return true;
 
@@ -2332,9 +2379,22 @@ export default {
         stock = this.userInputSpecDetail[1][i]; // 库存
         cost = this.userInputSpecDetail[2][i]; // 成本价
         discount = this.userInputSpecDetail[3][i]; // 折扣
-        costControlRatio = this.userInputSpecDetail[4][i]; // 折扣
+        costControlRatio = this.userInputSpecDetail[4][i]; // 成本调控比例
+        sendSeed = this.userInputSpecDetail[5][i]; // 赠送种子
+        supportCount = this.userInputSpecDetail[6][i]; // 赞助次数
 
-        if (!this.checkSpec(price, stock, cost, discount)) return false;
+        if (
+          !this.checkSpec(
+            price,
+            stock,
+            cost,
+            discount,
+            costControlRatio,
+            sendSeed,
+            supportCount
+          )
+        )
+          return false;
       }
 
       return true;
@@ -2386,6 +2446,9 @@ export default {
           key
         ].costControlRatio = this.userInputSpecDetail[4][i];
         this.stockDetailParam[key].sendSeed = this.userInputSpecDetail[5][i];
+        this.stockDetailParam[key].supportCount = this.userInputSpecDetail[6][
+          i
+        ];
         this.stockDetailParam[key].specCashBacks = this.cashback[
           i
         ].specCashBacks;
@@ -2565,13 +2628,25 @@ export default {
      * @param {number} stock 库存
      * @param {number} cost 成本价
      * @param {number} discount 折扣
+     * @param {number} costControlRatio 成本调控比例
+     * @param {number} sendSeed 赠送种子
+     * @param {number} supportCount 赞助次数
+     *
      */
-    checkSpec(price, stock, cost, discount) {
+    checkSpec(
+      price,
+      stock,
+      cost,
+      discount,
+      costControlRatio,
+      sendSeed,
+      supportCount
+    ) {
       if (price === "" || stock === "" || cost === "" || discount === "") {
         this.alertTips("商品规格未填写完全");
         return false;
-      } else if (/^[1-9]\d*$/.test(stock) !== true) {
-        this.alertTips("库存只能输入大于0的正整数");
+      } else if (/^[0-9]\d*$/.test(stock) !== true) {
+        this.alertTips("库存只能输入大于等于0的正整数");
         return false;
       } else if (!(this.checkNum(price) && this.checkNum(cost))) {
         this.alertTips("原价和成本价金额范围为0.01~99999999.99之间");
@@ -2581,6 +2656,23 @@ export default {
         return false;
       } else if (discount > 10) {
         this.alertTips("折扣为1-10之间小数点后最多一位");
+        return false;
+      } else if (
+        costControlRatio &&
+        (!/^-?(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/.test(costControlRatio) ||
+          costControlRatio > 100 ||
+          costControlRatio < -100)
+      ) {
+        this.alertTips("成本调控比例格式不正确");
+        return false;
+      } else if (sendSeed && !/^[0-9]\d*$/.test(sendSeed)) {
+        this.alertTips("赠送种子格式不正确");
+        return false;
+      } else if (
+        supportCount &&
+        (!/^[0-9]\d*$/.test(supportCount) || supportCount > 100)
+      ) {
+        this.alertTips("赞助次数格式不正确");
         return false;
       } else {
         return true;
@@ -2595,6 +2687,7 @@ export default {
   width: 300px;
   height: 150px;
   position: relative;
+
   img {
     width: 30px;
     height: 30px;
@@ -2604,8 +2697,10 @@ export default {
     z-index: 100;
   }
 }
+
 .filevideo {
   margin-bottom: 15px;
+
   input {
     position: absolute;
     font-size: 100px;
@@ -2946,6 +3041,7 @@ export default {
         .content {
           border-right: 1px solid #dddddd;
           border-bottom: 1px solid #dddddd;
+
           .hh {
             margin-left: 0 !important;
             padding: 5px;

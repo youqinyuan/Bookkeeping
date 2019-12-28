@@ -83,9 +83,9 @@
         style="width: 100%"
       >
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="orderNumber" label="订单编号" width="220"></el-table-column>
-        <el-table-column prop="userName" label="用户名" width="160"></el-table-column>
-        <el-table-column prop="mobileNumber" label="联系方式" width="140"></el-table-column>
+        <el-table-column prop="orderNumber" label="订单编号" width="200"></el-table-column>
+        <el-table-column prop="userName" label="用户名"></el-table-column>
+        <el-table-column prop="mobileNumber" label="联系方式" width="120"></el-table-column>
         <el-table-column prop="orderAmount" label="订单金额" width="120"></el-table-column>
         <el-table-column prop label="购买方式" width="160" align="center">
           <template slot-scope="scope">
@@ -98,11 +98,16 @@
             <span v-if="scope.row.orderType==8">线下-普通订单</span>
             <span v-if="scope.row.orderType==9">线下-FreeBuy订单</span>
             <span v-if="scope.row.orderType==10">FreeBuy转正常购买</span>
+            <span v-if="scope.row.orderType==11">钻石合伙人订单</span>
+            <span v-if="scope.row.orderType==12">爱心捐助订单</span>
+            <span v-if="scope.row.orderType==13">好友赞助订单</span>
+            <span v-if="scope.row.orderType==14">FreeBuy赞助订单</span>
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="商品个数" width="100"></el-table-column>
-        <el-table-column prop="orderAddressDetail.detailedAddress" label="收货地址" width="160"></el-table-column>
-        <el-table-column label="物流" width="160">
+        <el-table-column prop="totalDiscount" label="总优惠金额" width="120"></el-table-column>
+        <el-table-column prop="quantity" label="商品个数" width="80"></el-table-column>
+        <el-table-column prop="orderAddressDetail.detailedAddress" label="收货地址" width="220"></el-table-column>
+        <el-table-column label="物流" width="100">
           <template
             slot-scope="scope"
           >{{scope.row.orderLogisticsDetailList==''?'未发货':scope.row.orderLogisticsDetailList&&scope.row.orderLogisticsDetailList[0].companyName}}</template>
@@ -110,11 +115,11 @@
         <el-table-column label="下单时间" width="160">
           <template slot-scope="scope">
             <span v-for="(item,index) in scope.row.orderTimeDetail" :key="index">
-              <span v-if="item.status==1">{{item.statusTime | getDateShow}}</span>
+              <span v-if="item.status==1">{{item.statusTime | dateFormat}}</span>
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="120">
+        <el-table-column label="状态" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.latestStatus==1">待支付</span>
             <span v-if="scope.row.latestStatus==2">待发货</span>
@@ -151,7 +156,7 @@
               type="text"
               v-if="scope.row.latestStatus==2 && scope.row.transStatementDetail.status!=14"
               @click="refund(scope.row.id)"
-            >退款</el-button> -->
+            >退款</el-button>-->
             <el-button
               type="text"
               v-if="(scope.row.latestStatus==7 || scope.row.latestStatus==8 || scope.row.latestStatus==11) && scope.row.transStatementDetail.status != 14"
@@ -362,6 +367,22 @@ export default {
         {
           value: 10,
           label: "FreeBuy转正常购买"
+        },
+        {
+          value: 11,
+          label: "钻石合伙人订单"
+        },
+        {
+          value: 12,
+          label: "爱心捐助订单"
+        },
+        {
+          value: 13,
+          label: "好友赞助订单"
+        },
+        {
+          value: 14,
+          label: "FreeBuy赞助订单"
         }
       ],
       buyMode: "",
@@ -393,22 +414,6 @@ export default {
     this.searchOrderList();
     this.getBusinessList();
     this.getLogisticsList();
-  },
-  filters: {
-    getDateShow: function(value) {
-      let dt = new Date(value);
-      let y = dt.getFullYear();
-      let m = dt.getMonth() + 1;
-      let d = dt.getDate();
-      let h = dt.getHours();
-      let mi = dt.getMinutes();
-      y = y < 10 ? "0" + y : y;
-      m = m < 10 ? "0" + m : m;
-      d = d < 10 ? "0" + d : d;
-      h = h < 10 ? "0" + h : h;
-      mi = mi < 10 ? "0" + mi : mi;
-      return `${y}-${m}-${d} ${h}:${mi}`;
-    }
   },
   methods: {
     // 订单列表查询事件

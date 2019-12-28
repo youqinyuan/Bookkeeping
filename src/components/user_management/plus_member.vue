@@ -39,8 +39,11 @@
       </el-table-column>
       <!-- <el-table-column prop="profitsDistribName" label="分层设置" align="center"></el-table-column> -->
       <el-table-column prop="teamCount" label="团队人数" align="center"></el-table-column>
+      <el-table-column prop="referrerName" label="上级" align="center"></el-table-column>
+      <el-table-column prop="referrerMobileNumber" label="上级电话" align="center"></el-table-column>
       <el-table-column prop="incomeAmount" label="总计收益(元)" align="center"></el-table-column>
       <el-table-column prop="commissionBalance" label="佣金余额" align="center"></el-table-column>
+      <el-table-column prop="rechargeCount" label="充值次数" align="center"></el-table-column>
       <el-table-column prop="freeBuyCount" label="freebuy购买次数" align="center"></el-table-column>
       <el-table-column prop="buyCount" label="正常购买次数" align="center"></el-table-column>
       <el-table-column prop="balance" label="钱包余额(元)" align="center">
