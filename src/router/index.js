@@ -305,9 +305,14 @@ export default new Router({
           component: resolve => require(['@/components/moth_management/notice'], resolve)
         },
         {
-          path: '/navigation',
-          name: 'navigation',
-          component: resolve => require(['@/components/moth_management/navigation/navigation'], resolve)
+          path: '/navigation_icon',
+          name: 'navigation_icon',
+          component: resolve => require(['@/components/moth_management/navigation/navigation_icon'], resolve)
+        },
+        {
+          path: '/navigation_activits',
+          name: 'navigation_activits',
+          component: resolve => require(['@/components/moth_management/navigation/navigation_activits'], resolve)
         },
         {
           path: '/addNavigation',
@@ -328,6 +333,25 @@ export default new Router({
           path: '/supportPage',
           name: 'supportPage',
           component: resolve => require(['@/components/moth_management/support/supportPage'], resolve)
+        },
+        {
+          path: '/addActive_newPeople',
+          name: 'addActive_newPeople',
+          component: resolve => require(['@/components/moth_management/addActive_newPeople'], resolve)
+        },
+        {
+          path: '/goodsArea',
+          name: 'goodsArea',
+          component: resolve => require(['@/components/moth_management/goodsArea'], resolve)
+        },{
+          path: '/addActive_goods',
+          name: 'addActive_goods',
+          component: resolve => require(['@/components/moth_management/addActive_goods'], resolve)
+        },
+        {
+          path: '/newbornZoneList',
+          name: 'newbornZoneList',
+          component: resolve => require(['@/components/moth_management/newbornZoneList'], resolve)
         }
       ]
     }

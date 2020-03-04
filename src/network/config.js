@@ -17,17 +17,28 @@ var loadinginstace
 // http request 拦截器
 axios.interceptors.request.use(
   config => {
+    // console.log(config)
     document.cookie.split('; ').map(item => {
       if (item.split('=')[0] === 'opadminToken') {
         config.headers.token = getCookie().opadminToken
       }
     })
+    if (config.url == '/newPeople/queryGoodsQRCode' || config.url == '/mdse/activity/createQrCode') {
+      // 此两个接口不添加loading方法
+    } else {
+      // element ui Loading方法
+      loadinginstace = Loading.service({
+        lock: true,
+        text: '请求中……',
+        background: 'rgba(0, 0, 0, 0.7)'
+      })
+    }
     // element ui Loading方法
-    loadinginstace = Loading.service({
-      lock: true,
-      text: '请求中……',
-      background: 'rgba(0, 0, 0, 0.7)'
-    })
+    // loadinginstace = Loading.service({
+    //   lock: true,
+    //   text: '请求中……',
+    //   background: 'rgba(0, 0, 0, 0.7)'
+    // })
     return config
   },
   err => {

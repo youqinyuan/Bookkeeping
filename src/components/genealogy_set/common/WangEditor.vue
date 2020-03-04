@@ -86,7 +86,7 @@ export default {
 }
 .text {
   border: 1px solid #ddd;
-  height: 800px;
+  height: 600px;
   border-top: none;
 }
 </style>

@@ -52,6 +52,17 @@
             ></el-option>
           </el-select>
         </span>
+        <span class="inputBox" v-if="activityList.length>0">
+          活动名称:
+          <el-select v-model="activityId" placeholder="请选择" @change="activityChange">
+            <el-option
+              v-for="item in activityList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </span>
         <span class="inputBox">
           物流单号:
           <el-input class="inputStyle" v-model="trackingNumber" placeholder="请输入物流单号"></el-input>
@@ -85,7 +96,16 @@
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="orderNumber" label="订单编号" width="200"></el-table-column>
         <el-table-column prop="userName" label="用户名"></el-table-column>
-        <el-table-column prop="mobileNumber" label="联系方式" width="120"></el-table-column>
+        <el-table-column prop="mobileNumber" label="联系方式" width="120">
+          <template slot-scope="scope">
+            <!-- 判断号码是否为虚拟号码，如果是字体颜色为红 -->
+            <span
+              style="color:#F56C6C"
+              v-if="/^(?:\+?86)?1(?:7[01]|6[257])\d{8}$/.test(scope.row.mobileNumber)"
+            >{{scope.row.mobileNumber}}</span>
+            <span v-else>{{scope.row.mobileNumber}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="orderAmount" label="订单金额" width="120"></el-table-column>
         <el-table-column prop label="购买方式" width="160" align="center">
           <template slot-scope="scope">
@@ -102,15 +122,27 @@
             <span v-if="scope.row.orderType==12">爱心捐助订单</span>
             <span v-if="scope.row.orderType==13">好友赞助订单</span>
             <span v-if="scope.row.orderType==14">FreeBuy赞助订单</span>
+            <span v-if="scope.row.orderType == 15">线上新人专区订单</span>
+            <span v-if="scope.row.orderType == 16">线下新人专区订单</span>
+            <span v-if="scope.row.orderType == 17">线上商品活动订单</span>
+            <span v-if="scope.row.orderType == 18">线下商品活动订单</span>
+            <span v-if="scope.row.orderType == 19">线上商品活动-FreeBuy订单</span>
+            <span v-if="scope.row.orderType == 20">线下商品活动-FreeBuy订单</span>
           </template>
         </el-table-column>
         <el-table-column prop="totalDiscount" label="总优惠金额" width="120"></el-table-column>
         <el-table-column prop="quantity" label="商品个数" width="80"></el-table-column>
         <el-table-column prop="orderAddressDetail.detailedAddress" label="收货地址" width="220"></el-table-column>
-        <el-table-column label="物流" width="100">
-          <template
-            slot-scope="scope"
-          >{{scope.row.orderLogisticsDetailList==''?'未发货':scope.row.orderLogisticsDetailList&&scope.row.orderLogisticsDetailList[0].companyName}}</template>
+        <el-table-column label="物流" width="120">
+          <template slot-scope="scope">
+            <span v-if="scope.row.orderLogisticsDetailList==''">
+              <span v-if="scope.row.isDeliverGoods">此商品无需发货</span>
+              <span v-else>未发货</span>
+            </span>
+            <span
+              v-if="scope.row.orderLogisticsDetailList !=''"
+            >{{scope.row.orderLogisticsDetailList[0].companyName}}</span>
+          </template>
         </el-table-column>
         <el-table-column label="下单时间" width="160">
           <template slot-scope="scope">
@@ -144,6 +176,21 @@
             >发货</el-button>
             <el-button
               type="text"
+              v-if="scope.row.latestStatus==11 && scope.row.orderLogisticsDetailList==''"
+              @click="deliverGoods(scope.row.id)"
+            >发货</el-button>
+            <el-button
+              type="text"
+              v-if="scope.row.latestStatus==2"
+              @click="noDeliverGoods(scope.row.id)"
+            >无需发货</el-button>
+            <el-button
+              type="text"
+              v-if="scope.row.latestStatus==11 && scope.row.orderLogisticsDetailList==''"
+              @click="noDeliverGoods(scope.row.id)"
+            >无需发货</el-button>
+            <el-button
+              type="text"
               v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8"
               @click="lookRefundTxt(scope.row.id)"
             >退款原因</el-button>
@@ -162,11 +209,6 @@
               v-if="(scope.row.latestStatus==7 || scope.row.latestStatus==8 || scope.row.latestStatus==11) && scope.row.transStatementDetail.status != 14"
               @click="refundEvent(scope.row.id)"
             >退款</el-button>
-            <el-button
-              type="text"
-              v-if="scope.row.latestStatus==11 && scope.row.orderLogisticsDetailList==''"
-              @click="deliverGoods(scope.row.id)"
-            >发货</el-button>
 
             <!-- <el-button type="text" v-if="scope.row.latestStatus==7 || scope.row.latestStatus==8" @click="refundNo(scope.row.id)">拒绝退款</el-button> -->
           </template>
@@ -255,8 +297,10 @@ import {
   getMerchantBusinessList,
   queryOrderReason,
   getExcel,
+  queryActivitiesByOrderType,
   getMerchantAuditListByWhereExcel,
-  applyRefundMerchant
+  applyRefundMerchant,
+  noLogistics
 } from "@/network/api";
 import shipPop from "./common/shipPop";
 import logisticsport from "./common/logisticsport";
@@ -383,9 +427,35 @@ export default {
         {
           value: 14,
           label: "FreeBuy赞助订单"
+        },
+        {
+          value: 15,
+          label: "线上新人专区订单"
+        },
+        {
+          value: 16,
+          label: "线下新人专区订单"
+        },
+        {
+          value: 17,
+          label: "线上商品活动订单"
+        },
+        {
+          value: 18,
+          label: "线下商品活动订单"
+        },
+        {
+          value: 19,
+          label: "线上商品活动-FreeBuy订单"
+        },
+        {
+          value: 20,
+          label: "线下商品活动-FreeBuy订单"
         }
       ],
       buyMode: "",
+      activityId: "",
+      activityList: [],
       trackingNumber: "", // 物流单号
       pageNumber: 1,
       pageTotal: 1,
@@ -449,11 +519,23 @@ export default {
       if (this.trackingNumber) {
         param.trackingNumber = this.trackingNumber;
       }
+      if (this.activityId) {
+        param.activityId = this.activityId;
+      }
 
       getOrderList({ params: param }).then(res => {
         if (res.data.content) {
           this.tableData = res.data.content.items;
           this.pageTotal = res.data.content.totalSize;
+          // 判断商品是否是无需发货
+          this.tableData.forEach(val => {
+            val.isDeliverGoods = false;
+            val.orderTimeDetail.forEach(item => {
+              if (item.remark == "NO_LOGISTICS") {
+                val.isDeliverGoods = true;
+              }
+            });
+          });
           setTimeout(() => {
             this.setSelectRow();
           }, 50);
@@ -574,16 +656,49 @@ export default {
       this.orderEndTime = this.getDateShow(val[1]);
       this.searchOrderList();
     },
-    // 根据购买方式搜索订单列表
-    buyModeChange(e) {
-      console.log(e);
-      this.buyMode = e;
-      this.searchOrderList();
-    },
     // 时间格式处理函数
     getDateShow(value) {
       let dt = new Date(value);
       return dt.getTime();
+    },
+    // 根据购买方式搜索订单列表
+    buyModeChange(e) {
+      console.log(e);
+      this.buyMode = e;
+      this.activityId = "";
+      this.searchOrderList();
+      if (e >= 15) {
+        this.queryActivitiesByOrderType(e);
+      }
+    },
+    // 根据订单类型查询活动名称
+    queryActivitiesByOrderType(orderType) {
+      let parms = {
+        orderType: orderType
+      };
+      queryActivitiesByOrderType({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          // console.log(res.data.content);
+          if (res.data.content) {
+            this.activityList = [];
+            res.data.content.forEach(val => {
+              let json = {
+                label: val.activityName,
+                value: val.activityId
+              };
+              this.activityList.push(json);
+            });
+          }
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 选择活动名称
+    activityChange(e) {
+      // console.log(e);
+      this.activityId = e;
+      this.searchOrderList();
     },
     // 搜索事件
     searchEvent() {
@@ -623,6 +738,20 @@ export default {
           }
         });
       }
+    },
+    // 无需发货
+    noDeliverGoods(id) {
+      let parms = {
+        orderId: id
+      };
+      noLogistics(this.qs.stringify(parms)).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.$message.success("操作成功");
+          this.searchOrderList();
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
     },
     // 退款点击事件
     refundEvent(id) {
@@ -751,7 +880,16 @@ export default {
         param.business = this.businessName; // 所选商家
       }
       if (this.buyMode) {
+        // 购买方式
         param.orderType = this.buyMode;
+      }
+      if (this.trackingNumber) {
+        //物流单号
+        param.trackingNumber = this.trackingNumber;
+      }
+      if (this.activityId) {
+        //活动id
+        param.activityId = this.activityId;
       }
 
       getMerchantAuditListByWhereExcel(param).then(res => {

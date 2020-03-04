@@ -11,24 +11,32 @@
         <span style="font-weight:bold;font-size:16px;">成为会员条件：</span>
         <ul>
           <li>
-            <el-checkbox v-model="money0.enabled">
+            <el-checkbox v-model="ruleFormPartner.ORDERS_COUNT.enabled">
               <span>1.</span>
-              <span>{{money0.key | plusSet}}</span>
-              <el-input :disabled="right" class="inp" v-model="money0.value"></el-input>-送1个月
+              <span>{{ruleFormPartner.ORDERS_COUNT.key | plusSet}}</span>
+              <el-input :disabled="right" class="inp" v-model="ruleFormPartner.ORDERS_COUNT.value"></el-input>-送1个月
             </el-checkbox>
           </li>
           <li>
-            <el-checkbox v-model="money1.enabled">
+            <el-checkbox v-model="ruleFormPartner.INVITEES_COUNT.enabled">
               <span>2.</span>
-              <span>{{money1.key | plusSet}}</span>
-              <el-input :disabled="right" class="inp" v-model="money1.value"></el-input>-送1个月
+              <span>{{ruleFormPartner.INVITEES_COUNT.key | plusSet}}</span>
+              <el-input
+                :disabled="right"
+                class="inp"
+                v-model="ruleFormPartner.INVITEES_COUNT.value"
+              ></el-input>-送1个月
             </el-checkbox>
           </li>
           <li>
-            <el-checkbox v-model="money2.enabled">
+            <el-checkbox v-model="ruleFormPartner.RECHARGE_AMOUNT.enabled">
               <span>3.</span>
-              <span>{{money2.key | plusSet}}</span>
-              <el-input :disabled="right" class="inp" v-model="money2.value"></el-input>-送1个月
+              <span>{{ruleFormPartner.RECHARGE_AMOUNT.key | plusSet}}</span>
+              <el-input
+                :disabled="right"
+                class="inp"
+                v-model="ruleFormPartner.RECHARGE_AMOUNT.value"
+              ></el-input>-送1个月
             </el-checkbox>
           </li>
         </ul>
@@ -37,13 +45,21 @@
         <span style="font-weight:bold;font-size:16px;">成为合伙人奖励：</span>
         <div style="margin-top:10px;font-size:14px;">
           <span>下级购买商品返佣商品利润的</span>
-          <el-input :disabled="right" v-model="money3.value" style="width:60px;"></el-input>% ，
-          <span>特殊情况，无利润商品返佣商品支付金额</span>
-          <el-input :disabled="right" v-model="money4.value" style="width:60px;"></el-input>%
+          <el-input :disabled="right" v-model="ruleFormPartner.PLUS_RATE.value" style="width:60px;"></el-input>% ，
+          <span>特殊情况，无利润商品返佣商品原实付价</span>
+          <el-input
+            :disabled="right"
+            v-model="ruleFormPartner.PLUS_PAYMENT_RATE.value"
+            style="width:60px;"
+          ></el-input>%
         </div>
         <div style="margin-top:10px;font-size:14px;">
           <span>下级缴费成为钻石合伙人奖励</span>
-          <el-input :disabled="right" v-model="money5.value" style="width:60px;"></el-input>元
+          <el-input
+            :disabled="right"
+            v-model="ruleFormPartner.PLUS_DIAMOND.value"
+            style="width:60px;"
+          ></el-input>元
         </div>
       </div>
     </div>
@@ -61,12 +77,16 @@
         <!-- 成为钻石合伙人条件 -->
         <div style="font-weight:bold;font-size:16px;">成为钻石合伙人条件：</div>
         <el-form-item
-          prop="money6.value"
+          prop="PAYMENT_AMOUNT.value"
           style="margin-top:10px"
           :rules="[{required: true, pattern: /(^[1-9](\d+)?(\.\d{1,2})?$)|(^\d\.\d{1,2}$)/, message: '输入值不可为0，不可大于1000000，仅限两位小数', trigger: 'blur'}]"
         >
           <span>缴纳费用</span>
-          <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money6.value"></el-input>
+          <el-input
+            style="width:80px;"
+            :disabled="right_diamond"
+            v-model="ruleForm.PAYMENT_AMOUNT.value"
+          ></el-input>
           <span>元-成为一年的钻石合伙人</span>
         </el-form-item>
         <div
@@ -74,13 +94,17 @@
         >费用返还条件：</div>
         <el-form-item
           label
-          prop="money7.value"
+          prop="SUBORDINATES_NUMBER.value"
           style="margin-top:10px"
           :rules="[{required: true, pattern: /^[1-9]\d*$/, message: '不可为0，不可大于1000000，不可输入小数', trigger: 'blur'}]"
         >
           <div>
             <span>下级用户数量大于等于</span>
-            <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money7.value"></el-input>人
+            <el-input
+              style="width:80px;"
+              :disabled="right_diamond"
+              v-model="ruleForm.SUBORDINATES_NUMBER.value"
+            ></el-input>人
           </div>
         </el-form-item>
         <!-- 成为钻石合伙人奖励 -->
@@ -90,107 +114,100 @@
         <div style="display:flex;margin-top:10px">
           <el-form-item
             label
-            prop="money8.value"
-            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于1%,不可超过80%,最多输入一位小数', trigger: 'blur'}]"
+            prop="DIAMOND_PROFIT_RATE.value"
+            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于0.1%,不可超过100%,最多输入一位小数', trigger: 'blur'}]"
           >
-            <span>下级购买（普通购买）商品返佣商品利润的</span>
-            <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money8.value"></el-input>%
-          </el-form-item>
-          <el-form-item
-            label
-            prop="money9.value"
-            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于1%,不可超过50%,最多输入一位小数', trigger: 'blur'}]"
-          >
-            <span>，特殊情况，无利润商品返佣商品支付金额</span>
-            <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money9.value"></el-input>%
-          </el-form-item>
-        </div>
-        <div style="display:flex;">
-          <el-form-item
-            label
-            prop="money10.value"
-            label-width="0px;"
-            :rules="[{required: true, pattern: /^([1-9]|10)$/, message: '级别最高为10，不可填写小数', trigger: 'blur'}]"
-          >
-            <span>第</span>
+            <span>下级购买商品返佣商品利润的</span>
             <el-input
               style="width:80px;"
               :disabled="right_diamond"
-              v-model="ruleForm.money10.value"
-            ></el-input>
-          </el-form-item>
-          <el-form-item
-            label
-            prop="money11.value"
-            label-width="0px;"
-            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于1%,不可超过100%,最多输入一位小数', trigger: 'blur'}]"
-          >
-            <span>级购买（普通购买）商品返佣-1级的分佣的</span>
-            <el-input
-              style="width:80px;"
-              :disabled="right_diamond"
-              v-model="ruleForm.money11.value"
+              v-model="ruleForm.DIAMOND_PROFIT_RATE.value"
             ></el-input>%
           </el-form-item>
+          <el-form-item
+            label
+            prop="DIAMOND_PROFIT_PAYMENT_RATE.value"
+            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于0.1%,不可超过100%,最多输入一位小数', trigger: 'blur'}]"
+          >
+            <span>+原价的</span>
+            <el-input
+              style="width:80px;"
+              :disabled="right_diamond"
+              v-model="ruleForm.DIAMOND_PROFIT_PAYMENT_RATE.value"
+            ></el-input>%，有利润的情况
+          </el-form-item>
         </div>
-        <el-form-item label prop="name" label-width="0px;">
-          <span>下级购买（freebuy购买）商品，返支付金额的</span>
-          <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money12.value"></el-input>%
+        <el-form-item
+          label
+          prop="DIAMOND_NO_PROFIT_PAYMENT_RATE.value"
+          label-width="0px;"
+          :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于0.1%,不可超过100%,最多输入一位小数', trigger: 'blur'}]"
+        >
+          <span>下级购买商品返佣商品原价的</span>
+          <el-input
+            style="width:80px;"
+            :disabled="right_diamond"
+            v-model="ruleForm.DIAMOND_NO_PROFIT_PAYMENT_RATE.value"
+          ></el-input>%，无利润的情况
         </el-form-item>
         <div style="display:flex;">
           <el-form-item
             label
-            prop="money13.value"
+            prop="DIAMOND_COMMISSION_LEVEL.value"
             label-width="0px;"
-            :rules="[{required: true, pattern: /^([1-9]|10)$/, message: '级别最高为10，不可填写小数', trigger: 'blur'}]"
+            :rules="[{required: true, pattern: /^([1-9]|10)$/, message: '级别为1-10，不可填写小数', trigger: 'blur'}]"
           >
             <span>第</span>
             <el-input
               style="width:80px;"
               :disabled="right_diamond"
-              v-model="ruleForm.money13.value"
+              v-model="ruleForm.DIAMOND_COMMISSION_LEVEL.value"
             ></el-input>
           </el-form-item>
           <el-form-item
             label
-            prop="money14.value"
+            prop="DIAMOND_COMMISSION_ONE_RATE.value"
             label-width="0px;"
-            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于0.1%,不可超过25%,最多输入一位小数', trigger: 'blur'}]"
+            :rules="[{required: true, pattern: /^(\d+\.\d{1,1}|\d+)$/, message: '不可小于0.1%,不可超过100%,最多输入一位小数', trigger: 'blur'}]"
           >
-            <span>级购买（freebuy购买）商品，返支付金额的</span>
+            <span>级购买商品返佣-1级的分佣的</span>
             <el-input
               style="width:80px;"
               :disabled="right_diamond"
-              v-model="ruleForm.money14.value"
+              v-model="ruleForm.DIAMOND_COMMISSION_ONE_RATE.value"
             ></el-input>%
           </el-form-item>
         </div>
         <el-form-item
           label
-          prop="money15.value"
+          prop="DIAMOND_DIAMOND.value"
           label-width="0px;"
-          :rules="[{required: true, pattern: /^\+?[1-9]\d*$/, message: '大于0的正整数', trigger: 'blur'}]"
+          :rules="[{required: true, pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/, message: '格式不正确', trigger: 'blur'}]"
         >
           <span>下级缴费成为钻石合伙人奖励</span>
-          <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money15.value"></el-input>元
+          <el-input
+            style="width:80px;"
+            :disabled="right_diamond"
+            v-model="ruleForm.DIAMOND_DIAMOND.value"
+          ></el-input>元
         </el-form-item>
         <div style="display:flex;">
           <el-form-item
             label
-            prop="money16.value"
+            prop="DIAMOND_FREE_BUY_AMOUNT.value"
             label-width="0px;"
-            :rules="[{required: true, pattern: /^\+?[0-9]\d*$/, message: '正整数最大100000元', trigger: 'blur'}]"
+            :rules="[{required: true, pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/, message: '格式不正确', trigger: 'blur'}]"
           >
             <span>送freebuy下单</span>
             <el-input
               style="width:80px;"
               :disabled="right_diamond"
-              v-model="ruleForm.money16.value"
+              v-model="ruleForm.DIAMOND_FREE_BUY_AMOUNT.value"
             ></el-input>
           </el-form-item>
           <el-form-item
             label
-            prop="money17.value"
+            prop="DIAMOND_FREE_BUY_FREQUENCY.value"
             label-width="0px;"
             :rules="[{required: true, pattern: /^\+?[0-9]\d*$/, message: '正整数最大200次', trigger: 'blur'}]"
           >
@@ -198,21 +215,48 @@
             <el-input
               style="width:80px;"
               :disabled="right_diamond"
-              v-model="ruleForm.money17.value"
+              v-model="ruleForm.DIAMOND_FREE_BUY_FREQUENCY.value"
             ></el-input>
           </el-form-item>
         </div>
-        <el-form-item label prop="name" label-width="0px;">
+        <el-form-item
+          label
+          prop="DIAMOND_DISCOUNT.value"
+          label-width="0px;"
+          :rules="[{required: true, pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/, message: '格式不正确', trigger: 'blur'}]"
+        >
           <span>freebuy下单的商品支付金额打折</span>
-          <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money18.value"></el-input>%
+          <el-input
+            style="width:80px;"
+            :disabled="right_diamond"
+            v-model="ruleForm.DIAMOND_DISCOUNT.value"
+          ></el-input>%
         </el-form-item>
-        <el-form-item label prop="name" label-width="0px;">
+        <el-form-item
+          label
+          prop="DIAMOND_TRANSFER_SERVICE_CHARGE.value"
+          label-width="0px;"
+          :rules="[{required: true, pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/, message: '格式不正确', trigger: 'blur'}]"
+        >
           <span>下级转让待返金额提取手续费的</span>
-          <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money19.value"></el-input>%
+          <el-input
+            style="width:80px;"
+            :disabled="right_diamond"
+            v-model="ruleForm.DIAMOND_TRANSFER_SERVICE_CHARGE.value"
+          ></el-input>%
         </el-form-item>
-        <el-form-item label prop="name" label-width="0px;">
+        <el-form-item
+          label
+          prop="DIAMOND_PURCHASE_SERVICE_CHARGE.value"
+          label-width="0px;"
+          :rules="[{required: true, pattern: /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/, message: '格式不正确', trigger: 'blur'}]"
+        >
           <span>下级购买待返金额提取手续费的</span>
-          <el-input style="width:80px;" :disabled="right_diamond" v-model="ruleForm.money20.value"></el-input>%
+          <el-input
+            style="width:80px;"
+            :disabled="right_diamond"
+            v-model="ruleForm.DIAMOND_PURCHASE_SERVICE_CHARGE.value"
+          ></el-input>%
         </el-form-item>
       </el-form>
     </div>
@@ -228,108 +272,102 @@ export default {
       right: true,
       right_diamond: true,
       content1: [],
-      money0: {
-        key: "ORDERS_COUNT",
-        value: "",
-        enabled: true
+      // 合伙人
+      ruleFormPartner: {
+        ORDERS_COUNT: {
+          key: "ORDERS_COUNT",
+          value: "",
+          enabled: true
+        },
+        INVITEES_COUNT: {
+          key: "INVITEES_COUNT",
+          value: "",
+          enabled: true
+        },
+        RECHARGE_AMOUNT: {
+          key: "RECHARGE_AMOUNT",
+          value: "",
+          enabled: true
+        },
+        PLUS_RATE: {
+          key: "PLUS_RATE",
+          value: "",
+          enabled: true
+        },
+        PLUS_PAYMENT_RATE: {
+          key: "PLUS_PAYMENT_RATE",
+          value: "",
+          enabled: true
+        },
+        PLUS_DIAMOND: {
+          key: "PLUS_DIAMOND",
+          value: "",
+          enabled: true
+        }
       },
-      money1: {
-        key: "INVITEES_COUNT",
-        value: "",
-        enabled: true
-      },
-      money2: {
-        key: "RECHARGE_AMOUNT",
-        value: "",
-        enabled: true
-      },
-      money3: {
-        key: "PLUS_RATE",
-        value: "",
-        enabled: true
-      },
-      money4: {
-        key: "PLUS_PAYMENT_RATE",
-        value: "",
-        enabled: true
-      },
-      money5: {
-        key: "PLUS_DIAMOND",
-        value: "",
-        enabled: true
-      },
+      // 钻石合伙人
       ruleForm: {
-        money6: {
+        PAYMENT_AMOUNT: {
           key: "PAYMENT_AMOUNT",
           value: "",
           enabled: true
         },
-        money7: {
+        SUBORDINATES_NUMBER: {
           key: "SUBORDINATES_NUMBER",
           value: "",
           enabled: true
         },
-        money8: {
-          key: "DIAMOND_RATE ",
+        DIAMOND_PROFIT_RATE: {
+          key: "DIAMOND_PROFIT_RATE",
           value: "",
           enabled: true
         },
-        money9: {
-          key: "DIAMOND_PAYMENT_RATE",
+        DIAMOND_PROFIT_PAYMENT_RATE: {
+          key: "DIAMOND_PROFIT_PAYMENT_RATE",
           value: "",
           enabled: true
         },
-        money10: {
-          key: "DIAMOND_LEVEL",
+        DIAMOND_NO_PROFIT_PAYMENT_RATE: {
+          key: "DIAMOND_NO_PROFIT_PAYMENT_RATE",
           value: "",
           enabled: true
         },
-        money11: {
-          key: "DIAMOND_COMMISSION_RATE",
+        DIAMOND_COMMISSION_LEVEL: {
+          key: "DIAMOND_COMMISSION_LEVEL",
           value: "",
           enabled: true
         },
-        money12: {
-          key: "DIAMOND_FREE_BUY_RATE",
+        DIAMOND_COMMISSION_ONE_RATE: {
+          key: "DIAMOND_COMMISSION_ONE_RATE",
           value: "",
           enabled: true
         },
-        money13: {
-          key: "DIAMOND_FREE_BUY_LEVEL",
-          value: "",
-          enabled: true
-        },
-        money14: {
-          key: "DIAMOND_FREE_BUY_COMMISSION_RATE",
-          value: "",
-          enabled: true
-        },
-        money15: {
+        DIAMOND_DIAMOND: {
           key: "DIAMOND_DIAMOND",
           value: "",
           enabled: true
         },
-        money16: {
+        DIAMOND_FREE_BUY_AMOUNT: {
           key: "DIAMOND_FREE_BUY_AMOUNT",
           value: "",
           enabled: true
         },
-        money17: {
+        DIAMOND_FREE_BUY_FREQUENCY: {
           key: "DIAMOND_FREE_BUY_FREQUENCY",
           value: "",
           enabled: true
         },
-        money18: {
+        DIAMOND_DISCOUNT: {
           key: "DIAMOND_DISCOUNT",
           value: "",
           enabled: true
         },
-        money19: {
+        DIAMOND_TRANSFER_SERVICE_CHARGE: {
           key: "DIAMOND_TRANSFER_SERVICE_CHARGE",
           value: "",
           enabled: true
         },
-        money20: {
+        DIAMOND_PURCHASE_SERVICE_CHARGE: {
           key: "DIAMOND_PURCHASE_SERVICE_CHARGE",
           value: "",
           enabled: true
@@ -380,44 +418,38 @@ export default {
               result[i].enabled = false;
             }
           }
-          this.money0 = result[0];
-          this.money1 = result[1];
-          this.money2 = result[2];
-          this.money3 = result[3];
-          this.money4 = result[4];
-          this.money5 = result[5];
-          this.ruleForm.money6 = result[6];
-          this.ruleForm.money7 = result[7];
-          this.ruleForm.money8 = result[8];
-          this.ruleForm.money9 = result[9];
-          this.ruleForm.money10 = result[10];
-          this.ruleForm.money11 = result[11];
-          this.ruleForm.money12 = result[12];
-          this.ruleForm.money13 = result[13];
-          this.ruleForm.money14 = result[14];
-          this.ruleForm.money15 = result[15];
-          this.ruleForm.money16 = result[16];
-          this.ruleForm.money17 = result[17];
-          this.ruleForm.money18 = result[18];
-          this.ruleForm.money19 = result[19];
-          this.ruleForm.money20 = result[20];
+          // 获取合伙人值
+          for (let item in this.ruleFormPartner) {
+            result.forEach(val => {
+              if (item == val.key) {
+                this.ruleFormPartner[item].value = val.value;
+              }
+            });
+          }
+          // 获取钻石合伙人值
+          for (let item in this.ruleForm) {
+            result.forEach(val => {
+              if (item == val.key) {
+                this.ruleForm[item].value = val.value;
+              }
+            });
+          }
         }
       });
     },
 
     // 合伙人保存
     save() {
-      if (this.money5.value < 0) {
+      if (this.ruleFormPartner.PLUS_DIAMOND.value < 0) {
         this.$message.error("下级缴费成为钻石合伙人奖励不可小于0元");
         return;
       }
-      this.content1[0] = this.money0;
-      this.content1[1] = this.money1;
-      this.content1[2] = this.money2;
-      this.content1[3] = this.money3;
-      this.content1[4] = this.money4;
-      this.content1[5] = this.money5;
-      let copyContent = JSON.parse(JSON.stringify(this.content1));
+      let data = [];
+      for (let item in this.ruleFormPartner) {
+        data.push(this.ruleFormPartner[item]);
+      }
+      // console.log(data);
+      let copyContent = JSON.parse(JSON.stringify(data));
       for (var i = 0; i < copyContent.length; i++) {
         if (copyContent[i].enabled == true) {
           copyContent[i].enabled = 1;
@@ -425,7 +457,7 @@ export default {
           copyContent[i].enabled = 2;
         }
       }
-      console.log(copyContent);
+      // console.log(copyContent);
       updateMemberParamConfig(copyContent).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message.success("修改成功");
@@ -442,66 +474,62 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let data = [];
-          if (this.ruleForm.money6.value > 1000000) {
+          let ruleForm = this.ruleForm;
+          if (ruleForm.PAYMENT_AMOUNT.value > 1000000) {
             this.$message.error("缴纳费用不可大于1000000");
             return;
           }
-          if (this.ruleForm.money7.value > 1000000) {
+          if (ruleForm.SUBORDINATES_NUMBER.value > 1000000) {
             this.$message.error("下级用户数量不可大于1000000");
             return;
           }
           if (
-            this.ruleForm.money8.value > 80 ||
-            this.ruleForm.money8.value < 1
+            ruleForm.DIAMOND_PROFIT_RATE.value > 100 ||
+            ruleForm.DIAMOND_PROFIT_RATE.value < 0.1
           ) {
             this.$message.error(
-              "下级购买（普通购买）商品返佣商品利润不可小于1%,不可超过80%"
+              "下级购买商品返佣商品利润不可小于0.1%,不可超过100%"
             );
             return;
           }
           if (
-            this.ruleForm.money9.value > 50 ||
-            this.ruleForm.money9.value < 1
+            ruleForm.DIAMOND_PROFIT_PAYMENT_RATE.value > 100 ||
+            ruleForm.DIAMOND_PROFIT_PAYMENT_RATE.value < 0.1
           ) {
             this.$message.error(
-              "下级购买（普通购买）商品(无利润商品返佣商品支付金额)不可小于1%不可超过50%"
+              "下级购买商品返佣商品原价比例(有利润)不可小于0.1%不可超过100%"
             );
             return;
           }
           if (
-            this.ruleForm.money11.value > 100 ||
-            this.ruleForm.money11.value < 1
+            ruleForm.DIAMOND_NO_PROFIT_PAYMENT_RATE.value > 100 ||
+            ruleForm.DIAMOND_NO_PROFIT_PAYMENT_RATE.value < 0.1
           ) {
             this.$message.error(
-              "购买（普通购买）商品返佣-1级的分佣不可小于1%不可高于100%"
+              "下级购买商品返佣商品原价比例(无利润)不可小于0.1%不可高于100%"
             );
             return;
           }
           if (
-            this.ruleForm.money12.value > 50 ||
-            this.ruleForm.money12.value < 1
+            ruleForm.DIAMOND_COMMISSION_ONE_RATE.value > 100 ||
+            ruleForm.DIAMOND_COMMISSION_ONE_RATE.value < 0.1
           ) {
             this.$message.error(
-              "下级购买（freebuy购买）商品，返支付金额不可小于1%，不可高于50%"
+              "购买商品返佣-1级的分佣不可小于等于0.1%，不可高于100%"
             );
             return;
           }
-          if (
-            this.ruleForm.money14.value > 25 ||
-            this.ruleForm.money14.value < 0.1
-          ) {
-            this.$message.error(
-              "购买（freebuy购买）商品，返支付金额不可小于0.1%，不可高于25%"
-            );
+          if (ruleForm.DIAMOND_FREE_BUY_AMOUNT.value > 100000) {
+            this.$message.error("送freebuy下单购物金最大100000元");
             return;
           }
-          if (this.ruleForm.money17.value > 200) {
+          if (ruleForm.DIAMOND_FREE_BUY_FREQUENCY.value > 200) {
             this.$message.error("使用次数不能超过200次");
             return;
           }
           if (
-            this.ruleForm.money18.value > 100 ||
-            this.ruleForm.money18.value < 50
+            ruleForm.DIAMOND_DISCOUNT.value > 100 ||
+            ruleForm.DIAMOND_DISCOUNT.value < 50
           ) {
             this.$message.error(
               "freebuy下单的商品支付金额打折不可小于50%，不可高于100%"
@@ -509,8 +537,8 @@ export default {
             return;
           }
           if (
-            this.ruleForm.money19.value > 100 ||
-            this.ruleForm.money19.value < 1
+            ruleForm.DIAMOND_TRANSFER_SERVICE_CHARGE.value > 100 ||
+            ruleForm.DIAMOND_TRANSFER_SERVICE_CHARGE.value < 1
           ) {
             this.$message.error(
               "下级转让待返金额提取手续费不可小于1%，不可高于100%"
@@ -518,18 +546,18 @@ export default {
             return;
           }
           if (
-            this.ruleForm.money20.value > 100 ||
-            this.ruleForm.money20.value < 1
+            ruleForm.DIAMOND_PURCHASE_SERVICE_CHARGE.value > 100 ||
+            ruleForm.DIAMOND_PURCHASE_SERVICE_CHARGE.value < 1
           ) {
             this.$message.error(
               "下级购买待返金额提取手续费不可小于1%，不可高于100%"
             );
             return;
           }
-          for (let val in this.ruleForm) {
-            data.push(this.ruleForm[val]);
+          for (let val in ruleForm) {
+            data.push(ruleForm[val]);
           }
-          console.log(data);
+          // console.log(data);
           let copyContent = JSON.parse(JSON.stringify(data));
           for (var i = 0; i < copyContent.length; i++) {
             if (copyContent[i].enabled == true) {
@@ -538,7 +566,7 @@ export default {
               copyContent[i].enabled = 2;
             }
           }
-          console.log(copyContent);
+          // console.log(copyContent);
           updateMemberParamConfig(copyContent).then(res => {
             if (res.data.messageCode == "MSG_1001") {
               this.$message.success("修改成功");

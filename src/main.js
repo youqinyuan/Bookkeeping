@@ -13,6 +13,7 @@ import './assets/css/reset.css'
 import VueDND from 'awe-dnd'
 import qs from 'qs'
 import * as filter from './common/filter'
+import * as directive from './common/directive'
 
 // 图片预览插件 vue-photo-preview
 import preview from 'vue-photo-preview'
@@ -28,6 +29,9 @@ Vue.prototype.qs = qs
 Object.keys(filter).forEach(key => {
   Vue.filter(key, filter[key])
 })
+Object.keys(directive).forEach((key) => {
+  Vue.directive(key, directive[key]);
+});
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

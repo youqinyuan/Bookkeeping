@@ -16,6 +16,7 @@ const applyRefundMerchant = p => request.post('/order/applyRefundMerchant', p) /
 const queryLogistics = p => request.get('/order/queryLogistics', p) // 查询物流信息
 const cancelOrderMerchant = p => request.post('/order/cancelOrderMerchant', p) // 取消订单
 const queryTobeShippedOrderGoods = p => request.get('/order/queryTobeShippedOrderGoods', p) // 获取待发货的商品信息
+const noLogistics = p => request.post('/order/noLogistics', p) // 无需发货
 
 
 
@@ -198,6 +199,24 @@ const findSystemPageListNavigation = p => request.get('/marketing/navigation/fin
 const findPageListNavigation = p => request.get('/goodsCategory/findPageList', {
   params: p
 }) // 导航之商品分类
+const findPageListH5 = p => request.get('/marketing/navigation/resources/findPageList', p) // 导航营销-查询H5链接路径
+const addOrUpdateH5 = p => request.post('/marketing/navigation/resources/addOrUpdate', p) // 导航营销-新增或修改H5链接路径
+
+const addNewPeople = p => request.post('/newPeople/add', p) // 新人专区添加活动
+const updateNewPeople = p => request.post('/newPeople/update', p) // 新人专区修改活动
+const queryNewPeople = p => request.get('/newPeople/queryPageList', p) // 新人专区查询活动列表
+const queryNewPeopleDetail = p => request.get('/newPeople/findDetail', p) // 新人专区查询活动详情
+const NewPeopleUpdateStatus = p => request.post('/newPeople/updateStatus', p) // 新人专区活动修改状态
+const NewPeopleFindGoods = p => request.get(`/newPeople/findGoodsByActivityId${p}`) // 新人专区活动商品列表
+const newPeopleQueryGoodsQRCode = p => request.get('/newPeople/queryGoodsQRCode', p) // 新人专区查询商品二维码
+const queryGoodsArea = p => request.get('/mdse/activity/queryPageList', p) // 商品活动专区查询活动列表
+const goodsAreaUpdateStatus = p => request.post('/mdse/activity/updateStatus', p) // 商品活动专区修改活动状态
+const goodsAreaActivity = p => request.post('/mdse/activity/activity', p) // 商品活动专区添加或者修改活动
+const goodsAreaDetail = p => request.get('/mdse/activity/detail', p) // 商品活动专区活动详情
+const goodsAreaFindGoods = p => request.get(`/mdse/activity/findGoodsByActivityId${p}`) // 商品活动专区查看活动商品列表
+const goodsAreaCreateQrCode = p => request.get('/mdse/activity/createQrCode', p) // 商品活动专区生成二维码
+
+
 
 // 心愿池管理模块
 const wishQueryPageList = p => request.get('/wishGoods/queryPageList', p) // 分页查询
@@ -218,6 +237,7 @@ const updateAuspicesParamConfig = p => request.post('/paramConfig/updateAuspices
 
 // 订单数据统计
 const queryOrderListOrderData = p => request.get('order/data/queryOrderList', p) // 查询订单数据统计列表
+const queryActivitiesByOrderType = p => request.get('order/queryActivitiesByOrderType', p) // 根据订单类型查询活动
 const queryOrderListOrderDataExcel = p => request.get('order/data/queryOrderListExcel', {
   params: p,
   responseType: 'blob'
@@ -251,15 +271,31 @@ export {
   getDashboard,
   removeForumcomment,
   applyGoodsStages,
+  addNewPeople,
+  queryActivitiesByOrderType,
+  updateNewPeople,
+  NewPeopleUpdateStatus,
+  queryNewPeople,
+  goodsAreaUpdateStatus,
+  goodsAreaCreateQrCode,
+  goodsAreaFindGoods,
+  queryGoodsArea,
+  goodsAreaActivity,
+  newPeopleQueryGoodsQRCode,
+  NewPeopleFindGoods,
+  goodsAreaDetail,
+  queryNewPeopleDetail,
   exportInstallmentGoodsExcel,
   updateIssueStatusSupport,
   updateAuspicesParamConfig,
+  findPageListH5,
   queryPageListSupport,
   queryOrderListOrderDataExcel,
   updateOrderNumberSupport,
   queryOrderListOrderData,
   addSupport,
   getAuspicesParamConfig,
+  addOrUpdateH5,
   refuseStages,
   findPageListForum,
   removeForum,
@@ -276,6 +312,7 @@ export {
   upDataGoodsRequest,
   queryGoodsDetailRequest,
   queryofflineGoodsDetail,
+  noLogistics,
   getBusinessOptionsRequest,
   getGoodsClassRequest,
   getOrderList,

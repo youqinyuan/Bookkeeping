@@ -8,6 +8,8 @@
         <div>(新人免费体验)</div>
       </div>
       <div class="items" @click="nav('./supportPage')">赞助活动</div>
+      <div class="items" @click="nav('./newbornZoneList')">新人专区</div>
+      <div class="items" @click="nav('./goodsArea')">商品专区</div>
     </div>
   </div>
 </template>

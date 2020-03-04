@@ -6,7 +6,7 @@
     <div class="tableBox">
       <el-table :data="tableData" border style="width: 100%">
         <el-table-column prop="title" label="导航名称" align="center"></el-table-column>
-        <el-table-column prop="name" label="图标" align="center">
+        <el-table-column prop="name" label="入口图" align="center">
           <template slot-scope="scope">
             <img :src="scope.row.iconUrl" />
           </template>
@@ -92,19 +92,6 @@ export default {
         }
       });
     },
-    // 添加
-    addNavigation() {
-      if (this.tableData.length >= 20) {
-        this.$message.error("导航营销入口最高只可添加20个");
-        return;
-      }
-      this.$router.push({
-        path: "/addNavigation",
-        query: {
-          type: 1
-        }
-      });
-    },
     // 设置排序值
     setSortNum(id) {
       this.$prompt("排序值越小越靠前，排序值不可重复", "设置排序值", {
@@ -137,19 +124,29 @@ export default {
         })
         .catch(() => {});
     },
-    // 修改
-    changeNavigation(id) {
+    // 添加导航
+    addNavigation() {
+      // type 1-添加或修改图标导航 2-添加或修改长方形样式活动导航 3-添加或修改正方形样式活动导航
       this.$router.push({
         path: "/addNavigation",
         query: {
-          type: 2,
+          type: 1
+        }
+      });
+    },
+    // 修改
+    changeNavigation(id) {
+      // type 1-添加或修改图标导航 2-添加或修改长方形样式活动导航 3-添加或修改正方形样式活动导航
+      this.$router.push({
+        path: "/addNavigation",
+        query: {
+          type: 1,
           id: id
         }
       });
     },
     // 上架或者下架
     changeNavigationStatus(id, status) {
-      
       if (status == 1) {
         // 上架
         var tips = "导航营销上架";
@@ -213,9 +210,8 @@ export default {
 .navigation {
   padding: 20px;
   box-sizing: border-box;
-  .btnBox {
+  .btnBox{
     width: 100%;
-    height: 40px;
     display: flex;
     justify-content: flex-end;
   }

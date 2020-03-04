@@ -141,6 +141,7 @@ export default {
     },
     // checkbox选中数据
     handleCheckedCitiesChange(value) {
+      // console.log(value)
       this.checkedData = value;
     },
     // 点击保存事件

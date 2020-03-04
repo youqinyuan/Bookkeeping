@@ -23,7 +23,16 @@
       <el-table :data="tableData" border style="width: 100%">
         <el-table-column prop="id" label="编号" align="center"></el-table-column>
         <el-table-column prop="name" align="center" label="会员名称"></el-table-column>
-        <el-table-column prop="mobile" align="center" label="电话"></el-table-column>
+        <el-table-column prop="mobile" align="center" label="电话">
+          <template slot-scope="scope">
+            <!-- 判断号码是否为虚拟号码，如果是字体颜色为红 -->
+            <span
+              style="color:#F56C6C"
+              v-if="/^(?:\+?86)?1(?:7[01]|6[257])\d{8}$/.test(scope.row.mobile)"
+            >{{scope.row.mobile}}</span>
+            <span v-else>{{scope.row.mobile}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="time" align="center" label="申请提交时间">
           <template slot-scope="scope">{{scope.row.time | dateFormat}}</template>
         </el-table-column>

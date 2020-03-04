@@ -126,6 +126,107 @@
             ></el-pagination>
           </div>
         </el-tab-pane>
+        <!-- 新人专区 -->
+        <el-tab-pane label="新人专区" name="four">
+          <div class="tableBox">
+            <el-table :data="newPeopleData" border style="width: 100%">
+              <el-table-column prop="name" label="页面名称" width="180"></el-table-column>
+              <el-table-column prop="status" label="状态" width="180">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.status == 1">未开始</span>
+                  <span v-if="scope.row.status == 2">进行中</span>
+                  <span v-if="scope.row.status == 3">已结束</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop>
+                <template slot-scope="scope">
+                  <el-radio
+                    v-model="radioNewPeople"
+                    :label="scope.row.id"
+                    v-if="scope.row.status == 1 || scope.row.status == 2"
+                    @change="radioSelectNewPeople"
+                  >选择此链接</el-radio>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="margin-top:10px;">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="newPeopleTotal"
+              :page-size="5"
+              :current-page="newPeopleCurrentPage"
+              @current-change="newPeoplePageChange($event)"
+            ></el-pagination>
+          </div>
+        </el-tab-pane>
+        <!-- 商品专区 -->
+        <el-tab-pane label="商品专区" name="five">
+          <div class="tableBox">
+            <el-table :data="goodsActiviteData" border style="width: 100%">
+              <el-table-column prop="name" label="页面名称" width="180"></el-table-column>
+              <el-table-column prop="status" label="状态" width="180">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.status == 1">未开始</span>
+                  <span v-if="scope.row.status == 2">进行中</span>
+                  <span v-if="scope.row.status == 3">已结束</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop>
+                <template slot-scope="scope">
+                  <el-radio
+                    v-model="radioGoodsActivite"
+                    :label="scope.row.id"
+                    v-if="scope.row.status == 1 || scope.row.status == 2"
+                    @change="radioSelectGoodsArea"
+                  >选择此链接</el-radio>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="margin-top:10px;">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="goodsActiviteTotal"
+              :page-size="5"
+              :current-page="goodsActiviteCurrentPage"
+              @current-change="goodsActivitePageChange($event)"
+            ></el-pagination>
+          </div>
+        </el-tab-pane>
+        <!-- H5链接路径 -->
+        <el-tab-pane label="H5链接路径" name="six">
+          <div class="tableBox">
+            <div>
+              <span style="margin-right:10px;">新建链接地址</span>
+              <el-button type="text" @click="addH5">保存</el-button>
+            </div>
+            <el-input v-model="H5" placeholder="请输入要跳转的H5链接路径" style="margin:10px 0px;"></el-input>
+            <div>提示：H5链接仅可使用https且同域名下链接</div>
+          </div>
+          <div style="margin-top:10px;">
+            <el-table :data="H5Data" border style="width: 100%">
+              <el-table-column prop="param" label="已添加H5链接"></el-table-column>
+              <el-table-column prop width="120px">
+                <template slot-scope="scope">
+                  <el-radio v-model="radioH5" :label="scope.row.id" @change="radioSelectH5">选择此链接</el-radio>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="margin-top:10px;">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="H5Total"
+              :page-size="5"
+              :current-page="H5CurrentPage"
+              @current-change="H5PageChange($event)"
+            ></el-pagination>
+          </div>
+        </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="preservation">保 存</el-button>
@@ -139,7 +240,11 @@ import {
   findSystemPageListNavigation,
   findPageListNavigation,
   getGoodsClassRequest,
-  queryPlatAndMerchantGoodsList
+  queryPlatAndMerchantGoodsList,
+  queryNewPeople,
+  queryGoodsArea,
+  findPageListH5,
+  addOrUpdateH5
 } from "@/network/api";
 export default {
   data() {
@@ -161,7 +266,7 @@ export default {
       radioData3: "",
       radioName: "",
       paramExt: 1,
-      category: "", //导航分类： 1-系统页面 2-商品详情 3-商品分类
+      category: "", //导航分类： 1-系统页面 2-商品详情 3-商品分类 4-新人专区
       issueStatus: false,
       goodsCategory: [], //所有商品分类
       options1: [],
@@ -178,7 +283,20 @@ export default {
           label: "全部二级分类"
         }
       ],
-      productTypeValue: "1"
+      productTypeValue: "1",
+      newPeopleData: [],
+      newPeopleTotal: 0,
+      newPeopleCurrentPage: 1,
+      radioNewPeople: "",
+      goodsActiviteData: "",
+      radioGoodsActivite: "",
+      goodsActiviteTotal: 0,
+      goodsActiviteCurrentPage: 1,
+      H5: "",
+      H5Data: [],
+      radioH5: "",
+      H5Total: 0,
+      H5CurrentPage: 1
     };
   },
   created() {
@@ -186,6 +304,9 @@ export default {
     this.getGoodsCategory();
     this.search(1);
     this.findPageListNavigation(1);
+    this.queryNewPeople(1);
+    this.queryGoodsArea(1);
+    this.findPageListH5(1);
   },
   methods: {
     // 打开dialog
@@ -221,6 +342,9 @@ export default {
       this.radioName = arr[0].title;
       this.radioData2 = "";
       this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
     },
     // 系统页面翻页
     systemPageChange(val) {
@@ -297,6 +421,9 @@ export default {
       this.radioName = arr[0].name;
       this.radioData1 = "";
       this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
     },
     // 商品详情翻页
     productDetailPageChange(val) {
@@ -333,6 +460,9 @@ export default {
       this.radioName = arr[0].name;
       this.radioData1 = "";
       this.radioData2 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
     },
     // 商品分类翻页
     productTypePageChange(val) {
@@ -345,7 +475,131 @@ export default {
       this.paramExt = val;
       this.findPageListNavigation(1);
     },
-    // ===============================================
+    // ====================新人专区===========================
+    // 查询活动列表
+    queryNewPeople(val) {
+      let parms = {
+        pageNumber: val,
+        pageSize: 5
+      };
+      queryNewPeople({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          let data = res.data.content;
+          this.newPeopleData = data.items;
+          this.newPeopleTotal = data.totalSize;
+          this.currentPage = val;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 新人专区radio改变事件
+    radioSelectNewPeople(val) {
+      this.category = 4;
+      let arr = this.newPeopleData.filter(item => {
+        return item.id == val;
+      });
+      this.radioName = arr[0].name;
+      this.radioData1 = "";
+      this.radioData2 = "";
+      this.radioData3 = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
+    },
+    // 新人专区翻页
+    newPeoplePageChange(val) {
+      this.queryNewPeople(val);
+      this.newPeopleCurrentPage = val;
+    },
+    // ======================商品专区================================
+
+    // 查询活动列表
+    queryGoodsArea(val) {
+      let parms = {
+        pageNumber: val,
+        pageSize: 5
+      };
+      queryGoodsArea({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          let data = res.data.content;
+          this.goodsActiviteData = data.items;
+          this.goodsActiviteTotal = data.totalSize;
+          this.goodsActiviteCurrentPage = val;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 商品专区radio改变事件
+    radioSelectGoodsArea(val) {
+      this.category = 5;
+      let arr = this.goodsActiviteData.filter(item => {
+        return item.id == val;
+      });
+      this.radioName = arr[0].name;
+      this.radioData1 = "";
+      this.radioData2 = "";
+      this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioH5 = "";
+    },
+    // 商品专区翻页
+    goodsActivitePageChange(val) {
+      this.queryGoodsArea(val);
+      this.goodsActiviteCurrentPage = val;
+    },
+    // ===========================H5链接路径==================================
+    // 查询H5列表
+    findPageListH5(val) {
+      let parms = {
+        pageNumber: val,
+        pageSize: 5
+      };
+      findPageListH5({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          let data = res.data.content;
+          this.H5Data = data.items;
+          this.H5Total = data.totalSize;
+          this.H5CurrentPage = val;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 添加或修改H5路径
+    addH5() {
+      let parms = {
+        param: this.H5,
+        title: this.H5
+      };
+      addOrUpdateH5(parms).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.findPageListH5(1);
+          this.$message.success("保存成功");
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // H5专区radio改变事件
+    radioSelectH5(val) {
+      this.category = 6;
+      let arr = this.H5Data.filter(item => {
+        return item.id == val;
+      });
+      this.radioName = arr[0].title;
+      this.radioData1 = "";
+      this.radioData2 = "";
+      this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+    },
+    // H5专区翻页
+    H5PageChange(val) {
+      this.findPageListH5(val);
+      this.H5CurrentPage = val;
+    },
+    // =============================================================
     // tabs选择
     handleClick(tab, event) {
       // console.log(tab.label);
@@ -360,6 +614,12 @@ export default {
         radioData = this.radioData2;
       } else if (category == 3) {
         radioData = this.radioData3;
+      } else if (category == 4) {
+        radioData = this.radioNewPeople;
+      } else if (category == 5) {
+        radioData = this.radioGoodsActivite;
+      } else if (category == 6) {
+        radioData = this.radioH5;
       }
       if (!radioData) {
         this.$message.error("请选择路径");

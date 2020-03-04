@@ -4,7 +4,7 @@
       <h3 class="tle">登录</h3>
 
       <el-form-item prop="userName">
-        <el-input type="text" maxlength="8" v-model="form.userName" placeholder="用户名"></el-input>
+        <el-input type="text" maxlength="20" v-model="form.userName" placeholder="用户名"></el-input>
       </el-form-item>
 
       <el-form-item prop="userPwd">

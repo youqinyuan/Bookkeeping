@@ -179,7 +179,7 @@
       </el-table>
     </div>
     <div style="display:flex;margin-top:30px;">
-      <span class="demonstration">发展用消费收益记录表：（总计{{teamBuyGoodsIncomeItemsTotal}}条）</span>
+      <span class="demonstration">发展用户消费收益记录表：（总计{{teamBuyGoodsIncomeItemsTotal}}条）</span>
       <el-pagination
         @current-change="handleCurrentChange2"
         :page-size="10"

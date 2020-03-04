@@ -33,13 +33,13 @@
           </div>
           <div style="margin-top:10px;margin-right:10px;">
             <span>订单金额：</span>
-            <el-input v-model="form.startOrderAmount" style="width:80px;" size="small"></el-input>-
-            <el-input v-model="form.endOrderAmount" style="width:80px;" size="small"></el-input>
+            <el-input v-model="form.startOrderAmount" style="width:100px;" size="small"></el-input>-
+            <el-input v-model="form.endOrderAmount" style="width:100px;" size="small"></el-input>
           </div>
           <div style="margin-top:10px;margin-right:10px;">
             <span>订单优惠金额：</span>
-            <el-input v-model="form.startDiscountAmount" style="width:80px;" size="small"></el-input>-
-            <el-input v-model="form.endDiscountAmount" style="width:80px;" size="small"></el-input>
+            <el-input v-model="form.startDiscountAmount" style="width:100px;" size="small"></el-input>-
+            <el-input v-model="form.endDiscountAmount" style="width:100px;" size="small"></el-input>
           </div>
           <div style="margin-top:10px;margin-right:10px;">
             <span>下单方式：</span>
@@ -60,7 +60,7 @@
         <div style="display:flex;flex-wrap:wrap;">
           <div style="margin-top:10px;margin-right:10px;">
             <span>商品id：</span>
-            <el-input v-model="form.goodsId" style="width:60px;" size="small"></el-input>
+            <el-input v-model="form.goodsId" style="width:80px;" size="small"></el-input>
           </div>
           <div style="margin-top:10px;margin-right:10px;">
             <span>商品分类：</span>
@@ -99,11 +99,11 @@
           </div>
           <div style="margin-top:10px;margin-right:10px;">
             <span>购买数量：</span>
-            <el-input v-model="form.quantity" style="width:80px;" size="small"></el-input>
+            <el-input v-model="form.quantity" style="width:100px;" size="small" :maxlength="9"></el-input>
           </div>
           <div style="margin-top:10px;margin-right:10px;">
             <span>返现周期：</span>
-            <el-input v-model="form.period" style="width:80px;" size="small"></el-input>
+            <el-input v-model="form.period" style="width:100px;" size="small" :maxlength="10"></el-input>
           </div>
         </div>
       </div>
@@ -204,7 +204,12 @@
           <span>上级电话：</span>
           <el-input v-model="form.parentPhone" style="width:120px;" size="small"></el-input>
           <span style="margin-left:10px;">上级邀请码：</span>
-          <el-input v-model="form.parentInviterCode" style="width:120px;" size="small"></el-input>
+          <el-input
+            v-model="form.parentInviterCode"
+            style="width:120px;"
+            size="small"
+            :maxlength="11"
+          ></el-input>
           <span style="margin-left:10px;">佣金金额：</span>
           <el-input v-model="form.commissionAmount" style="width:120px;" size="small"></el-input>
           <el-button
@@ -245,6 +250,7 @@
         <el-table-column prop="payFreeAmount" align="center" label="商品freebuy付款价"></el-table-column>
         <el-table-column prop="payNormalAmount" align="center" label="正常购买付款价"></el-table-column>
         <el-table-column prop="goodsDiscountAmount" align="center" label="商品优惠总金额"></el-table-column>
+        <el-table-column prop="totalDiscount" align="center" label="订单优惠总金额"></el-table-column>
         <el-table-column prop="discountAmount" align="center" label="钻石合伙人折扣减免金额"></el-table-column>
         <el-table-column prop="shoppingAmount" align="center" label="钻石合伙人购物金减免金额"></el-table-column>
         <el-table-column prop="deductionAmount" align="center" label="积分减免金额"></el-table-column>
@@ -385,6 +391,10 @@ export default {
       ],
       orderTypeOptions: [
         {
+          value: "",
+          label: "全部"
+        },
+        {
           value: "1",
           label: "正常购买"
         },
@@ -421,23 +431,15 @@ export default {
           label: "FreeBuy转正常购买"
         },
         {
-          value: 11,
-          label: "钻石合伙人订单"
-        },
-        {
-          value: 12,
-          label: "爱心捐助订单"
-        },
-        {
-          value: 13,
-          label: "好友赞助订单"
-        },
-        {
-          value: 14,
+          value: "14",
           label: "FreeBuy赞助订单"
         }
       ],
       userRoleOptions: [
+        {
+          value: "",
+          label: "全部"
+        },
         {
           value: "2",
           label: "普通会员"
@@ -496,6 +498,9 @@ export default {
   },
   methods: {
     search(val) {
+      if (!this.checkData()) {
+        return;
+      }
       let data = JSON.parse(JSON.stringify(this.form));
       data.pageNumber = val;
       data.pageSize = 10;
@@ -529,6 +534,9 @@ export default {
     },
     // 导出查询内容
     downloadData() {
+      if (!this.checkData()) {
+        return;
+      }
       let data = this.form;
       if (this.time) {
         data.orderStartTime = this.time[0].getTime();
@@ -564,6 +572,71 @@ export default {
       document.body.appendChild(a);
       a.click();
     },
+
+    // 校验form表单提交数据是否符合规范
+    checkData() {
+      let data = this.form;
+      let moneyRex = /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/;
+      let phoneRex = /^1[3456789]\d{9}$/;
+      let integer = /^[+]{0,1}(\d+)$/;
+      if (data.startOrderAmount && !moneyRex.test(data.startOrderAmount)) {
+        this.$message.error("订单金额输入格式有误");
+        return false;
+      }
+      if (data.endOrderAmount && !moneyRex.test(data.endOrderAmount)) {
+        this.$message.error("订单金额输入格式有误");
+        return false;
+      }
+      if (
+        data.startDiscountAmount &&
+        !moneyRex.test(data.startDiscountAmount)
+      ) {
+        this.$message.error("订单优惠金额输入格式有误");
+        return false;
+      }
+      if (data.endDiscountAmount && !moneyRex.test(data.endDiscountAmount)) {
+        this.$message.error("订单优惠金额输入格式有误");
+        return false;
+      }
+      if (data.goodsId && !moneyRex.test(data.goodsId)) {
+        this.$message.error("商品id输入格式有误");
+        return false;
+      }
+      if (data.quantity && !integer.test(data.quantity)) {
+        this.$message.error("购买数量输入格式有误");
+        return false;
+      }
+      if (data.period && !moneyRex.test(data.period)) {
+        this.$message.error("返现周期输入格式有误");
+        return false;
+      }
+      if (data.businessPhone && !phoneRex.test(data.businessPhone)) {
+        this.$message.error("商家电话输入格式有误");
+        return false;
+      }
+      if (data.userMobileNumber && !phoneRex.test(data.userMobileNumber)) {
+        this.$message.error("用户电话输入格式有误");
+        return false;
+      }
+      if (data.receiverPhone && !phoneRex.test(data.receiverPhone)) {
+        this.$message.error("收货人电话输入格式有误");
+        return false;
+      }
+      if (data.parentPhone && !phoneRex.test(data.parentPhone)) {
+        this.$message.error("上级电话输入格式有误");
+        return false;
+      }
+      if (data.parentInviterCode && !integer.test(data.parentInviterCode)) {
+        this.$message.error("上级邀请码输入格式有误");
+        return false;
+      }
+      if (data.commissionAmount && !moneyRex.test(data.commissionAmount)) {
+        this.$message.error("佣金金额输入格式有误");
+        return false;
+      } else {
+        return true;
+      }
+    },
     // 获取商品分类
     getGoodsCategory() {
       getGoodsClassRequest().then(res => {
@@ -594,6 +667,7 @@ export default {
     getAllCityList() {
       getAllCityData().then(res => {
         let data = res.data.content;
+        // console.log(data)
         this.cityData = data;
         // 获取初始化省份列表
         this.provinceList = data.provinceList.map((val, index) => {
@@ -602,14 +676,25 @@ export default {
           json.label = val.name;
           return json;
         });
+        this.provinceList.unshift({
+          label: "全部",
+          value: ""
+        });
       });
     },
     // 选择省份
     select_province(e) {
-      this.province = this.cityData.provinceList[e - 1].name;
-      this.form.province = this.cityData.provinceList[e - 1].id;
       this.city = "市";
       this.area = "区";
+      this.form.city = "";
+      this.form.district = "";
+      if (!e) {
+        this.form.province = "";
+        return;
+      }
+      // console.log(this.cityData.provinceList[e - 1]);
+      this.province = this.cityData.provinceList[e - 1].name;
+      this.form.province = this.cityData.provinceList[e - 1].id;
       let city = this.cityData.cityList.filter(val => {
         return val.provinceId == e;
       });
@@ -622,9 +707,11 @@ export default {
     },
     // 选择城市
     select_citys(e) {
+      // console.log(this.cityData.cityList[e - 1]);
       this.city = this.cityData.cityList[e - 1].name;
       this.form.city = this.cityData.cityList[e - 1].id;
       this.area = "区";
+      this.form.district = "";
       let districtList = this.cityData.districtList.filter(val => {
         return val.cityId == e;
       });

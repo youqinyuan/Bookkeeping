@@ -41,7 +41,6 @@ export default {
     },
     // 点击保存按钮 - 发送富文本给后台
     saveContent() {
-      console.log(this.content);
       if (this.content == "") {
         this.$message.error("请添加内容");
         return;

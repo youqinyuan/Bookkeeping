@@ -297,23 +297,23 @@ export default {
           ]
         },
         {
-          title: "充值管理"
-          // nav: [
-          //   {
-          //     title: '用户充值管理',
-          //     active: false,
-          //     path: {
-          //       path: '/userRecharge'
-          //     }
-          //   },
-          //   {
-          //     title: '充值设置',
-          //     active: false,
-          //     path: {
-          //       path: '/rechargeSet'
-          //     }
-          //   }
-          // ]
+          title: "充值管理",
+          nav: [
+            {
+              title: '用户充值管理',
+              active: false,
+              path: {
+                path: '/userRecharge'
+              }
+            },
+            {
+              title: '充值设置',
+              active: false,
+              path: {
+                path: '/rechargeSet'
+              }
+            }
+          ]
         },
         {
           title: "积分管理",
@@ -352,10 +352,17 @@ export default {
               }
             },
             {
-              title: "导航营销",
+              title: "图标导航",
               active: false,
               path: {
-                path: "/navigation"
+                path: "/navigation_icon"
+              }
+            },
+            {
+              title: "活动导航",
+              active: false,
+              path: {
+                path: "/navigation_activits"
               }
             },
             {

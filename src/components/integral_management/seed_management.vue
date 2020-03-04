@@ -34,15 +34,21 @@
           <span>种子</span>
         </el-form-item>
       </div>
-      <!-- <el-form-item label>
-        <span>5、购买商品赠送积分</span>
-        <el-input v-model="form.name" style="width:100px;"></el-input>
+      <el-form-item prop="SHOPPING_SEND_SEED">
+        <span>5、购物送种子：</span>
+        <el-input v-model="form.SHOPPING_SEND_SEED" style="width:100px;"></el-input>
+        <span>种子/件</span>
       </el-form-item>
-      <div class="title">用户消耗种子规则：</div>
-      <el-form-item label>
-        <span>1、购物时订单可抵扣金额</span>
-        <el-input v-model="form.name" style="width:100px;"></el-input>
-      </el-form-item>-->
+      <el-form-item prop="DEDUCTION_SEED">
+        <span>6、正常购买时种子（积分）可抵扣金额的：</span>
+        <el-input v-model="form.DEDUCTION_SEED" style="width:100px;"></el-input>
+        <span>%</span>
+      </el-form-item>
+      <el-form-item prop="FREE_BUY_DEDUCTION_SEED">
+        <span>7、Freebuy购买时种子（积分）可抵扣金额的：</span>
+        <el-input v-model="form.FREE_BUY_DEDUCTION_SEED" style="width:100px;"></el-input>
+        <span>%</span>
+      </el-form-item>
       <div class="title">种子汇率：</div>
       <el-form-item prop="VALUE_OF_SEED">
         <span>1、在抵扣时，一元与</span>
@@ -67,7 +73,10 @@ export default {
         BALANCE_SEND_SEED: "",
         TRANS_SEND_SEED: "",
         DAY_OF_TRANS_SEND_SEED: "",
-        VALUE_OF_SEED: ""
+        VALUE_OF_SEED: "",
+        SHOPPING_SEND_SEED: "",
+        DEDUCTION_SEED: "",
+        FREE_BUY_DEDUCTION_SEED: ""
       },
       rules: {
         POST_SEND_SEED: [
@@ -125,6 +134,30 @@ export default {
             message: "请输入0-100之间的数值",
             trigger: "blur"
           }
+        ],
+        SHOPPING_SEND_SEED: [
+          {
+            required: true,
+            pattern: /^[0-9]\d*$/,
+            message: "只可填写非负整数",
+            trigger: "blur"
+          }
+        ],
+        DEDUCTION_SEED: [
+          {
+            required: true,
+            pattern: /^(\d{1,2}(\.\d{1,2})?|100)$/,
+            message: "请输入0-100之间的数值，最多两位小数",
+            trigger: "blur"
+          }
+        ],
+        FREE_BUY_DEDUCTION_SEED: [
+          {
+            required: true,
+            pattern: /^(\d{1,2}(\.\d{1,2})?|100)$/,
+            message: "请输入0-100之间的数值，最多两位小数",
+            trigger: "blur"
+          }
         ]
       }
     };
@@ -173,6 +206,14 @@ export default {
             );
             return;
           }
+          if (
+            Number(form.SHOPPING_SEND_SEED > 999999)
+          ) {
+            this.$message.error(
+              "赠送种子最大可输入999999"
+            );
+            return;
+          }
           let arr = [
             { key: "POST_SEND_SEED", value: form.POST_SEND_SEED, enabled: 1 },
             {
@@ -196,7 +237,17 @@ export default {
               value: form.DAY_OF_TRANS_SEND_SEED,
               enabled: 1
             },
-            { key: "VALUE_OF_SEED", value: form.VALUE_OF_SEED, enabled: 1 }
+            {
+              key: "SHOPPING_SEND_SEED",
+              value: form.SHOPPING_SEND_SEED,
+              enabled: 1
+            },
+            { key: "DEDUCTION_SEED", value: form.DEDUCTION_SEED, enabled: 1 },
+            {
+              key: "FREE_BUY_DEDUCTION_SEED",
+              value: form.FREE_BUY_DEDUCTION_SEED,
+              enabled: 1
+            }
           ];
           updateSeedParamConfig(arr).then(res => {
             if (res.data.messageCode == "MSG_1001") {

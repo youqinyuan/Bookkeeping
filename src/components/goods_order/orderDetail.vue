@@ -36,10 +36,16 @@
         <span v-if="orderObj.orderType==8">购买方式：线下-普通订单</span>
         <span v-if="orderObj.orderType==9">购买方式：线下-FreeBuy订单</span>
         <span v-if="orderObj.orderType==10">购买方式：FreeBuy转正常购买</span>
-        <span v-if="orderObj.orderType==11">钻石合伙人订单</span>
-        <span v-if="orderObj.orderType==12">爱心捐助订单</span>
-        <span v-if="orderObj.orderType==13">好友赞助订单</span>
-        <span v-if="orderObj.orderType==14">FreeBuy赞助订单</span>
+        <span v-if="orderObj.orderType==11">购买方式：钻石合伙人订单</span>
+        <span v-if="orderObj.orderType==12">购买方式：爱心捐助订单</span>
+        <span v-if="orderObj.orderType==13">购买方式：好友赞助订单</span>
+        <span v-if="orderObj.orderType==14">购买方式：FreeBuy赞助订单</span>
+        <span v-if="orderObj.orderType == 15">购买方式：线上新人专区订单</span>
+        <span v-if="orderObj.orderType == 16">购买方式：线下新人专区订单</span>
+        <span v-if="orderObj.orderType == 17">购买方式：线上商品活动订单</span>
+        <span v-if="orderObj.orderType == 18">购买方式：线下商品活动订单</span>
+        <span v-if="orderObj.orderType == 19">购买方式：线上商品活动-FreeBuy订单</span>
+        <span v-if="orderObj.orderType == 20">购买方式：线下商品活动-FreeBuy订单</span>
       </div>
       <div class="orderInfoItem">备注：{{remark?remark:'无'}}</div>
       <div
@@ -51,7 +57,7 @@
         <span
           v-if="orderObj.useSeed == 1"
         >积分减{{orderObj.deductionAmount}}元，</span>
-        <span>钻石合伙人{{orderObj.discountRatio}}折减{{orderObj.discountAmount}}元</span>
+        <span>钻石合伙人{{orderObj.discountRatio/10}}折减{{orderObj.discountAmount}}元</span>
         <span v-if="orderObj.useCoupon == 1">，钻石合伙人购物金减{{orderObj.shoppingAmount}}元</span>）
       </div>
     </div>
@@ -66,7 +72,7 @@
         <span v-else>
           ，返现：{{item.period}}期 (
           <span v-if="item.period==item.returnedPeriod">
-            {{item.returnedPeriod}}进行中,
+            {{item.returnedPeriod}}期进行中,
             返现时间：
             <span
               v-for="(ite,inde) in item.orderGoodsCashBackItem"
@@ -82,13 +88,24 @@
               v-for="(ite,inde) in item.orderGoodsCashBackItem"
               :key="inde"
             >
-              <span v-if="ite.period==item.returnedPeriod+1">{{ite.returnTime | dateFormat}}</span>
+              <span
+                v-if="ite.period==item.returnedPeriod+1"
+              >{{ite.returnTime | dateFormat}}&nbsp;&nbsp;</span>
             </span>
           </span>
           ))
         </span>
         <span>购买数量：{{item.quantity}}个。</span>
-        <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
+        <span v-if="item.orderGoodsApplyRefund">
+          <span>退款状态：</span>
+          <span v-if="item.orderGoodsApplyRefund.status == 1">退款中，</span>
+          <span v-if="item.orderGoodsApplyRefund.status == 2">商家已同意-退款中，</span>
+          <span v-if="item.orderGoodsApplyRefund.status == 3">已发货-退款中，</span>
+          <span v-if="item.orderGoodsApplyRefund.status == 4">退款失败，</span>
+          <span v-if="item.orderGoodsApplyRefund.status == 5">退款成功，</span>
+          <span v-if="item.orderGoodsApplyRefund.status == 6">取消退款，</span>
+        </span>
+        <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio/10:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
       </div>
     </div>
     <div class="titleStyle">用户信息</div>
@@ -103,7 +120,10 @@
       <div class="orderInfoItem">上级：{{orderObj.parentName || '无'}}</div>
     </div>
     <div class="titleStyle">物流信息</div>
-    <div class="orderInfoBox">
+    <div class="orderInfoBox" v-if="isDeliverGoods">
+      <span class="orderInfoItem">此商品无需发货</span>
+    </div>
+    <div class="orderInfoBox" v-else>
       <div
         v-for="(item,index) in orderObj.orderLogisticsDetailList"
         :key="index"
@@ -207,6 +227,16 @@
         v-if="orderObj.latestStatus==11 && orderObj.orderLogisticsDetailList !=''"
         @click="deliverGoods(orderObj.id)"
       >发货</el-button>
+      <el-button
+        type="primary"
+        v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14"
+        @click="noDeliverGoods(orderObj.id)"
+      >无需发货</el-button>
+      <el-button
+        type="primary"
+        v-if="orderObj.latestStatus==11 && orderObj.orderLogisticsDetailList !=''"
+        @click="noDeliverGoods(orderObj.id)"
+      >无需发货</el-button>
       <el-button
         type="success"
         v-if="orderObj.latestStatus==1"
@@ -376,13 +406,15 @@ import {
   cancelOrderMerchant,
   refundAudit,
   getAllCityData,
-  updateOrderAddress
+  updateOrderAddress,
+  noLogistics
 } from "@/network/api";
 import shipPop from "./common/shipPop";
 export default {
   data() {
     return {
       orderObj: {},
+      isDeliverGoods: false, // 判断商品是否无需发货
       deliverGoodsState: false,
       changeAddress_dialog: false, // 是否显示修改地址弹框
       remark: "", // 备注
@@ -451,11 +483,17 @@ export default {
       queryOrder(`?orderId=${id}`).then(res => {
         let data = res.data.content;
         this.orderObj = data;
-        this.remark = this.orderObj.orderAddressDetail.remark;
+        this.remark = data.orderAddressDetail.remark;
         this.address = data.orderAddressDetail;
         let districtAddress = data.orderAddressDetail.districtAddress.split(
           "-"
         );
+        // 判断商品是否无需发货
+        data.orderTimeDetail.forEach(val => {
+          if (val.remark == "NO_LOGISTICS") {
+            this.isDeliverGoods = true;
+          }
+        });
         this.province = districtAddress[0];
         this.city = districtAddress[1];
         this.area = districtAddress[2];
@@ -534,6 +572,20 @@ export default {
           }
         });
       }
+    },
+    // 无需发货
+    noDeliverGoods(id) {
+      let parms = {
+        orderId: id
+      };
+      noLogistics(this.qs.stringify(parms)).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.$message.success("操作成功");
+          this.getOrderList(id);
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
     },
     // 修改物流单号确认事件
     saveModifyNum(id) {

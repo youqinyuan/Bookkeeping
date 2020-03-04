@@ -47,7 +47,7 @@
         <span
           v-if="orderObj.useSeed == 1"
         >积分减{{orderObj.deductionAmount}}元，</span>
-        <span>钻石合伙人{{orderObj.discountRatio}}折减{{orderObj.discountAmount}}元</span>
+        <span>钻石合伙人{{orderObj.discountRatio/10}}折减{{orderObj.discountAmount}}元</span>
         <span v-if="orderObj.useCoupon == 1">，钻石合伙人购物金减{{orderObj.shoppingAmount}}元</span>）
       </div>
     </div>
@@ -91,7 +91,7 @@
         <span v-if="item.orderGoodsApplyRefund.status == 4">退款失败，</span>
         <span v-if="item.orderGoodsApplyRefund.status == 5">退款成功，</span>
         <span v-if="item.orderGoodsApplyRefund.status == 6">取消退款，</span>
-        <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
+        <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio/10:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
       </div>
     </div>
     <div class="titleStyle">用户信息</div>

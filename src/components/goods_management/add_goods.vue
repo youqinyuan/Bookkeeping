@@ -271,7 +271,11 @@
         </el-col>
         <el-col class="spec-detail-detail">
           <div class="header">
-            <div v-for="(item, index) in goodsSpecTle" :key="index">{{item.specName}}</div>
+            <div
+              style="width:260px;"
+              v-for="(item, index) in goodsSpecTle"
+              :key="index"
+            >{{item.specName}}</div>
             <div class="fill">原价</div>
             <div class="fill">库存</div>
             <div class="fill">成本价</div>
@@ -283,7 +287,64 @@
             <div>销量</div>
           </div>
 
-          <el-row type="flex" class="content">
+          <div class="content">
+            <div
+              v-for="(item, index) in RenderGoodsSpec"
+              :key="index"
+              style="display: flex; flex-direction: column;"
+            >
+              <div
+                style="flex-grow: 1;border-top: 1px solid #dddddd; border-left: 1px solid #dddddd;display: flex;align-items:center"
+                v-for="(ite, dex) in item"
+                :key="dex"
+              >
+                <div style="display: flex; align-items: center;width:260px;font-size:14px;">
+                  <div style="margin:0 auto">{{ ite }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div v-for="(item, index) in 9" :key="'item' + index">
+              <div
+                v-for="(ite, dex) in RenderGoodsSpec[RenderGoodsSpec.length - 1]"
+                :key="'item' + dex"
+              >
+                <div v-if="index < 7" style="width:120px;">
+                  <div class="hh">
+                    <el-input
+                      v-model="userInputSpecDetail[index][dex]"
+                      :maxlength="index === 1 ? '6' : '11'"
+                      :disabled="goodsDetailJson.stock.disabled"
+                    ></el-input>
+                  </div>
+                </div>
+
+                <div v-if="index === 7" style="width:120px;">
+                  <div class="hh" style="width:100%;text-align: center;min-width:80px">
+                    <el-button
+                      type="text"
+                      style="height:40px"
+                      :disabled="cashback[dex].checkset"
+                      @click="setCashback(dex)"
+                    >{{ cashback[dex].cashbackList.length > 0 ? '查看' : '设置' }}</el-button>
+                    <el-checkbox
+                      v-model="cashback[dex].checkset"
+                      :disabled="goodsDetailJson.stock.disabled"
+                      @change="changeCheck(dex)"
+                    ></el-checkbox>
+                  </div>
+                </div>
+
+                <div v-if="index === 8" style="width:120px;border-right:1px solid #ddd;">
+                  <div class="hh">
+                    <div style="text-align: center;line-height: 40px;">{{ salesArr[dex] }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- <el-row class="content">
             <el-col
               v-for="(item, index) in RenderGoodsSpec"
               :key="index"
@@ -295,18 +356,18 @@
                 v-for="(ite, dex) in item"
                 :key="dex"
               >
-                <el-col style="display: flex; align-items: center;">
+                <el-col style="display: flex; align-items: center;width:260px;font-size:14px;">
                   <div style="margin:0 auto">{{ ite }}</div>
                 </el-col>
               </el-row>
             </el-col>
 
-            <el-col v-for="(item, index) in 9" :key="'item' + index">
+            <el-col v-for="(item, index) in 9" :key="'item' + index"> 
               <el-row
                 v-for="(ite, dex) in RenderGoodsSpec[RenderGoodsSpec.length - 1]"
                 :key="'item' + dex"
               >
-                <el-col v-if="index < 7">
+                <el-col v-if="index < 7" style="width:120px;">
                   <div class="hh">
                     <el-input
                       v-model="userInputSpecDetail[index][dex]"
@@ -316,7 +377,7 @@
                   </div>
                 </el-col>
 
-                <el-col v-if="index === 7">
+                <el-col v-if="index === 7" style="width:120px;">
                   <div class="hh" style="width:100%;text-align: center;min-width:80px">
                     <el-button
                       type="text"
@@ -332,14 +393,14 @@
                   </div>
                 </el-col>
 
-                <el-col v-if="index === 8">
+                <el-col v-if="index === 8" style="width:120px;">
                   <div class="hh">
                     <div style="text-align: center;line-height: 40px;">{{ salesArr[dex] }}</div>
                   </div>
                 </el-col>
               </el-row>
             </el-col>
-          </el-row>
+          </el-row>-->
 
           <el-row class="modify" v-show="!goodsDetailJson.stock.disabled">
             <el-col style="font-size: 14px; padding-top: 10px; width: 70px !important;">批量设置:</el-col>
@@ -406,6 +467,17 @@
                 <el-button type="text" @click="batchSave('bili')" style="margin-right: 10px;">保存</el-button>
               </el-form-item>
             </el-col>
+            <el-col style="width: 60px !important;">
+              <el-form-item>
+                <el-button type="text" @click="batchOperation('seed')">赠送种子</el-button>
+              </el-form-item>
+            </el-col>
+            <el-col v-show="seed.switch">
+              <el-form-item>
+                <el-input v-model="seed.moneyNum" style="width:80px;"></el-input>
+                <el-button type="text" @click="batchSave('seed')" style="margin-right: 10px;">保存</el-button>
+              </el-form-item>
+            </el-col>
             <el-col style="width: 90px !important;">
               <el-form-item>
                 <el-button type="text" @click="batchOperation('supportNum')">赞助次数</el-button>
@@ -413,7 +485,7 @@
             </el-col>
             <el-col v-show="supportNum.switch">
               <el-form-item>
-                <el-input v-model="supportNum.moneyNum" style="width:60px;"></el-input>
+                <el-input v-model="supportNum.moneyNum" style="width:80px;"></el-input>
                 <el-button
                   type="text"
                   @click="batchSave('supportNum')"
@@ -969,6 +1041,11 @@ export default {
         moneyNum: "", // 比例
         switch: false // 显示隐藏
       },
+      seed: {
+        // 赞助次数
+        moneyNum: "", // 次数
+        switch: false // 显示隐藏
+      },
       supportNum: {
         // 赞助次数
         moneyNum: "", // 次数
@@ -1441,12 +1518,19 @@ export default {
 
     // 可抵扣修改事件
     saveSeed() {
+      if (
+        this.form.seedDeduction >= 100 ||
+        this.form.freeBuySeedDeduction >= 100
+      ) {
+        this.$message.error("输入值不可大于等于100");
+        return;
+      }
       let param = {
         id: this.$route.query.id,
         seedDeduction: this.form.seedDeduction,
         freeBuySeedDeduction: this.form.freeBuySeedDeduction
       };
-      this.upDataGoods(param, "parityInfo");
+      this.upDataGoods(param, "seed");
       this.goodsDetailJson.seed.disabled = true;
     },
 
@@ -1588,6 +1672,12 @@ export default {
       this.requestLoading = true;
 
       param.id = id;
+      param.seedDeduction = this.form.seedDeduction
+        ? this.form.seedDeduction
+        : "";
+      param.freeBuySeedDeduction = this.form.freeBuySeedDeduction
+        ? this.form.freeBuySeedDeduction
+        : "";
 
       console.log(param);
 
@@ -2058,6 +2148,8 @@ export default {
         index = 3;
       } else if (type === "bili") {
         index = 4;
+      } else if (type === "seed") {
+        index = 5;
       } else if (type === "supportNum") {
         index = 6;
       }
@@ -2066,8 +2158,19 @@ export default {
         this.alertTips("批量更改不能为空");
         return false;
       } else if (this.checkNum(this[type].moneyNum) !== true) {
-        this.alertTips("批量更改只能设置数字");
+        this.alertTips("输入格式不正确");
         return false;
+      }
+      // 验证赠送种子输入格式
+      if (type === "seed") {
+        if (this[type].moneyNum > 999999) {
+          this.alertTips("最大可输入999999");
+          return false;
+        }
+        if (!/^[0-9]\d*$/.test(this[type].moneyNum)) {
+          this.alertTips("格式不正确");
+          return false;
+        }
       }
       arr = this.userInputSpecDetail[index];
 
@@ -2668,6 +2771,9 @@ export default {
       } else if (sendSeed && !/^[0-9]\d*$/.test(sendSeed)) {
         this.alertTips("赠送种子格式不正确");
         return false;
+      } else if (sendSeed && sendSeed > 999999) {
+        this.alertTips("赠送种子格式不正确");
+        return false;
       } else if (
         supportCount &&
         (!/^[0-9]\d*$/.test(supportCount) || supportCount > 100)
@@ -3017,17 +3123,19 @@ export default {
         margin-left: 10px;
         padding: 0 10px;
         border: 1px solid #dddddd;
-
+        overflow-x: auto;
         .header {
           display: flex;
-
           div {
-            width: 0;
-            flex-grow: 1;
+            width: 120px;
+            // flex-grow: 1;
+            flex-shrink: 0;
             padding: 10px 0;
             font-size: 14px;
             color: #333333;
             text-align: center;
+            box-sizing: border-box;
+            // border:1px solid green;
           }
 
           .fill {
@@ -3039,7 +3147,8 @@ export default {
         }
 
         .content {
-          border-right: 1px solid #dddddd;
+          width: 100%;
+          display: flex;
           border-bottom: 1px solid #dddddd;
 
           .hh {

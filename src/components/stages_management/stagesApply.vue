@@ -37,12 +37,12 @@
         </el-table-column>
         <el-table-column prop="realName" align="center" label="姓名" width="100"></el-table-column>
         <el-table-column prop="idCard" align="center" label="身份证号码" width="180"></el-table-column>
-        <el-table-column prop="issuingAuthority" align="center" label="签证机关"></el-table-column>
+        <el-table-column prop="issuingAuthority" align="center" label="签发机关" width="160"></el-table-column>
         <el-table-column prop="name" align="center" label="有效期限" width="200">
           <template slot-scope="scope">
-            <span>{{scope.row.validBeginTime | dateFormat}}</span>
+            <span>{{scope.row.validBeginTime | getTime}}</span>
             <span>至</span>
-            <span>{{scope.row.validEndTime | dateFormat}}</span>
+            <span>{{scope.row.validEndTime | getTime}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="jobTitle" align="center" label="职位"></el-table-column>
@@ -127,14 +127,14 @@ import {
 export default {
   data() {
     return {
-      mobileNumber: null, // 电话
+      mobileNumber: "", // 电话
       totalSize: 0,
-      goodsName: null, // 商品名称
+      goodsName: "", // 商品名称
       currentPage: 1,
       time: "", // 时间
       options: [
         {
-          value: null,
+          value: "",
           label: "全部"
         },
         {
@@ -146,11 +146,22 @@ export default {
           label: "拒绝"
         }
       ],
-      status: null, // 状态
+      status: "", // 状态
       tableData: [],
       centerDialogVisible: false, // 是否显示查看拒绝原因弹窗
       refuseReason: "" // 拒绝原因
     };
+  },
+  filters: {
+    getTime(time) {
+      let date = new Date(time);
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      let day = date.getDate();
+      month = month < 10 ? "0" + month : month;
+      day = day < 10 ? "0" + day : day;
+      return year + "-" + month + "-" + day;
+    }
   },
   created() {
     this.search(1);
@@ -158,21 +169,23 @@ export default {
   methods: {
     // 搜索-获取商品分期购申请数据
     search(val) {
-      let beginTime = "";
-      let endTime = "";
-      if (this.time) {
-        beginTime = this.time[0].getTime();
-        endTime = this.time[1].getTime();
-      }
       let parms = {
         pageNumber: val,
-        pageSize: 10,
-        mobileNumber: this.mobileNumber,
-        beginTime: beginTime,
-        endTime: endTime,
-        goodsName: this.goodsName,
-        status: this.status
+        pageSize: 10
       };
+      if (this.time) {
+        parms.beginTime = this.time[0].getTime();
+        parms.endTime = this.time[1].getTime();
+      }
+      if (this.status) {
+        parms.status = this.status;
+      }
+      if (this.goodsName) {
+        parms.goodsName = this.goodsName;
+      }
+      if (this.mobileNumber) {
+        parms.mobileNumber = this.mobileNumber;
+      }
       applyGoodsStages({ params: parms }).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           let data = res.data.content;
@@ -187,19 +200,20 @@ export default {
 
     // 导出查询内容
     exportContent() {
-      let beginTime = "";
-      let endTime = "";
+      let parms = {};
       if (this.time) {
-        beginTime = this.time[0].getTime();
-        endTime = this.time[1].getTime();
+        parms.beginTime = this.time[0].getTime();
+        parms.endTime = this.time[1].getTime();
       }
-      let parms = {
-        mobileNumber: this.mobileNumber,
-        beginTime: beginTime,
-        endTime: endTime,
-        goodsName: this.goodsName,
-        status: this.status
-      };
+      if (this.status) {
+        parms.status = this.status;
+      }
+      if (this.goodsName) {
+        parms.goodsName = this.goodsName;
+      }
+      if (this.mobileNumber) {
+        parms.mobileNumber = this.mobileNumber;
+      }
       exportInstallmentGoodsExcel(parms).then(res => {
         this.download(res);
       });
