@@ -10,6 +10,7 @@
           <span v-if="content.type == 1">普通贴</span>
           <span v-if="content.type == 2">卖贴</span>
           <span v-if="content.type == 3">买贴</span>
+          <span v-if="content.type == 4">预售订单</span>
         </div>
         <div class="detail">{{content.content}}</div>
         <div class="imgBox" v-if="content.type == 1">
@@ -20,8 +21,12 @@
             preview="1"
           />
         </div>
-        <div class="info" v-if="content.type == 2">
+        <div class="info" v-if="content.type == 2 || content.type == 4">
           <img src="../../assets/ic_saled.png" v-if="content.status == 3" />
+          <img src="../../assets/moneyChange.png" v-if="content.status == 4" />
+          <img src="../../assets/overdue.png" v-if="content.status == 5" />
+          <img src="../../assets/reserve.png" v-if="content.status == 6" />
+          <div>卖方已缴纳违约金：{{content.liquidateDamageAmountVendor}}元</div>
           <div>期望售价：{{content.expectAmount}}元</div>
           <div>共返金额：{{content.cashBackAmount}}元</div>
           <div>剩余{{content.periodLeft}}期，截止{{content.maxReturnTime | getTimes}}，每月{{content.perReturnDay}}号，每期返还{{content.perReturnAmount}}元</div>

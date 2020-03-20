@@ -787,12 +787,7 @@ export default {
       let s = true;
       let q = true;
       let w = true;
-      let a = true;
       form.activityAreas.forEach(val => {
-        // 判断4个配置区域是否填写完整
-        if (val.activityGoods.length == 0) {
-          a = false;
-        }
         // 如果限购周期不为空判断输入格式
         if (
           (val.limitCycle && !number.test(val.limitCycle)) ||
@@ -814,7 +809,6 @@ export default {
           val.activityGoods.forEach(item => {
             item.activityStocks.forEach(ite => {
               if (ite.activityDctRate === "" || ite.controlRatio === "") {
-                // console.log(ite);
                 w = false;
               }
             });
@@ -828,10 +822,6 @@ export default {
           }
         }
       });
-      if (!a) {
-        this.$message.error("请填写所有必填项");
-        return;
-      }
       if (!s) {
         this.$message.error("请检查输入内容是否有误");
         return;
@@ -853,7 +843,14 @@ export default {
       form.useShoppingGold = form.useShoppingGold ? 1 : 0;
       form.useMembersDct = form.useMembersDct ? 1 : 0;
       for (let i = 0; i < form.activityAreas.length; i++) {
-        if (form.activityAreas[i].activityGoods.length == 0) {
+        if (
+          form.activityAreas[i].activityGoods.length == 0 &&
+          form.activityAreas[i].labelName == "" &&
+          form.activityAreas[i].categoryName == "" &&
+          form.activityAreas[i].layeredImage == "" &&
+          form.activityAreas[i].limitCycle == "" &&
+          form.activityAreas[i].limitCount == ""
+        ) {
           form.activityAreas.splice(i, 1);
           i--;
         } else {
@@ -863,8 +860,6 @@ export default {
           });
         }
       }
-      console.log(form);
-      // return;
       if (form.saveType == 1) {
         // 添加活动
       } else if (form.saveType == 2) {
@@ -881,7 +876,6 @@ export default {
           });
         });
       }
-      // return;
       goodsAreaActivity(form).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$router.go(-1);

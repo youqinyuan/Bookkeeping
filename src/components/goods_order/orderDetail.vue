@@ -46,6 +46,7 @@
         <span v-if="orderObj.orderType == 18">购买方式：线下商品活动订单</span>
         <span v-if="orderObj.orderType == 19">购买方式：线上商品活动-FreeBuy订单</span>
         <span v-if="orderObj.orderType == 20">购买方式：线下商品活动-FreeBuy订单</span>
+        <span v-if="orderObj.orderType == 21">购买方式：预售订单</span>
       </div>
       <div class="orderInfoItem">备注：{{remark?remark:'无'}}</div>
       <div
@@ -59,6 +60,26 @@
         >积分减{{orderObj.deductionAmount}}元，</span>
         <span>钻石合伙人{{orderObj.discountRatio/10}}折减{{orderObj.discountAmount}}元</span>
         <span v-if="orderObj.useCoupon == 1">，钻石合伙人购物金减{{orderObj.shoppingAmount}}元</span>）
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.whetherAdvanceSale == 1">
+        <span>违约金：</span>
+        <span v-if="orderObj.defaultAmountStatus == 1">待支付：</span>
+        <span v-if="orderObj.defaultAmountStatus == 2">已支付：</span>
+        <span v-if="orderObj.defaultAmountStatus == 3">已扣除：</span>
+        <span v-if="orderObj.defaultAmountStatus == 4">已返还：</span>
+        <span>{{orderObj.defaultAmount}}</span>
+        <span>元</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.forumTopicResponse">
+        <span>转让信息：</span>
+        <span>售价：{{orderObj.forumTopicResponse.expectAmount}}元，</span>
+        <span>共返：{{orderObj.forumTopicResponse.cashBackAmount}}元，</span>
+        <span>剩余{{orderObj.forumTopicResponse.periodLeft}}期，</span>
+        <span>截止{{orderObj.forumTopicResponse.maxReturnTime | dateFormat}}，</span>
+        <span>每月{{orderObj.forumTopicResponse.perReturnDay}}号，</span>
+        <span>每期返还{{orderObj.forumTopicResponse.perReturnAmount}}，</span>
+        <span>年收益率{{orderObj.forumTopicResponse.annualizedRate}}，</span>
+        <span>内容：{{orderObj.forumTopicResponse.content}}</span>
       </div>
     </div>
     <div class="titleStyle">商品信息</div>
@@ -521,7 +542,7 @@ export default {
         let provinceId = data.provinceList.filter((val, index) => {
           return val.name == this.province;
         });
-        console.log(provinceId);
+        // console.log(provinceId);
         let city = data.cityList.filter(val => {
           return val.provinceId == provinceId[0].id;
         });
@@ -718,7 +739,11 @@ export default {
     },
     // 选择省份
     select_province(e) {
-      this.province = this.cityData.provinceList[e - 1].name;
+      this.provinceList.forEach(val => {
+        if (val.value == e) {
+          this.province = val.label;
+        }
+      });
       this.city = "";
       this.area = "";
       let city = this.cityData.cityList.filter(val => {
@@ -730,11 +755,15 @@ export default {
         json.label = val.name;
         return json;
       });
+      // console.log(this.cityList);
     },
     // 选择城市
     select_citys(e) {
-      console.log(e);
-      this.city = this.cityData.cityList[e - 1].name;
+      this.cityList.forEach(val => {
+        if (val.value == e) {
+          this.city = val.label;
+        }
+      });
       this.area = "";
       let districtList = this.cityData.districtList.filter(val => {
         return val.cityId == e;
@@ -745,11 +774,10 @@ export default {
         json.label = val.name;
         return json;
       });
-      console.log(this.districtList);
+      // console.log(this.districtList);
     },
     // 选择区
     select_provinces(e) {
-      console.log(this.districtList);
       for (let item of this.districtList) {
         if (item.value == e) {
           this.area = item.label;

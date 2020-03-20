@@ -37,6 +37,7 @@
             <span v-if="scope.row.type == 1">普通贴</span>
             <span v-if="scope.row.type == 2">卖贴</span>
             <span v-if="scope.row.type == 3">买贴</span>
+            <span v-if="scope.row.type == 4">卖贴-预售订单</span>
           </template>
         </el-table-column>
         <el-table-column prop="commentCount" label="留言数量" align="center"></el-table-column>
@@ -114,6 +115,10 @@ export default {
         {
           value: "3",
           label: "买贴"
+        },
+        {
+          value: "4",
+          label: "预售订单"
         }
       ],
       postType: "", // 贴子种类

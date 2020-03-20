@@ -67,7 +67,6 @@ export default {
           }
           this.pageData[0] = this.money;
           this.pageData[1] = this.number;
-          console.log(this.pageData);
           updateAgentParamConfig(this.pageData).then(res => {
             if (res.data.messageCode == "MSG_1001") {
               this.$message.success("保存成功");

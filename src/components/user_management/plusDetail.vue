@@ -473,7 +473,7 @@ export default {
     },
 
     // 充值记录
-    pagerechargeItems() {
+    pagerechargeItems(val) {
       this.getplusMemberDetailItems(val, 13);
     },
 

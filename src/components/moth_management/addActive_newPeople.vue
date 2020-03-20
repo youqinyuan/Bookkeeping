@@ -755,12 +755,7 @@ export default {
       // 验证输入格式
       let number = /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/;
       let s = true;
-      let q = true;
       form.activityAreas.forEach(val => {
-        // 判断4个配置区域是否填写完整
-        if (val.goods.length == 0) {
-          q = false;
-        }
         if (
           (val.limitCycle && !number.test(val.limitCycle)) ||
           (val.limitCount && !number.test(val.limitCount))
@@ -768,10 +763,6 @@ export default {
           s = false;
         }
       });
-      if (!q) {
-        this.$message.error("请填写所有必填项");
-        return;
-      }
       if (!s) {
         this.$message.error("请检查输入内容是否有误");
         return;
@@ -791,8 +782,6 @@ export default {
           });
         }
       }
-      console.log(form);
-      // return;
       if (this.$route.query.type == 1) {
         // 添加活动
         form.activityAreas = JSON.stringify(form.activityAreas);

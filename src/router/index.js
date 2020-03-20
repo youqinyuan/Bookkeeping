@@ -25,26 +25,6 @@ export default new Router({
           component: resolve => require(['@/components/index'], resolve)
         },
         {
-          path: '/cityPartner_apply',
-          name: 'cityPartner_apply',
-          component: resolve => require(['@/components/cityPartner_management/cityPartner_apply'], resolve)
-        },
-        {
-          path: '/cityPartner_management',
-          name: 'cityPartner_management',
-          component: resolve => require(['@/components/cityPartner_management/cityPartner_management/cityPartner_management'], resolve)
-        },
-        {
-          path: '/cityPartner_detail',
-          name: 'cityPartner_detail',
-          component: resolve => require(['@/components/cityPartner_management/cityPartner_management/cityPartner_detail'], resolve)
-        },
-        {
-          path: '/wishdraw_apply',
-          name: 'wishdraw_apply',
-          component: resolve => require(['@/components/cityPartner_management/wishdraw_apply'], resolve)
-        },
-        {
           path: '/reward',
           name: 'reward',
           component: resolve => require(['@/components/reward_management/reward'], resolve)
@@ -343,7 +323,7 @@ export default new Router({
           path: '/goodsArea',
           name: 'goodsArea',
           component: resolve => require(['@/components/moth_management/goodsArea'], resolve)
-        },{
+        }, {
           path: '/addActive_goods',
           name: 'addActive_goods',
           component: resolve => require(['@/components/moth_management/addActive_goods'], resolve)
@@ -352,6 +332,36 @@ export default new Router({
           path: '/newbornZoneList',
           name: 'newbornZoneList',
           component: resolve => require(['@/components/moth_management/newbornZoneList'], resolve)
+        },
+        {
+          path: '/advanceOrder',
+          name: 'advanceOrder',
+          component: resolve => require(['@/components/rules_management/advanceOrder'], resolve)
+        },
+        {
+          path: '/agentRule',
+          name: 'agentRule',
+          component: resolve => require(['@/components/rules_management/agentRule'], resolve)
+        },
+        {
+          path: '/addAgent',
+          name: 'addAgent',
+          component: resolve => require(['@/components/rules_management/addAgent'], resolve)
+        },
+        {
+          path: '/agentApply',
+          name: 'agentApply',
+          component: resolve => require(['@/components/agent_management/agentApply'], resolve)
+        },
+        {
+          path: '/agentManagement',
+          name: 'agentManagement',
+          component: resolve => require(['@/components/agent_management/agentManagement'], resolve)
+        },
+        {
+          path: '/withdrawalApply',
+          name: 'withdrawalApply',
+          component: resolve => require(['@/components/agent_management/withdrawalApply'], resolve)
         }
       ]
     }

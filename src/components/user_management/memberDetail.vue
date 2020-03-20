@@ -350,7 +350,7 @@ export default {
     },
 
     // 充值记录
-    pagerechargeItems() {
+    pagerechargeItems(val) {
       this.getmemberDetailItems(val, 13);
     },
 

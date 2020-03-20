@@ -69,32 +69,30 @@ export default {
             path: "/index"
           }
         },
-        // {
-        //   title: "城市合伙人管理",
-        //   nav: [
-        //     {
-        //       title: "城市合伙人申请",
-        //       active: false,
-        //       path: {
-        //         path: "/cityPartner_apply"
-        //       }
-        //     },
-        //     {
-        //       title: "城市合伙人管理",
-        //       active: false,
-        //       path: {
-        //         path: "/cityPartner_management"
-        //       }
-        //     },
-        //     {
-        //       title: "提现申请",
-        //       active: false,
-        //       path: {
-        //         path: "/wishdraw_apply"
-        //       }
-        //     }
-        //   ]
-        // },
+        {
+          title: "代理商管理",
+          nav: [
+            {
+              title: "代理商申请",
+              active: false,
+              path: {
+                path: "/agentApply"
+              }
+            },{
+              title: "代理商管理",
+              active: false,
+              path: {
+                path: "/agentManagement"
+              }
+            },{
+              title: "提现申请",
+              active: false,
+              path: {
+                path: "/withdrawalApply"
+              }
+            },
+          ]
+        },
         {
           title: "商家管理",
           nav: [
@@ -293,6 +291,20 @@ export default {
               path: {
                 path: "/cashWithdrawal"
               }
+            },
+            {
+              title: "预售订单管理",
+              active: false,
+              path: {
+                path: "/advanceOrder"
+              }
+            },
+            {
+              title: "代理商规则设置",
+              active: false,
+              path: {
+                path: "/agentRule"
+              }
             }
           ]
         },
@@ -300,17 +312,17 @@ export default {
           title: "充值管理",
           nav: [
             {
-              title: '用户充值管理',
+              title: "用户充值管理",
               active: false,
               path: {
-                path: '/userRecharge'
+                path: "/userRecharge"
               }
             },
             {
-              title: '充值设置',
+              title: "充值设置",
               active: false,
               path: {
-                path: '/rechargeSet'
+                path: "/rechargeSet"
               }
             }
           ]

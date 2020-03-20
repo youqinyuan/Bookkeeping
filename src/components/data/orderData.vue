@@ -667,7 +667,6 @@ export default {
     getAllCityList() {
       getAllCityData().then(res => {
         let data = res.data.content;
-        // console.log(data)
         this.cityData = data;
         // 获取初始化省份列表
         this.provinceList = data.provinceList.map((val, index) => {
@@ -690,11 +689,16 @@ export default {
       this.form.district = "";
       if (!e) {
         this.form.province = "";
+        this.cityList = "";
+        this.districtList = "";
         return;
       }
-      // console.log(this.cityData.provinceList[e - 1]);
-      this.province = this.cityData.provinceList[e - 1].name;
-      this.form.province = this.cityData.provinceList[e - 1].id;
+      this.provinceList.forEach(val => {
+        if (val.value == e) {
+          this.province = val.label;
+          this.form.province = e
+        }
+      });
       let city = this.cityData.cityList.filter(val => {
         return val.provinceId == e;
       });
@@ -707,9 +711,12 @@ export default {
     },
     // 选择城市
     select_citys(e) {
-      // console.log(this.cityData.cityList[e - 1]);
-      this.city = this.cityData.cityList[e - 1].name;
-      this.form.city = this.cityData.cityList[e - 1].id;
+      this.cityList.forEach(val => {
+        if (val.value == e) {
+          this.city = val.label;
+          this.form.city = e
+        }
+      });
       this.area = "区";
       this.form.district = "";
       let districtList = this.cityData.districtList.filter(val => {

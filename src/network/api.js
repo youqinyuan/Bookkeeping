@@ -19,6 +19,40 @@ const queryTobeShippedOrderGoods = p => request.get('/order/queryTobeShippedOrde
 const noLogistics = p => request.post('/order/noLogistics', p) // 无需发货
 
 
+// 代理商管理
+const queryAgentRole = p => request.get(`/agent/role/queryRole${p}`) // 查询代理商角色列表
+const findAgentRoleById = p => request.get(`/agent/role/findById${p}`) // 查询代理商角色详情
+const addOrUpdateAgentRole = p => request.post('/agent/role/addOrUpdateRole', p) // 添加或修改代理商角色
+const agentApplyList = p => request.get('/agentUser/applyList', p) // 获取代理商申请数据
+const agentApprove = p => request.post('/agentUser/approve', p) // 代理商申请 审核通过
+const agentRefuse = p => request.post('/agentUser/refuse', p) // 代理商申请 审核拒绝
+const agentRole = p => request.get('/agentUser/role', p) // 代理商申请 获取代理角色
+const exportApplyAgentExcel = p => request.get('/agentUser/exportApplyAgentExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 代理商申请 导出excel
+const agentAgents = p => request.get('/agentUser/agents', p) // 获取代理商管理数据
+const exportAgentExcel = p => request.get('/agentUser/exportAgentExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 代理商管理 导出excel
+const agentFreeze = p => request.post('/agentUser/freeze', p) // 代理商管理 冻结代理
+const agentUnfreeze = p => request.post('/agentUser/unfreeze', p) // 代理商管理 解冻代理
+const agentResetPassword = p => request.post('/agentUser/resetPassword', p) // 代理商管理 重置密码
+const agentBalance = p => request.post('/agentUser/balance', p) // 代理商管理 增减余额
+const agentRoleById = p => request.get('/agentUser/roleById', p) // 代理商申请 获取代理角色
+const agentRenew = p => request.post('/agentUser/renew', p) // 代理商申请 续费
+const agentApplyBalance = p => request.get('/agentUser/applyBalance', p) // 提现申请
+const exportApplyBalanceExcel = p => request.get('/agentUser/exportApplyBalanceExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 提现申请导出excel
+const agentPassBalance = p => request.post('/agentUser/passBalance', p) // 提现申请 通过
+const agentRefuseBalance = p => request.post('/agentUser/refuseBalance', p) // 提现申请 拒绝
+
+
+
+
 
 // 退款订单模块
 const queryOperateOrderRefundList = p => request.get('/orderRefund/queryOperateOrderRefundList', p) // 查询退款订单列表
@@ -131,6 +165,8 @@ const getAgentParamConfig = p => request.get('/paramConfig/getAgentParamConfig',
 const updateAgentParamConfig = p => request.post('/paramConfig/updateAgentParamConfig', p) // 会员规则设置修改 - 城市合伙人
 const updateSeedParamConfig = p => request.post('/paramConfig/updateSeedParamConfig', p) // 积分设置 - 修改种子设置
 const getSeedParamConfig = p => request.get('/paramConfig/getSeedParamConfig', p) // 积分设置 - 获取种子设置
+const getAdvanceOrderParamConfig = p => request.get('/paramConfig/getAdvanceOrderParamConfig', p) // 预售订单规则 - 获取规则
+const updateAdvanceOrderParamConfig = p => request.post('/paramConfig/updateAdvanceOrderParamConfig', p) // 预售订单规则 - 修改规则
 
 
 
@@ -274,18 +310,24 @@ export {
   addNewPeople,
   queryActivitiesByOrderType,
   updateNewPeople,
+  agentAgents,
   NewPeopleUpdateStatus,
   queryNewPeople,
   goodsAreaUpdateStatus,
+  exportApplyBalanceExcel,
   goodsAreaCreateQrCode,
   goodsAreaFindGoods,
   queryGoodsArea,
   goodsAreaActivity,
+  agentApplyList,
   newPeopleQueryGoodsQRCode,
+  agentRole,
   NewPeopleFindGoods,
   goodsAreaDetail,
+  agentApplyBalance,
   queryNewPeopleDetail,
   exportInstallmentGoodsExcel,
+  findAgentRoleById,
   updateIssueStatusSupport,
   updateAuspicesParamConfig,
   findPageListH5,
@@ -295,12 +337,18 @@ export {
   queryOrderListOrderData,
   addSupport,
   getAuspicesParamConfig,
+  updateAdvanceOrderParamConfig,
   addOrUpdateH5,
   refuseStages,
   findPageListForum,
   removeForum,
   updateIsTopForum,
+  queryAgentRole,
   findDetailForum,
+  exportAgentExcel,
+  agentFreeze,
+  agentUnfreeze,
+  exportApplyAgentExcel,
   queryOperateOrderRefundList,
   findPageListNavigation,
   refundAudits,
@@ -321,12 +369,18 @@ export {
   refundAudit,
   getMerchantBusinessList,
   queryOrderReason,
+  agentResetPassword,
+  agentBalance,
   queryOrder,
   applyRefundMerchant,
   queryLogistic,
+  agentRefuseBalance,
   cancelOrderMerchant,
+  agentRenew,
   getExcel,
+  addOrUpdateAgentRole,
   platGoodsList,
+  getAdvanceOrderParamConfig,
   updateGoodsIssueStatus,
   addPlatTag,
   merchantGoodsList,
@@ -360,10 +414,12 @@ export {
   activityDetails,
   addOrUpdatePriceActivity,
   getMemberParamConfig,
+  agentApprove,
   updateMemberParamConfig,
   updateMerchantParamConfig,
   getProfitsDistributions,
   modifyProfitsDistribution,
+  agentRoleById,
   getUserRechargeRecord,
   auditPassedById,
   getMerchantAuditList,
@@ -372,6 +428,7 @@ export {
   getOnlineStoreList,
   getOfflineStoreList,
   deletelogistics,
+  agentPassBalance,
   addLogisticsCompany,
   getAllCity,
   getAllCityData,
@@ -437,5 +494,6 @@ export {
   removeNavigation,
   findDetailNavigation,
   addOrUpdateNavigation,
-  findSystemPageListNavigation
+  findSystemPageListNavigation,
+  agentRefuse
 }
