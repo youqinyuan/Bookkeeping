@@ -39,44 +39,131 @@
 
     <div style="margin-top:30px">
       <el-table :data="tableData" border style="width: 100%">
-        <el-table-column prop="id" label="编号" align="center"></el-table-column>
-        <el-table-column prop="name" align="center" label="会员名称"></el-table-column>
+        <el-table-column prop="id" label="编号" align="center">
+          <template slot-scope="scope">
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.id}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.id}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.id}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" align="center" label="会员名称">
+          <template slot-scope="scope">
+           <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.name}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.name}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="mobile" align="center" label="电话">
           <template slot-scope="scope">
-            <!-- 判断号码是否为虚拟号码，如果是字体颜色为红 -->
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.mobile}}</span>
             <span
-              style="color:#F56C6C"
-              v-if="/^(?:\+?86)?1(?:7[01]|6[257])\d{8}$/.test(scope.row.mobile)"
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
             >{{scope.row.mobile}}</span>
-            <span v-else>{{scope.row.mobile}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.mobile}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="time" align="center" label="申请提交时间">
-          <template slot-scope="scope">{{scope.row.time | dateFormat}}</template>
+          <template slot-scope="scope">
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.time}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.time}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.time}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="amount" align="center" label="申请提现金额">
           <template slot-scope="scope">
-            <span style="color:red">{{scope.row.amount}}</span>
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.amount}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.amount}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.amount}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="amount" align="center" label="手续费">
+        <el-table-column prop="poundageAmount" align="center" label="手续费">
           <template slot-scope="scope">
-            <span style="color:red">{{scope.row.poundageAmount}}</span>
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.poundageAmount}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.poundageAmount}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.poundageAmount}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="amount" align="center" label="到账金额">
+        <el-table-column prop="realAmount" align="center" label="到账金额">
           <template slot-scope="scope">
-            <span style="color:red">{{scope.row.realAmount}}</span>
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.realAmount}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.realAmount}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.realAmount}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="bankCardNumber" align="center" label="银行卡卡号"></el-table-column>
-        <el-table-column prop="bankAddress" align="center" label="开户行"></el-table-column>
-        <el-table-column prop="realName" align="center" label="真实姓名"></el-table-column>
+        <el-table-column prop="tradeAmount" align="center" label="总计支付金额">
+          <template slot-scope="scope">
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.tradeAmount}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.tradeAmount}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.tradeAmount}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="withdrawAmount" align="center" label="总计提现金额">
+          <template slot-scope="scope">
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.withdrawAmount}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.withdrawAmount}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.withdrawAmount}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="bankCardNumber" align="center" label="银行卡卡号">
+          <template slot-scope="scope">
+           <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.bankCardNumber}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.bankCardNumber}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.bankCardNumber}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="bankAddress" align="center" label="开户行">
+          <template slot-scope="scope">
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.bankAddress}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.bankAddress}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.bankAddress}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="realName" align="center" label="真实姓名">
+          <template slot-scope="scope">
+           <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.realName}}</span>
+            <span
+              style="color:red"
+              v-else-if="scope.row.showType == 2 && scope.row.status == 1"
+            >{{scope.row.realName}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.realName}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button type="text" @click="pass(scope.row)" v-if="scope.row.status == 1">转账</el-button>
-            <el-button type="text" style="color:#999;" v-if="scope.row.status == 2">已转账</el-button>
-            <span style="color:#999" v-if="scope.row.status == 3">已取消</span>
+            <el-button type="text" style="color:#ccc;" v-if="scope.row.status == 2">已转账</el-button>
+            <span style="color:#ccc" v-if="scope.row.status == 3">已取消</span>
             <el-button
               type="text"
               @click="showSeeData(scope.row.id)"

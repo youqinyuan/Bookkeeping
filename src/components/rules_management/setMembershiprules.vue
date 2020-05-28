@@ -99,7 +99,7 @@
           :rules="[{required: true, pattern: /^[1-9]\d*$/, message: '不可为0，不可大于1000000，不可输入小数', trigger: 'blur'}]"
         >
           <div>
-            <span>下级用户数量大于等于</span>
+            <span>下级合伙人数量等于</span>
             <el-input
               style="width:80px;"
               :disabled="right_diamond"

@@ -7,8 +7,9 @@ const getCookie = () => {
 
   arr.map(item => {
     let arrItem = item.split('=')
-
-    obj[arrItem[0]] = decode(arrItem[1])
+    if (arrItem[0] == 'userName' || arrItem[0] == 'userPwd' || arrItem[0] == 'opadminToken') {
+      obj[arrItem[0]] = decode(arrItem[1])
+    }
   })
 
   return obj

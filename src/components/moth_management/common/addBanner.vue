@@ -140,10 +140,19 @@ export default {
         {
           id: 11,
           name: "赞助活动页"
+        },
+        {
+          id: 12,
+          name: "线下商家"
+        },
+        {
+          id: 13,
+          name: "引导页面"
         }
       ],
       valueOne: "",
       optionsTwo: [],
+      category: "", // 轮播图类型
       valueTwo: "",
       returnedItem: {},
       showNone: false,
@@ -159,12 +168,13 @@ export default {
     this.getGoodsClass();
   },
   methods: {
-    open(title, item) {
+    open(title, item, category) {
       this.DialogVisible = true;
       this.showTwo = false;
       this.valueOne = "";
       this.valueTwo = "";
       this.title = title;
+      this.category = category;
       if (item) {
         this.imageUrl = item.imageKey;
         this.forwardDestId = item.forwardDest;
@@ -254,7 +264,7 @@ export default {
       formData.append("icon", this.file.raw);
       if (this.title == 1) {
         let param = {
-          category: 1,
+          category: this.category,
           forwardDest: this.forwardDestId,
           forwardParam: this.forwardParamId
         };

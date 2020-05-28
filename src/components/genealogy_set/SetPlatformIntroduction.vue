@@ -287,7 +287,6 @@ export default {
         maxVideoCount: 5
       };
       addOrUpdateVideo(data).then(res => {
-        console.log(res);
         if (res.data.messageCode == "MSG_1001") {
           this.dialogFormVisible = false;
           this.imageUrl = "";
@@ -324,7 +323,6 @@ export default {
       let newArr = this.videoFiles2.filter((val, index, arr) => {
         return val.isTop == 1;
       });
-      console.log(newArr);
       if (newArr.length > 0) {
         updateVideoIsTop(`?id=${newArr[0].id}&&isTop=${0}`).then(res => {
           if (res.data.messageCode == "MSG_1001") {

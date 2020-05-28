@@ -129,6 +129,9 @@
             <span v-if="scope.row.orderType == 19">线上商品活动-FreeBuy订单</span>
             <span v-if="scope.row.orderType == 20">线下商品活动-FreeBuy订单</span>
             <span v-if="scope.row.orderType == 21">预售订单</span>
+            <span v-if="scope.row.orderType == 22">商品预售订单</span>
+            <span v-if="scope.row.orderType == 23">线下商家-普通购买订单</span>
+            <span v-if="scope.row.orderType == 24">线下商家-0成本购订单</span>
           </template>
         </el-table-column>
         <el-table-column prop="totalDiscount" label="总优惠金额" width="120"></el-table-column>
@@ -456,6 +459,18 @@ export default {
         {
           value: 21,
           label: "预售订单"
+        },
+        {
+          value: 22,
+          label: "商品预售订单"
+        },
+        {
+          value: 23,
+          label: "线下商家-普通购买订单"
+        },
+        {
+          value: 24,
+          label: "线下商家-0成本购订单"
         }
       ],
       buyMode: "",

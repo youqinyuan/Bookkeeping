@@ -362,6 +362,81 @@ export default new Router({
           path: '/withdrawalApply',
           name: 'withdrawalApply',
           component: resolve => require(['@/components/agent_management/withdrawalApply'], resolve)
+        },
+        {
+          path: '/freeBuyReduceNum',
+          name: 'freeBuyReduceNum',
+          component: resolve => require(['@/components/rules_management/freeBuyReduceNum'], resolve)
+        },
+        {
+          path: '/withdrawal_bus',
+          name: 'withdrawal_bus',
+          component: resolve => require(['@/components/merchant_management/withdrawal/withdrawal'], resolve)
+        },
+        {
+          path: '/changeMoney',
+          name: 'changeMoney',
+          component: resolve => require(['@/components/merchant_management/changeMoney'], resolve)
+        },
+        {
+          path: '/delivery',
+          name: 'delivery',
+          component: resolve => require(['@/components/merchant_management/delivery'], resolve)
+        },
+        {
+          path: '/presaleAndPost',
+          name: 'presaleAndPost',
+          component: resolve => require(['@/components/rules_management/presaleAndPost'], resolve)
+        },
+        {
+          path: '/noticeManagement',
+          name: 'noticeManagement',
+          component: resolve => require(['@/components/homePage_management/noticeManagement'], resolve)
+        },
+        {
+          path: '/newUser',
+          name: 'newUser',
+          component: resolve => require(['@/components/moth_management/newUser/newUser'], resolve)
+        },
+        {
+          path: '/hero_list',
+          name: 'hero_list',
+          component: resolve => require(['@/components/homePage_management/hero_list'], resolve)
+        },
+        {
+          path: '/hero_list_detail',
+          name: 'hero_list_detail',
+          component: resolve => require(['@/components/homePage_management/hero_list_detail'], resolve)
+        },
+        {
+          path: '/navigationList',
+          name: 'navigationList',
+          component: resolve => require(['@/components/homePage_management/navigationList'], resolve)
+        },
+        {
+          path: '/addNavigations',
+          name: 'addNavigations',
+          component: resolve => require(['@/components/homePage_management/addNavigation'], resolve)
+        },
+        {
+          path: '/module1',
+          name: 'module1',
+          component: resolve => require(['@/components/homePage_management/module1'], resolve)
+        },
+        {
+          path: '/module2',
+          name: 'module2',
+          component: resolve => require(['@/components/homePage_management/module2'], resolve)
+        },
+        {
+          path: '/module3',
+          name: 'module3',
+          component: resolve => require(['@/components/homePage_management/module3'], resolve)
+        },
+        {
+          path: '/homePage_banner',
+          name: 'homePage_banner',
+          component: resolve => require(['@/components/homePage_management/banner'], resolve)
         }
       ]
     }

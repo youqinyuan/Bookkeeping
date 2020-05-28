@@ -40,7 +40,6 @@ export default {
       queryAgentRole(`?category=${0}`).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.tableData = res.data.content;
-          console.log(this.tableData);
         } else {
           this.$message.error(res.data.message);
         }

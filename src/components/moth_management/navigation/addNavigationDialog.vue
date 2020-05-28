@@ -1,6 +1,6 @@
 <template>
   <div class="addNavigation">
-    <el-dialog title="选择页面链接" :visible.sync="centerDialogVisible" width="50%" :show-close="false">
+    <el-dialog title="选择页面链接" :visible.sync="centerDialogVisible" width="70%" :show-close="false">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <!-- 系统页面模块 -->
         <el-tab-pane label="系统页面" name="first">
@@ -227,6 +227,57 @@
             ></el-pagination>
           </div>
         </el-tab-pane>
+        <!-- 商家详情 -->
+        <el-tab-pane label="商家详情" name="seven">
+          <div class="searchBox">
+            <el-input v-model="mobileNumber" placeholder="请输入商家手机号" style="width:180px;"></el-input>
+            <el-button type="primary" @click="getOnlineStoreList(1)">查询</el-button>
+          </div>
+          <div class="tableBox">
+            <el-table :data="businessData" border style="width: 100%">
+              <el-table-column prop="id" label="编号" width="180"></el-table-column>
+              <el-table-column prop="storeName" label="商家名称" width="180"></el-table-column>
+              <el-table-column prop="mobileNumber" label="商家电话" width="180"></el-table-column>
+              <el-table-column prop>
+                <template slot-scope="scope">
+                  <el-radio
+                    v-model="radioBusiness"
+                    :label="scope.row.storeId"
+                    @change="radioSelectBusiness"
+                  >选择此链接</el-radio>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="margin-top:10px;">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="businessTotal"
+              :page-size="5"
+              :current-page="businessCurrentPage"
+              @current-change="businessPageChange($event)"
+            ></el-pagination>
+          </div>
+        </el-tab-pane>
+        <!-- 商家分类 -->
+        <el-tab-pane label="商家分类" name="eight">
+          <div class="tableBox">
+            <el-table :data="businessTypeData" border style="width: 100%">
+              <el-table-column prop="name" label="分类"></el-table-column>
+              <el-table-column prop="count" label="商家数量"></el-table-column>
+              <el-table-column prop>
+                <template slot-scope="scope">
+                  <el-radio
+                    v-model="radioBusinessType"
+                    :label="scope.row.id"
+                    @change="radioSelectBusinessType"
+                  >选择此链接</el-radio>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="preservation">保 存</el-button>
@@ -244,7 +295,9 @@ import {
   queryNewPeople,
   queryGoodsArea,
   findPageListH5,
-  addOrUpdateH5
+  addOrUpdateH5,
+  getOnlineStoreList,
+  getMerchantBusinessList
 } from "@/network/api";
 export default {
   data() {
@@ -296,7 +349,16 @@ export default {
       H5Data: [],
       radioH5: "",
       H5Total: 0,
-      H5CurrentPage: 1
+      H5CurrentPage: 1,
+      mobileNumber: "",
+      businessData: [],
+      radioBusiness: "",
+      businessTotal: 0,
+      businessCurrentPage: 1,
+      businessTypeData: [],
+      radioBusinessType: "",
+      businessTypeTotal: 0,
+      businessTypeCurrentPage: 1
     };
   },
   created() {
@@ -307,6 +369,8 @@ export default {
     this.queryNewPeople(1);
     this.queryGoodsArea(1);
     this.findPageListH5(1);
+    this.getOnlineStoreList(1);
+    this.getMerchantBusinessList();
   },
   methods: {
     // 打开dialog
@@ -345,6 +409,8 @@ export default {
       this.radioNewPeople = "";
       this.radioGoodsActivite = "";
       this.radioH5 = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
     },
     // 系统页面翻页
     systemPageChange(val) {
@@ -424,6 +490,8 @@ export default {
       this.radioNewPeople = "";
       this.radioGoodsActivite = "";
       this.radioH5 = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
     },
     // 商品详情翻页
     productDetailPageChange(val) {
@@ -463,6 +531,8 @@ export default {
       this.radioNewPeople = "";
       this.radioGoodsActivite = "";
       this.radioH5 = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
     },
     // 商品分类翻页
     productTypePageChange(val) {
@@ -505,6 +575,8 @@ export default {
       this.radioData3 = "";
       this.radioGoodsActivite = "";
       this.radioH5 = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
     },
     // 新人专区翻页
     newPeoplePageChange(val) {
@@ -542,6 +614,8 @@ export default {
       this.radioData3 = "";
       this.radioNewPeople = "";
       this.radioH5 = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
     },
     // 商品专区翻页
     goodsActivitePageChange(val) {
@@ -593,16 +667,83 @@ export default {
       this.radioData3 = "";
       this.radioNewPeople = "";
       this.radioGoodsActivite = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
     },
     // H5专区翻页
     H5PageChange(val) {
       this.findPageListH5(val);
       this.H5CurrentPage = val;
     },
-    // =============================================================
+    // =======================商家详情==============================
+    // 请求商家详情数据
+    getOnlineStoreList(val) {
+      let parms = {
+        pageNumber: val,
+        pageSize: 5,
+        mobileNumber: this.mobileNumber
+      };
+      getOnlineStoreList({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.businessData = res.data.content.items;
+          this.businessTotal = res.data.content.totalSize;
+          this.businessCurrentPage = val;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 商家详情选择连接
+    radioSelectBusiness(val) {
+      this.category = 7;
+      let arr = this.businessData.filter(item => {
+        return item.storeId == val;
+      });
+      this.radioName = arr[0].storeName;
+      this.radioData1 = "";
+      this.radioData2 = "";
+      this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
+      this.radioBusinessType = "";
+    },
+
+    // 商家详情翻页
+    businessPageChange(val) {
+      this.getOnlineStoreList(val);
+      this.businessCurrentPage = val;
+    },
+    // =======================商家分类==============================
+    // 请求商家分类数据
+    getMerchantBusinessList() {
+      getMerchantBusinessList().then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.businessTypeData = res.data.content;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 商家分类选择连接
+    radioSelectBusinessType(val) {
+      this.category = 8;
+      let arr = this.businessTypeData.filter(item => {
+        return item.id == val;
+      });
+      this.radioName = arr[0].name;
+      this.radioData1 = "";
+      this.radioData2 = "";
+      this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
+      this.radioBusiness = "";
+    },
+    // ================================================================
     // tabs选择
     handleClick(tab, event) {
-      // console.log(tab.label);
+      // console.log(tab.index);
     },
     // 保存
     preservation() {
@@ -620,6 +761,10 @@ export default {
         radioData = this.radioGoodsActivite;
       } else if (category == 6) {
         radioData = this.radioH5;
+      } else if (category == 7) {
+        radioData = this.radioBusiness;
+      } else if (category == 8) {
+        radioData = this.radioBusinessType;
       }
       if (!radioData) {
         this.$message.error("请选择路径");
@@ -647,5 +792,8 @@ export default {
     align-items: center;
     justify-content: space-between;
   }
+}
+.tableBox {
+  margin-top: 20px;
 }
 </style>

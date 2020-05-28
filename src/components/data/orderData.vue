@@ -433,6 +433,47 @@ export default {
         {
           value: "14",
           label: "FreeBuy赞助订单"
+        },
+
+        {
+          value: 15,
+          label: "线上新人专区订单"
+        },
+        {
+          value: 16,
+          label: "线下新人专区订单"
+        },
+        {
+          value: 17,
+          label: "线上商品活动订单"
+        },
+        {
+          value: 18,
+          label: "线下商品活动订单"
+        },
+        {
+          value: 19,
+          label: "线上商品活动-FreeBuy订单"
+        },
+        {
+          value: 20,
+          label: "线下商品活动-FreeBuy订单"
+        },
+        {
+          value: 21,
+          label: "预售订单"
+        },
+        {
+          value: 22,
+          label: "商品预售订单"
+        },
+        {
+          value: 23,
+          label: "线下商家-普通购买订单"
+        },
+        {
+          value: 24,
+          label: "线下商家-0成本购订单"
         }
       ],
       userRoleOptions: [
@@ -696,7 +737,7 @@ export default {
       this.provinceList.forEach(val => {
         if (val.value == e) {
           this.province = val.label;
-          this.form.province = e
+          this.form.province = e;
         }
       });
       let city = this.cityData.cityList.filter(val => {
@@ -714,7 +755,7 @@ export default {
       this.cityList.forEach(val => {
         if (val.value == e) {
           this.city = val.label;
-          this.form.city = e
+          this.form.city = e;
         }
       });
       this.area = "区";

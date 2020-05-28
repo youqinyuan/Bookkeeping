@@ -309,7 +309,6 @@ export default {
             } else if (value.trim().length > 50) {
               this.$message.error("拒绝理由最多输入50个字符");
             } else {
-              console.log(value);
               let data = {
                 id: id,
                 refuseReason: value

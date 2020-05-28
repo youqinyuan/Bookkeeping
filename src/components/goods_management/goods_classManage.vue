@@ -21,6 +21,8 @@
           <el-button size="mini" @click.stop="modify(item.id)" type="primary">修 改</el-button>
           <el-button size="mini" @click.stop="deletes(item.id)" type="danger">删 除</el-button>
           <el-button size="mini" @click.stop="addNext(item.id)">添加二级分类</el-button>
+          <el-button size="mini" @click.stop="isHide(item.id,2)" v-if="item.status == 1">隐藏</el-button>
+          <el-button size="mini" @click.stop="isHide(item.id,1)" v-if="item.status == 2">解除隐藏</el-button>
         </template>
         <!-- 二级分类 -->
         <div class="nextClass" v-for="(nextItem,index2) in item.nextLevelData" :key="index2">
@@ -54,7 +56,12 @@
 </template>
 
 <script>
-import { getGoodsClassRequest, deleteClass, sortClass } from "@/network/api";
+import {
+  getGoodsClassRequest,
+  deleteClass,
+  sortClass,
+  updateGoodsShowStatus
+} from "@/network/api";
 import addDeleteOneClassPop from "./common/addDeleteOneClassPop.vue";
 import addDeleteTwoClassPop from "./common/addDeleteTwoClassPop.vue";
 export default {
@@ -133,6 +140,22 @@ export default {
     swapArray(arr, index1, index2) {
       arr[index1] = arr.splice(index2, 1, arr[index1])[0];
       return arr;
+    },
+
+    // 隐藏/显示分类
+    isHide(id, status) {
+      let parms = {
+        id: id,
+        status: status
+      };
+      updateGoodsShowStatus({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.getGoodsClassRequest();
+          this.$message.success("操作成功");
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
     },
 
     // 一级分类向下排序

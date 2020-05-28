@@ -206,12 +206,8 @@ export default {
             );
             return;
           }
-          if (
-            Number(form.SHOPPING_SEND_SEED > 999999)
-          ) {
-            this.$message.error(
-              "赠送种子最大可输入999999"
-            );
+          if (Number(form.SHOPPING_SEND_SEED > 999999)) {
+            this.$message.error("赠送种子最大可输入999999");
             return;
           }
           let arr = [
@@ -246,6 +242,11 @@ export default {
             {
               key: "FREE_BUY_DEDUCTION_SEED",
               value: form.FREE_BUY_DEDUCTION_SEED,
+              enabled: 1
+            },
+            {
+              key: "VALUE_OF_SEED",
+              value: form.VALUE_OF_SEED,
               enabled: 1
             }
           ];

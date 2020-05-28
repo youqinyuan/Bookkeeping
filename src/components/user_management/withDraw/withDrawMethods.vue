@@ -7,6 +7,9 @@
       <el-tab-pane label="银行卡提现" name="tab_2">
         <withDrawBank></withDrawBank>
       </el-tab-pane>
+      <el-tab-pane label="支付宝提现" name="tab_3">
+        <alipay></alipay>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -14,6 +17,7 @@
 <script>
 import withDrawWeChat from "./withDraw_weChat";
 import withDrawBank from "./withDraw_bank";
+import alipay from "./alipay";
 export default {
   props: {},
   data() {
@@ -23,7 +27,8 @@ export default {
   },
   components: {
     withDrawWeChat,
-    withDrawBank
+    withDrawBank,
+    alipay
   },
   computed: {},
   watch: {},

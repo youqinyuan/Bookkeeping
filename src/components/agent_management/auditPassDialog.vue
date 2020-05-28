@@ -68,16 +68,11 @@
       </div>
       <div style="margin-top:20px">
         <span>推荐人：</span>
-        <el-input
-          v-model="recommender"
-          style="width:240px;"
-          size="small"
-          :disabled="true"
-        ></el-input>
+        <el-input v-model="recommender" style="width:240px;" size="small" :disabled="true"></el-input>
       </div>
       <div
         style="margin-top:30px;font-size:12px;color:#F56C6C"
-      >注意：通过后代理商所留电话将成为登录账号，所有代理商初始密码为8888888</div>
+      >注意：通过后代理商所留电话将成为登录账号，所有代理商初始密码为88888888</div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="pass">确 定</el-button>
       </span>

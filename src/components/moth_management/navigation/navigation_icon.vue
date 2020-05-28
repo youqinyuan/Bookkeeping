@@ -104,7 +104,6 @@ export default {
         inputErrorMessage: "仅限数字"
       })
         .then(({ value }) => {
-          console.log(value.length);
           if (value.length > 6) {
             this.$message.error("排序值输入位数最多为6位");
             return false;

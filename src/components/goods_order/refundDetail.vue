@@ -47,6 +47,9 @@
         <span v-if="orderObj.orderType == 19">购买方式：线上商品活动-FreeBuy订单</span>
         <span v-if="orderObj.orderType == 20">购买方式：线下商品活动-FreeBuy订单</span>
         <span v-if="orderObj.orderType == 21">购买方式：预售订单</span>
+        <span v-if="orderObj.orderType == 22">购买方式：商品预售订单</span>
+        <span v-if="orderObj.orderType == 23">购买方式：线下商家-普通购买订单</span>
+        <span v-if="orderObj.orderType == 24">购买方式：线下商家-0成本购订单</span>
       </div>
       <div class="orderInfoItem">备注：{{remark?remark:'无'}}</div>
       <div
@@ -136,8 +139,24 @@
       >收货信息：收货人：{{orderObj.orderAddressDetail.receiverName}}，手机号码：{{orderObj.orderAddressDetail.mobileNumber}}，所在地区：{{orderObj.orderAddressDetail.districtAddress}}，详细地址：{{orderObj.orderAddressDetail.detailedAddress}}</div>
       <div class="orderInfoItem">上级：{{orderObj.parentName || '无'}}</div>
     </div>
-    <div class="titleStyle">物流信息</div>
-    <div class="orderInfoBox">
+    <div class="titleStyle" v-if="!orderObj.deliveryType">物流信息</div>
+    <div class="titleStyle" v-else>配送信息</div>
+    <div class="orderInfoBox" v-if="orderObj.deliveryType == 1">
+      <span class="orderInfoItem">【到店自提】</span>
+      <span class="orderInfoItem" v-if="orderObj.payType == 1">【在线支付】</span>
+      <span class="orderInfoItem" v-if="orderObj.payType == 2">【到付】</span>
+    </div>
+    <div class="orderInfoBox" v-else-if="orderObj.deliveryType == 2">
+      <span class="orderInfoItem">【商家配送】</span>
+      <span class="orderInfoItem" v-if="orderObj.payType == 1">【在线支付】</span>
+      <span class="orderInfoItem" v-if="orderObj.payType == 2">【到付】</span>
+      <span class="orderInfoItem">【配送费：{{orderObj.expressFee}}】</span>
+      <span class="orderInfoItem">【地址：{{orderObj.orderAddressDetail.detailedAddress}}】</span>
+    </div>
+    <div class="orderInfoBox" v-else-if="isDeliverGoods && !orderObj.deliveryType">
+      <span class="orderInfoItem">此商品无需发货</span>
+    </div>
+    <div class="orderInfoBox" v-else>
       <div
         v-for="(item,index) in orderObj.orderLogisticsDetailList"
         :key="index"
@@ -289,7 +308,8 @@ export default {
         company: "",
         no: ""
       },
-      showBtnSure: true
+      showBtnSure: true,
+      isDeliverGoods: false // 判断商品是否无需发货
     };
   },
   created() {
@@ -311,6 +331,12 @@ export default {
             this.orderGoodsApplyRefund =
               data.orderGoodsDetail.orderGoodsApplyRefund;
             this.remark = data.orderResponse.orderAddressDetail.remark;
+            // 判断商品是否无需发货
+            this.orderObj.orderTimeDetail.forEach(val => {
+              if (val.remark == "NO_LOGISTICS") {
+                this.isDeliverGoods = true;
+              }
+            });
           }
         } else {
           this.$message.error(res.data.message);

@@ -156,6 +156,29 @@
 
       <!-- ----------------------------------- -->
       <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+        <el-col :span="12" class="tle-nav">0成本购模式</el-col>
+        <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
+          <el-button
+            @click="changeSave('freeBuyMode')"
+            type="text"
+          >{{ goodsDetailJson.freeBuyMode.disabled ? '修改' : '保存' }}</el-button>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="24">
+          <div style="padding:20px 30px;box-sizing:box-border;">
+            <el-radio-group v-model="form.freeBuyMode">
+              <el-radio :disabled="goodsDetailJson.freeBuyMode.disabled" :label="1">按月返还</el-radio>
+              <el-radio :disabled="goodsDetailJson.freeBuyMode.disabled" :label="2">按天返还</el-radio>
+            </el-radio-group>
+          </div>
+        </el-col>
+      </el-row>
+      <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 0成本购模式 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
+
+      <!-- ----------------------------------- -->
+      <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
         <el-col :span="12" class="tle-nav">价格库存</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
           <el-button
@@ -550,7 +573,7 @@
         <div
           style="font-size:16px;color:#303133;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:20px;margin-top:60px"
         >快速0元购设置:</div>
-        <el-form-item label="0元购分期期数:" label-width="130">
+        <el-form-item :label="form.freeBuyMode == 1? '0元购分期期数':'0元购分期天数'" label-width="130">
           <el-input
             style="width: 65px;"
             v-model="cashbackDetail.periodScope.minPeriod"
@@ -565,7 +588,7 @@
             @change="setMaxPeriod"
           ></el-input>
         </el-form-item>
-        <el-form-item label="用户选择分期数:" label-width="130">
+        <el-form-item :label="form.freeBuyMode == 1?'用户选择分期数':'用户选择天数'" label-width="130">
           <div
             style="position:relative;display:inline"
             v-for="(item,index) in cashbackDetail.periodScope.periodItems"
@@ -888,6 +911,10 @@ export default {
         seed: {
           disabled: false
         },
+        // 0成本购模式
+        freeBuyMode: {
+          disabled: false
+        },
         // 比价信息
         parityInfo: {
           disabled: false
@@ -929,7 +956,8 @@ export default {
         tianMao: null, // 天猫价
         yxkl: null, // 严选考拉价
         seedDeduction: "", //正常购买种子抵扣比例
-        freeBuySeedDeduction: "" //freeBuy购买种子抵扣比例
+        freeBuySeedDeduction: "", //freeBuy购买种子抵扣比例
+        freeBuyMode: 1 // 0成本购模式
       },
       rules: {
         // 商品名
@@ -1070,6 +1098,7 @@ export default {
   created() {
     let type = parseInt(this.$route.query.type);
     let id = parseInt(this.$route.query.id);
+    let storeId = this.$route.query.storeId;
     // let type = 1
 
     this.goodsDetailJson.type = type;
@@ -1081,12 +1110,17 @@ export default {
       this.goodsDetailJson.bannerImg.disabled = true;
       this.goodsDetailJson.detailInfo.disabled = true;
       this.goodsDetailJson.seed.disabled = true;
+      this.goodsDetailJson.freeBuyMode.disabled = true;
 
       this.getGoodsDetail(id);
     } else {
+      // 获取商品分类
       this.getGoodsClass();
       // 获取商家列表数据
       this.getBusinessOptions();
+      if (storeId) {
+        this.form.businessOptions[0] = storeId;
+      }
     }
   },
 
@@ -1266,12 +1300,12 @@ export default {
 
       if (res.data.messageCode === "MSG_1001") {
         let content = res.data.content;
-        // console.log(content);
 
         this.form.goodsName = content.name;
         this.form.goodsDcb = content.sharedDesc;
         this.form.seedDeduction = content.seedDeduction;
         this.form.freeBuySeedDeduction = content.freeBuySeedDeduction;
+        this.form.freeBuyMode = content.freeBuyMode;
         this.videoSrc = content.videoUrl;
         this.goodsImgList = this.handleGoodsImg(content.imageUrls);
         this.bannerImgList.push(this.handleAdImage(content.adImage));
@@ -1448,6 +1482,9 @@ export default {
           case "stock":
             this.saveStockInfo();
             break;
+          case "freeBuyMode":
+            this.saveFreeBuyMode();
+            break;
           case "seed":
             this.saveSeed();
             break;
@@ -1532,6 +1569,15 @@ export default {
       };
       this.upDataGoods(param, "seed");
       this.goodsDetailJson.seed.disabled = true;
+    },
+
+    // 0成本购模式修改
+    saveFreeBuyMode() {
+      let param = {
+        freeBuyMode: this.form.freeBuyMode
+      };
+      this.upDataGoods(param, "freeBuyMode");
+      this.goodsDetailJson.freeBuyMode.disabled = true;
     },
 
     // 商品详情修改后保存价格库存数据
@@ -2157,12 +2203,18 @@ export default {
       if (this[type].moneyNum === "") {
         this.alertTips("批量更改不能为空");
         return false;
-      } else if (this.checkNum(this[type].moneyNum) !== true) {
-        this.alertTips("输入格式不正确");
-        return false;
-      }
-      // 验证赠送种子输入格式
-      if (type === "seed") {
+      } else if (type == "bili") {
+        // 验证成本调控比例输入格式
+        if (
+          !/^-?(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/.test(this[type].moneyNum) ||
+          this[type].moneyNum > 100 ||
+          this[type].moneyNum < -100
+        ) {
+          this.alertTips("成本调控比例格式不正确");
+          return false;
+        }
+      } else if (type === "seed") {
+        // 验证赠送种子输入格式
         if (this[type].moneyNum > 999999) {
           this.alertTips("最大可输入999999");
           return false;
@@ -2171,6 +2223,9 @@ export default {
           this.alertTips("格式不正确");
           return false;
         }
+      } else if (this.checkNum(this[type].moneyNum) !== true) {
+        this.alertTips("输入格式不正确");
+        return false;
       }
       arr = this.userInputSpecDetail[index];
 
@@ -2370,7 +2425,6 @@ export default {
           }
         }
       }
-      console.log(this.cashbackDetail);
       if (!maxPeriod && minPeriod) {
         this.alertTips("请输入最大分期期数");
         return;

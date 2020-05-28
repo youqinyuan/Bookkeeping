@@ -114,7 +114,8 @@ export default {
     findPageListNotice(val) {
       let param = {
         pageNumber: val,
-        pageSize: 10
+        pageSize: 10,
+        category: 1
       };
       findPageListNotice(param).then(res => {
         if (res.data.messageCode == "MSG_1001") {
@@ -139,7 +140,8 @@ export default {
         title: "",
         content: "",
         beginTime: "",
-        endTime: ""
+        endTime: "",
+        category: 1
       };
       this.time = "";
       this.noticeDialog = true;
@@ -157,11 +159,11 @@ export default {
       this.time = [rows.beginTime, rows.endTime];
       this.form.beginTime = rows.beginTime;
       this.form.endTime = rows.endTime;
+      this.form.category = 1;
       this.noticeDialog = true;
     },
     // 删除
     deletedNotice(rows) {
-      console.log(rows);
       this.$confirm("是否删除此公告？", "删除公告", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"

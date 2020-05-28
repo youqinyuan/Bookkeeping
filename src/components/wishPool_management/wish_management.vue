@@ -226,7 +226,6 @@ export default {
 
     // 接收子组件的值
     satisfyWish(argument) {
-      console.log(argument[0]);
       // 满足心愿
       matchedGoods(`?id=${this.id}&&matchedGoodsId=${argument[0]}`).then(
         res => {

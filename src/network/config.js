@@ -33,12 +33,6 @@ axios.interceptors.request.use(
         background: 'rgba(0, 0, 0, 0.7)'
       })
     }
-    // element ui Loading方法
-    // loadinginstace = Loading.service({
-    //   lock: true,
-    //   text: '请求中……',
-    //   background: 'rgba(0, 0, 0, 0.7)'
-    // })
     return config
   },
   err => {

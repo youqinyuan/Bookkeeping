@@ -19,6 +19,15 @@ const queryTobeShippedOrderGoods = p => request.get('/order/queryTobeShippedOrde
 const noLogistics = p => request.post('/order/noLogistics', p) // 无需发货
 
 
+// 首页
+const getDashboard = p => request.get('/dashboard/getDashboard', p) // 获取首页仪表盘信息
+const getDeliveryData = p => request.get('/home/merchant/delivery', p) // 查询物流信息
+const platDeliveryApplyList = p => request.get('/home/platDelivery/applyList', p) // 获取商家申请平台配送
+const platDeliveryApply = p => request.put('/home/platDelivery/apply', p) // 联系
+
+
+
+
 // 代理商管理
 const queryAgentRole = p => request.get(`/agent/role/queryRole${p}`) // 查询代理商角色列表
 const findAgentRoleById = p => request.get(`/agent/role/findById${p}`) // 查询代理商角色详情
@@ -84,8 +93,6 @@ const getLogisticsExcelTemplet = p => request.get('/order/getLogisticsExcelTempl
 
 
 
-// 首页
-const getDashboard = p => request.get('/dashboard/getDashboard', p) // 获取首页仪表盘信息
 
 // 分期购申请
 const applyGoodsStages = p => request.get('/installment/applyGoods', p) // 查询商品分期购申请
@@ -95,22 +102,58 @@ const exportInstallmentGoodsExcel = p => request.get('/installment/exportInstall
   responseType: 'blob'
 }) // 导出excel
 
+
 // 商家管理模块
 const getMerchantBusinessList = p => request.get('/merchant/getMerchantBusinessList', p) // 获取商户行业分类列表
 const getMerchantAuditList = p => request.get('/merchant/getMerchantAuditList', p) // 获取商户申请列表
+const getLicenseImage = p => request.get('/merchant/getLicenseImage', p) // 获取商户申请营业执照
+const changeAuditStatus = p => request.post('/merchant/manage/changeAuditStatus', p) // 更改审核状态
 const getMerchantAuditListExcel = p => request.get('/excel/getMerchantAuditListExcel', p) // 商户管理-申请管理-导出商户申请Excel
 const getMerchantDetails = p => request.get('/merchant/manage/getMerchantDetails', p) // 商户管理-获取商户详细信息（基础信息）
+const getMerchantGoods = p => request.get('/merchant/manage/getMerchantGoods', p) // 商户管理-获取商户商品列表
+const getMerchantGoodsCategory = p => request.get('/merchant/manage/merchantGoodsCategory', p) // 商户管理-获取店铺商品分类
+const addMerchantGoodsCategory = p => request.post('/merchant/manage/merchantGoodsCategory', p) // 商户管理-新增店铺商品分类
+const removeMerchantGoodsCategory = p => request.delete('/merchant/manage/merchantGoodsCategory', p) // 商户管理-删除店铺商品分类
+const changeGoodsSetCategory = p => request.put('/merchant/manage/goodsSetCategory', p) // 商户管理-修改店铺商品分类
 const getMerchantIncomeDetails = p => request.get('/merchant/manage/getMerchantIncomeDetails', p) // 商户管理-获取商户详细信息（营收记录）
 const getOfflineStoreList = p => request.get('/merchant/manage/getOfflineStoreList', p) // 商户管理-获取门店商户列表信息
 const getOnlineStoreList = p => request.get('/merchant/manage/getOnlineStoreList', p) // 商户管理-获取在线商户列表信息
 const updateAdWeights = p => request.post('/merchant/manage/updateAdWeights', p) // 修改广告值
-const changeAuditStatus = p => request.post('/merchant/manage/changeAuditStatus', p) // 更改审核状态
 const deleteMerchantById = p => request.delete('/merchant/manage/deleteMerchantById', p) // 商户管理-删除商户（只能删除导入的商户）
 const resetPassword = p => request.put('/merchant/manage/resetPassword', p) // 商户管理-重置商户密码
 const getExportMerchantExcel = p => request.get('/excel/getExportMerchantExcel', {
   responseType: 'blob'
 }) // 商户管理-获取导入商家Excel模板
+const exportOnlinesStoreListExcel = p => request.get('/excel/exportOnlineStoreListExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 导出excel
 const importMerchantForExcel = p => request.post('/excel/importMerchantForExcel', p) // 商户管理-获取导入商家Excel模板
+const getMerchantApplyList = p => request.get('/price/apply', p) // 商户管理-商户改价申请列表
+const getMerchantApplyDetail = p => request.get('/price/detail', p) // 商户管理-商户改价详情
+const changeMerchantApplyStatus = p => request.put('/price/status', p) // 商户管理-商户改价更改审核状态
+const getMerchantDrawRecordList = p => request.get('/merchant/manage/drawRecordList', p) // 商户管理-获取提现记录列表
+const updateMerchantSales = p => request.post('/merchant/manage/updateSales', p) // 商户管理-修改销量
+const getMerchantOrderList = p => request.get('/delivery/orderList', p) // 商家配送管理-获取平台配送订单
+const getfreightPlatList = p => request.get('/delivery/freightPlatList', p) // 商家配送管理-获取计价方案列表
+const setDeliveryTime = p => request.post('/delivery/plat/hours', p) // 商家配送管理-设置平台配送时间
+const getDeliveryTime = p => request.get('/delivery/plat/hoursList', p) // 商家配送管理-获取平台配送时间
+const getDeliveryMerchantList = p => request.get('/delivery/deliveryMerchantList', p) // 商家配送管理-获取配送商户列表
+const addDeliveryMerchantList = p => request.post('/delivery/deliveryMerchant', p) // 商家配送管理-添加配送商户
+const removeDeliveryMerchantList = p => request.delete('/delivery/deliveryMerchant', p) // 商家配送管理-移除配送商户
+const updateDeliveryMerchantList = p => request.put('/delivery/deliveryMerchant', p) // 商家配送管理-修改配送商户配送范围或计价
+const setDeliveryMerchantinfo = p => request.put('/delivery/delivery', p) // 商家配送管理-输入配送信息
+const getMerchantDrawList = p => request.get('/merchant/draw/drawList', p) // 商家提现管理-获取提现列表
+const exportMerchantDrawRecord = p => request.get('/merchant/draw/exportDrawRecord', {
+  params: p,
+  responseType: 'blob'
+}) // 导出商户提现申请
+const merchantDrawAdopt = p => request.post('/merchant/draw/adopt', p) // 商家提现管理-通过提现
+const merchantAutoAdoptSet = p => request.get('/merchant/draw/autoAdoptSet', p) // 商家提现管理-查看自动提现设置
+const merchantSetAutoAdopt = p => request.post('/merchant/draw/setAutoAdopt', p) // 商家提现管理-自动提现设置
+const getMerchantBlackList = p => request.get('/merchant/draw/blackList', p) // 商家提现管理-管理黑名单
+const merchantAddBlackList = p => request.post('/merchant/draw/addBlackList', p) // 商家提现管理-添加黑名单
+const merchantRemoveBlackList = p => request.post('/merchant/draw/removeBlackList', p) // 商家提现管理-移除黑名单
 
 
 
@@ -138,14 +181,15 @@ const exchangeMemberRole = p => request.post('/member/exchangeMemberRole', p) //
 const getWithdrawMoneyAuditList = p => request.get('/member/getWithdrawMoneyAuditList', p) // 用户管理-获取所有的奖励金数据
 const getUserTransferAuditList = p => request.get('/userTradeRecord/getUserTransferAuditList', p) // 获取微信提现申请列表
 const getUserTransferAuditListBankCard = p => request.get('/userTradeRecord/getUserTransferAuditListBankCard', p) // 获取用户银行卡提现申请列表
-const auditPassedById = p => request.put('/userTradeRecord/auditPassedById', p) // 微信提现申请审核通过
+const auditPassedById = p => request.put('/userTradeRecord/auditPassedById', p) // 微信支付宝提现申请审核通过
 const auditPassedBankCard = p => request.put('/userTradeRecord/auditPassedBankCard', p) // 银行卡提现申请审核通过
+const auditCancelById = p => request.put('/userTradeRecord/auditCancelById', p) // 提现申请-拒绝提现
 const getBankCardInfo = p => request.get(`/userTradeRecord/getBankCardInfo${p}`) // 获取银行卡信息
 const getUserTransferAuditListBankCardExcel = p => request.get('/userTradeRecord/getUserTransferAuditListBankCardExcel', {
   params: p,
   responseType: 'blob'
 }) // 银行卡提现列表导出excel
-
+const getUserTransferAuditListAlipay = p => request.get('/userTradeRecord/getUserTransferAuditListAlipay', p) // 获取银行卡信息
 
 
 
@@ -165,8 +209,14 @@ const getAgentParamConfig = p => request.get('/paramConfig/getAgentParamConfig',
 const updateAgentParamConfig = p => request.post('/paramConfig/updateAgentParamConfig', p) // 会员规则设置修改 - 城市合伙人
 const updateSeedParamConfig = p => request.post('/paramConfig/updateSeedParamConfig', p) // 积分设置 - 修改种子设置
 const getSeedParamConfig = p => request.get('/paramConfig/getSeedParamConfig', p) // 积分设置 - 获取种子设置
+const getMentionPeriodParamConfig = p => request.get('/paramConfig/getMentionPeriodParamConfig', p) // freeBuy提期 - 获取规则
+const updateMentionPeriodParamConfig = p => request.post('/paramConfig/updateMentionPeriodParamConfig', p) // freeBuy提期 - 修改规则
 const getAdvanceOrderParamConfig = p => request.get('/paramConfig/getAdvanceOrderParamConfig', p) // 预售订单规则 - 获取规则
 const updateAdvanceOrderParamConfig = p => request.post('/paramConfig/updateAdvanceOrderParamConfig', p) // 预售订单规则 - 修改规则
+const addOrUpdateOrderAndForum = p => request.post('/forum/config/addOrUpdate', p) // 发起预售及待返发帖限制 - 添加限制规则
+const findListOrderAndForum = p => request.get('/forum/config/findList', p) // 发起预售及待返发帖限制 - 获取限制规则
+const addOrUpdateDetailOrderAndForum = p => request.post('/forum/config/addOrUpdateDetail', p) // 发起预售及待返发帖限制 - 新增或者修改受限人群
+const removeOrderAndForum = p => request.post('/forum/config/remove', p) // 发起预售及待返发帖限制 - 删除
 
 
 
@@ -189,6 +239,7 @@ const updateGoodsAuditStatus = p => request.post('/goodsControl/updateGoodsAudit
 const queryGoodsQRCode = p => request.get('/goodsControl/queryGoodsQRCode', {
   params: p,
 }) // 商品管理-查询商品太阳码地址
+const updateGoodsShowStatus = p => request.delete('/goodsCategory/updateStatus', p) // 商品分类-修改状态
 
 // 营销管理模块
 const getSlideShowByCategory = p => request.get('/slideShow/getSlideShowByCategory', p) // 首页轮播图-获取所有
@@ -251,6 +302,8 @@ const goodsAreaActivity = p => request.post('/mdse/activity/activity', p) // 商
 const goodsAreaDetail = p => request.get('/mdse/activity/detail', p) // 商品活动专区活动详情
 const goodsAreaFindGoods = p => request.get(`/mdse/activity/findGoodsByActivityId${p}`) // 商品活动专区查看活动商品列表
 const goodsAreaCreateQrCode = p => request.get('/mdse/activity/createQrCode', p) // 商品活动专区生成二维码
+const getGuidePage = p => request.get('/guidePage/query', p) // 用户引导 - 查询内容
+const updateGuidePage = p => request.post('/guidePage/update', p) // 用户引导 - 修改内容
 
 
 
@@ -287,6 +340,19 @@ const findDetailForum = p => request.get('/forum/topic/findDetail', p) // 查询
 const removeForumcomment = p => request.post('/forum/comment/remove', p) // 查询贴子评论
 const updateIsTopForum = p => request.post('/forum/topic/updateIsTop', p) // 置顶帖子或取消置顶
 
+// 首页管理
+const findByHeroRank = p => request.get('/marketing/navigation/findByHeroRank', p) // 查询英雄榜
+const queryHeroList = p => request.get('/hero/queryHeroList', p) // 查询英雄榜列表
+const addHeroList = p => request.post('/hero/addHeroList', p) // 英雄榜 - 新增虚拟用户
+const deleteHeroById = p => request.get('/hero/deleteById', p) // 英雄榜 - 删除虚拟用户
+const deleteAllHero = p => request.get('/hero/deleteAll', p) // 英雄榜 - 清空虚拟用户
+const addHeroGrowthRules = p => request.post('/hero/addHeroGrowthRules', p) // 英雄榜 - 新增或修改虚拟用户规则
+const getHeroListExcel = p => request.get('/hero/getHeroListExcelTemplet', {
+  responseType: 'blob'
+}) // 英雄榜-获取导入虚拟信息Excel模板
+const importHeroListExcel = p => request.post('/hero/importHeroListExcel', p) // 英雄榜-导入英雄榜虚拟信息
+
+
 // 系统管理
 const getLogisticsCompanyList = () => request.get('/logisticsCompany/getLogisticsCompanyList') // 获取所有可用的物流信息
 const deletelogistics = p => request.delete('/logisticsCompany/deleteById', p) // 根据ID删除物流信息
@@ -314,18 +380,23 @@ export {
   NewPeopleUpdateStatus,
   queryNewPeople,
   goodsAreaUpdateStatus,
+  getDeliveryTime,
   exportApplyBalanceExcel,
+  updateMentionPeriodParamConfig,
   goodsAreaCreateQrCode,
   goodsAreaFindGoods,
+  getMentionPeriodParamConfig,
   queryGoodsArea,
   goodsAreaActivity,
   agentApplyList,
   newPeopleQueryGoodsQRCode,
+  exportMerchantDrawRecord,
   agentRole,
   NewPeopleFindGoods,
   goodsAreaDetail,
   agentApplyBalance,
   queryNewPeopleDetail,
+  findByHeroRank,
   exportInstallmentGoodsExcel,
   findAgentRoleById,
   updateIssueStatusSupport,
@@ -334,11 +405,16 @@ export {
   queryPageListSupport,
   queryOrderListOrderDataExcel,
   updateOrderNumberSupport,
+  getDeliveryMerchantList,
   queryOrderListOrderData,
   addSupport,
   getAuspicesParamConfig,
+  removeDeliveryMerchantList,
+  getMerchantApplyList,
+  updateGoodsShowStatus,
   updateAdvanceOrderParamConfig,
   addOrUpdateH5,
+  getHeroListExcel,
   refuseStages,
   findPageListForum,
   removeForum,
@@ -353,19 +429,23 @@ export {
   findPageListNavigation,
   refundAudits,
   queryOrderRefund,
+  setDeliveryMerchantinfo,
   queryLogistics,
   getAllUnexpectedIncome,
   userLoginRequest,
   addGoodsRequest,
+  getUserTransferAuditListAlipay,
   upDataGoodsRequest,
   queryGoodsDetailRequest,
   queryofflineGoodsDetail,
   noLogistics,
   getBusinessOptionsRequest,
+  addDeliveryMerchantList,
   getGoodsClassRequest,
   getOrderList,
   getLogisticsCompanyList,
   addOrderLogistics,
+  addMerchantGoodsCategory,
   refundAudit,
   getMerchantBusinessList,
   queryOrderReason,
@@ -373,46 +453,64 @@ export {
   agentBalance,
   queryOrder,
   applyRefundMerchant,
+  getMerchantDrawList,
   queryLogistic,
   agentRefuseBalance,
   cancelOrderMerchant,
   agentRenew,
   getExcel,
+  changeMerchantApplyStatus,
   addOrUpdateAgentRole,
+  removeOrderAndForum,
+  getLicenseImage,
   platGoodsList,
   getAdvanceOrderParamConfig,
   updateGoodsIssueStatus,
   addPlatTag,
   merchantGoodsList,
+  getMerchantOrderList,
   updateGoodsAdWeights,
   updateGoodsGrabbedNumber,
   addClass,
+  deleteAllHero,
   deleteClass,
   updateClass,
+  deleteHeroById,
+  merchantAddBlackList,
+  merchantRemoveBlackList,
   sortClass,
   merchantGoodsAuditList,
+  queryHeroList,
   updateGoodsAuditStatus,
   getSlideShowByCategory,
+  exportOnlinesStoreListExcel,
   addBanner,
   searchGoodsByName,
   deleteBanner,
   updateBanner,
   sortBanner,
   memberList,
+  addHeroList,
   plusMemberList,
   exchangeMemberStatus,
   memberDetail,
   plusMemberDetail,
   subtractUserAssets,
+  updateDeliveryMerchantList,
+  getMerchantGoods,
+  importHeroListExcel,
+  setDeliveryTime,
   allProfitsDistributionIdAndName,
   exchangeMemberRole,
   getWithdrawMoneyAuditList,
   queryPriceActivity,
   queryPriceActivityList,
+  getMerchantApplyDetail,
   deleteActive,
   updatePriceActivityStatus,
   activityDetails,
   addOrUpdatePriceActivity,
+  getMerchantGoodsCategory,
   getMemberParamConfig,
   agentApprove,
   updateMemberParamConfig,
@@ -426,28 +524,39 @@ export {
   getMerchantAuditListExcel,
   getMerchantDetails,
   getOnlineStoreList,
+  getMerchantBlackList,
+  getfreightPlatList,
   getOfflineStoreList,
   deletelogistics,
   agentPassBalance,
   addLogisticsCompany,
   getAllCity,
+  removeMerchantGoodsCategory,
   getAllCityData,
   getDistrictByCityId,
   modifyByDistrictId,
+  getDeliveryData,
   getMerchantIncomeDetails,
   updateAdWeights,
   changeAuditStatus,
   resetPassword,
+  platDeliveryApplyList,
+  platDeliveryApply,
   getExportMerchantExcel,
+  auditCancelById,
+  changeGoodsSetCategory,
   importMerchantForExcel,
   deleteMerchantById,
   getMerchantAuditListByWhereExcel,
+  addHeroGrowthRules,
+  merchantDrawAdopt,
   updateFastInstallmentConfig,
   findFastInstallmentConfig,
   queryTobeShippedOrderGoods,
   importLogisticsExcel,
   getLogisticsExcelTemplet,
   updateOrderAddress,
+  findListOrderAndForum,
   setPage,
   queryPage,
   delFile,
@@ -455,7 +564,9 @@ export {
   getStock,
   getUserTransferAuditList,
   getUserTransferAuditListBankCard,
+  addOrUpdateOrderAndForum,
   auditPassedBankCard,
+  updateMerchantSales,
   getBankCardInfo,
   getUserTransferAuditListBankCardExcel,
   addOrUpdateServiceMoney,
@@ -463,12 +574,14 @@ export {
   findVideoByType,
   deleteVideo,
   addOrUpdateVideo,
+  merchantAutoAdoptSet,
   findNoticeSet,
   updateNoticeSet,
   queryPageList,
   updateOrderNumber,
   updateIssueStatus,
   updateVideoIsTop,
+  merchantSetAutoAdopt,
   addProduct,
   queryPlatAndMerchantGoodsList,
   wishQueryPageList,
@@ -478,6 +591,7 @@ export {
   getAgentParamConfig,
   updateAgentParamConfig,
   getMerchantParamConfig,
+  getMerchantDrawRecordList,
   queryGoodsQRCode,
   diamondMemberList,
   diamondMemberDetail,
@@ -486,6 +600,7 @@ export {
   getSeedParamConfig,
   findPageListNotice,
   findDetailNotice,
+  addOrUpdateDetailOrderAndForum,
   addOrUpdateNotice,
   removeNotice,
   findNavigation,
@@ -494,6 +609,8 @@ export {
   removeNavigation,
   findDetailNavigation,
   addOrUpdateNavigation,
+  getGuidePage,
+  updateGuidePage,
   findSystemPageListNavigation,
   agentRefuse
 }

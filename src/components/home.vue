@@ -1,7 +1,7 @@
 <template>
   <el-container class="home-container" v-cloak>
     <!-- 左侧导航 -->
-    <el-aside class="nav" width="150px">
+    <el-aside class="nav" width="170px">
       <div class="logo">
         <div class="img">
           <img src="@/assets/logo.png" alt="logo" />
@@ -78,19 +78,21 @@ export default {
               path: {
                 path: "/agentApply"
               }
-            },{
+            },
+            {
               title: "代理商管理",
               active: false,
               path: {
                 path: "/agentManagement"
               }
-            },{
+            },
+            {
               title: "提现申请",
               active: false,
               path: {
                 path: "/withdrawalApply"
               }
-            },
+            }
           ]
         },
         {
@@ -115,6 +117,27 @@ export default {
               active: false,
               path: {
                 path: "/businessManagement"
+              }
+            },
+            {
+              title: "商户提现管理",
+              active: false,
+              path: {
+                path: "/withdrawal_bus"
+              }
+            },
+            {
+              title: "商家改价申请",
+              active: false,
+              path: {
+                path: "/changeMoney"
+              }
+            },
+            {
+              title: "商家配送管理",
+              active: false,
+              path: {
+                path: "/delivery"
               }
             }
           ]
@@ -305,6 +328,20 @@ export default {
               path: {
                 path: "/agentRule"
               }
+            },
+            {
+              title: "freeBuy提期",
+              active: false,
+              path: {
+                path: "/freeBuyReduceNum"
+              }
+            },
+            {
+              title: "发起预售及待返发帖限制",
+              active: false,
+              path: {
+                path: "/presaleAndPost"
+              }
             }
           ]
         },
@@ -335,6 +372,60 @@ export default {
               active: false,
               path: {
                 path: "/seed_management"
+              }
+            }
+          ]
+        },
+        {
+          title: "首页管理",
+          nav: [
+            {
+              title: "图标导航",
+              active: false,
+              path: {
+                path: "/navigationList"
+              }
+            },
+            {
+              title: "英雄榜",
+              active: false,
+              path: {
+                path: "/hero_list"
+              }
+            },
+            {
+              title: "轮播图",
+              active: false,
+              path: {
+                path: "/homePage_banner"
+              }
+            },
+            {
+              title: "模块1",
+              active: false,
+              path: {
+                path: "/module1"
+              }
+            },
+            {
+              title: "模块2",
+              active: false,
+              path: {
+                path: "/module2"
+              }
+            },
+            {
+              title: "模块3",
+              active: false,
+              path: {
+                path: "/module3"
+              }
+            },
+            {
+              title: "公告管理",
+              active: false,
+              path: {
+                path: "/noticeManagement"
               }
             }
           ]
@@ -382,6 +473,13 @@ export default {
               active: false,
               path: {
                 path: "/notice"
+              }
+            },
+            {
+              title: "新用户引导页",
+              active: false,
+              path: {
+                path: "/newUser"
               }
             }
           ]

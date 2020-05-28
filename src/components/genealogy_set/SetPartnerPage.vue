@@ -51,7 +51,6 @@ export default {
         videoFiles: null
       };
       setPage(data).then(res => {
-        console.log(res);
         if (res.data.messageCode == "MSG_1001") {
           this.$message.success("保存成功");
         } else {

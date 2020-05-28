@@ -115,19 +115,11 @@ export default {
   },
   methods: {
     search(val) {
-      let startTime = "";
-      let endTime = "";
-      if (this.startTime) {
-        let startTime = this.startTime.getTime();
-      }
-      if (this.endTime) {
-        let endTime = this.endTime.getTime();
-      }
       let parms = {
         pageNumber: val,
         pageSize: 10,
-        beginTime: startTime,
-        endTime: endTime,
+        beginTime: this.startTime,
+        endTime: this.endTime,
         enabled: this.status,
         mobile: this.mobile
       };
@@ -157,7 +149,6 @@ export default {
 
     // 解冻、冻结
     changeStatus(index, row) {
-      console.log(row);
       if (row.status === 1) {
         this.$prompt("", "冻结此会员后无法登陆平台", {
           confirmButtonText: "确定",

@@ -30,10 +30,10 @@
           :style="index%2!=0?'border-top:none':'border-bottom:none;margin-top:10px;'"
         >
           <el-form-item label="0成本购：" label-width="80px" v-if="item.type == 1 && index%2 == 0">
-            <el-radio-group v-model="item.category" :disabled="disabled" @change="radioChange">
+            <!-- <el-radio-group v-model="item.category" :disabled="disabled" @change="radioChange">
               <el-radio :label="1">按支付金额年化</el-radio>
               <el-radio :label="2">按正常购买提成</el-radio>
-            </el-radio-group>
+            </el-radio-group>-->
           </el-form-item>
           <span class="itemTitle title" v-if="item.type == 2 && index%2 == 0">购买待返：</span>
           <span class="itemTitle title" v-if="item.type == 3 && index%2 == 0">正常购买：</span>
@@ -92,7 +92,11 @@
             <div style="display:flex;flex-direction:column">
               <el-form-item label label-width="0px" style="margin-left:20px;">
                 <div style="display:flex">
-                  <el-checkbox v-model="item.hasDuration" :disabled="disabled">选择持续时间</el-checkbox>
+                  <el-checkbox
+                    v-model="item.hasDuration"
+                    :disabled="disabled"
+                    @change="timeRadio(item.hasDuration,index)"
+                  >选择持续时间</el-checkbox>
                   <div style="display:flex;align-items:center">
                     <span v-if="item.hasDuration">&nbsp;&nbsp;持续时间：</span>
                     <el-form-item
@@ -149,7 +153,11 @@
               </el-form-item>
               <el-form-item label label-width="0px" style="margin-left:20px;">
                 <div style="display:flex">
-                  <el-checkbox v-model="item.hasSupport" :disabled="disabled">增加政策扶持</el-checkbox>
+                  <el-checkbox
+                    v-model="item.hasSupport"
+                    :disabled="disabled"
+                    @change="hasSupportRadio(item.hasSupport,index)"
+                  >增加政策扶持</el-checkbox>
                   <div style="display:flex;align-items:center">
                     <span v-if="item.hasSupport">
                       &nbsp;&nbsp;增加获得
@@ -213,13 +221,17 @@
                 v-if="((item.type == 1 && item.category == 1) || item.type == 2) && index < 4 && item.level == 1"
               >
                 <div style="display:flex">
-                  <el-checkbox v-model="item.hasReward" :disabled="disabled">阶梯奖励政策</el-checkbox>
+                  <el-checkbox
+                    v-model="item.hasReward"
+                    :disabled="disabled"
+                    @change="hasRewardRadio(item.hasReward,index)"
+                  >阶梯奖励政策</el-checkbox>
                   <div style="display:flex;flex-direction:cloumn;align-items:center;">
                     <div>
                       <div
                         v-for="(ite,idx) in item.rewards"
                         :key="idx"
-                        style="display:flex;flex-direction:cloumn;align-items:center;"
+                        style="display:flex;flex-direction:cloumn;align-items:center;margin-bottom:10px;"
                       >
                         <span v-if="item.hasReward">&nbsp;&nbsp;业绩达到</span>
                         <el-form-item
@@ -262,7 +274,7 @@
                     </div>
                     <el-button
                       type="text"
-                      style="margin-left:40px;"
+                      style="margin-left:40px;margin-bottom:10px;"
                       v-if="item.hasReward"
                       @click="addReward(index)"
                       :disabled="item.rewards.length >= 10 || disabled"
@@ -766,9 +778,9 @@ export default {
         }
       });
     },
-    radioChange(value) {
-      this.form.equities[1].category = value;
-    },
+    // radioChange(value) {
+    //   this.form.equities[1].category = value;
+    // },
     // 添加 阶梯奖励政策
     addReward(index) {
       this.form.equities[index].rewards.push({
@@ -779,6 +791,37 @@ export default {
     // 删除阶梯奖励政策
     deletRewardItems(index, idx) {
       this.form.equities[index].rewards.splice(idx, 1);
+    },
+    // 选择持续时间复选框改变事件
+    timeRadio(val, index) {
+      if (!val) {
+        this.form.equities[index].duration = "";
+        this.form.equities[index].durationRate = "";
+        this.form.equities[index].durationProfitRate = "";
+        // 移除该表单项的校验结果
+        this.$refs["form"].clearValidate();
+      }
+    },
+    // 选择增加政策扶持复选框改变事件
+    hasSupportRadio(val, index) {
+      if (!val) {
+        this.form.equities[index].supportRate = "";
+        this.form.equities[index].supportDuration = "";
+        this.form.equities[index].supportProfitRate = "";
+        // 移除该表单项的校验结果
+        this.$refs["form"].clearValidate();
+      }
+    },
+    // 选择阶梯奖励政策复选框改变事件
+    hasRewardRadio(val, index) {
+      if (!val) {
+        this.form.equities[index].rewards.forEach(item => {
+          item.quota = "";
+          item.reward = "";
+        });
+        // 移除该表单项的校验结果
+        this.$refs["form"].clearValidate();
+      }
     },
     // 返回
     goBack() {
@@ -791,6 +834,7 @@ export default {
           let form = JSON.parse(JSON.stringify(this.form));
           let a = true;
           let b = true;
+          let c = true;
           form.equities.forEach(val => {
             val.hasDuration = val.hasDuration ? 1 : 0;
             val.hasSupport = val.hasSupport ? 1 : 0;
@@ -847,6 +891,14 @@ export default {
                 }
               }
             }
+            // 如果选择了阶梯奖励政策后面内容不能为空
+            if (val.hasReward == 1) {
+              val.rewards.forEach(ite => {
+                if (!ite.quota || !ite.reward) {
+                  c = false;
+                }
+              });
+            }
           });
           if (!a) {
             this.$message.error("选择持续时间后内容不能为空");
@@ -854,6 +906,10 @@ export default {
           }
           if (!b) {
             this.$message.error("增加政策扶持后内容不能为空");
+            return;
+          }
+          if (!c) {
+            this.$message.error("阶梯奖励政策后内容不能为空");
             return;
           }
           addOrUpdateAgentRole(form).then(res => {

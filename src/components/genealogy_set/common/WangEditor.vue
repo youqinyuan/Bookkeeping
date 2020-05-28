@@ -11,6 +11,7 @@ export default {
   name: "Editor",
   data() {
     return {
+      myHeaders: { token: "" },
       editor: null,
       editorContent: ""
     };
@@ -18,24 +19,48 @@ export default {
   // catchData是一个类似回调函数，来自父组件，当然也可以自己写一个函数，主要是用来获取富文本编辑器中的html内容用来传递给服务端
   props: ["catchData", "content"], // 接收父组件的方法
   mounted() {
+    this.myHeaders.token = getCookie().opadminToken;
     this.editor = new E(this.$refs.editorElem, this.$refs.editorElem1);
+    /**
+     * base64格式保存图片
+     */
     this.editor.customConfig.uploadImgShowBase64 = true; // 使用 base64 保存图片
-    this.editor.customConfig.uploadImgMaxSize = 100 * 1024 * 1024 //限制图片大小
-    // this.editor.customConfig.uploadImgServer = "/opadmin/page/uploadFile";
+    this.editor.customConfig.uploadImgMaxSize = 100 * 1024 * 1024; //限制图片大小
+    /**
+     * 上传图片到服务器
+     */
+    // this.editor.customConfig.uploadImgServer =
+    //   "https://dev.xuncaoji.net:8085/opadmin/fileStore/uploadFile";
     // this.editor.customConfig.uploadFileName = "file";
     // this.editor.customConfig.uploadImgHeaders = {
     //   token: getCookie().opadminToken
     // };
     // this.editor.customConfig.uploadImgHooks = {
     //   customInsert: function(insertImg, result, editor) {
-    //     console.log(result);
     //     var url = result.content.url;
     //     insertImg(url);
+    //   }
+    // };
+    /**
+     * 视频上传 -- (通过修改源码实现)
+     */
+    // this.editor.customConfig.uploadVideoServer =
+    //   "https://dev.xuncaoji.net:8085/opadmin/fileStore/uploadFile"; // 上传接口
+    // this.editor.customConfig.uploadFileName = "file";
+    // this.editor.customConfig.uploadVideoHeaders = {
+    //   token: getCookie().opadminToken
+    // };
+    // this.editor.customConfig.uploadVideoHooks = {
+    //   // 上传完成处理方法
+    //   customInsert: function(insertVideo, result) {
+    //     var url = result.content.url;
+    //     insertVideo(url);
     //   }
     // };
     this.editor.customConfig.zIndex = 100;
     // 编辑器的事件，每次改变会获取其html内容
     this.editor.customConfig.onchange = html => {
+      // console.log(html);
       this.editorContent = html;
       this.$emit("catchData", this.editorContent); // 把这个html通过catchData的方法传入父组件
     };
@@ -69,6 +94,7 @@ export default {
       //"quote", // 引用
       //"emoticon", // 表情
       "image", // 插入图片
+      //"video", // 插入视频
       //"table", // 表格
       //"code", // 插入代码
       "undo", // 撤销
@@ -77,7 +103,8 @@ export default {
     this.editor.create(); // 创建富文本实例
     // 初始化 textarea 的值
     this.editor.txt.html(this.content);
-  }
+  },
+  methods: {}
 };
 </script>
 <style lang="less" scoped>
