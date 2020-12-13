@@ -1,10 +1,14 @@
 <template>
   <div class="addAgent">
     <el-form ref="form" :model="form" :rules="rules" label-position="left">
-      <el-form-item label="代理商角色名称：" label-width="140px" prop="roleName">
+      <el-form-item
+        label="代理商角色名称："
+        label-width="140px"
+        prop="roleName"
+      >
         <el-input
           v-model="form.roleName"
-          style="width:200px;"
+          style="width: 200px"
           :disabled="disabled"
           size="mini"
           :maxlength="10"
@@ -17,96 +21,188 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="收费金额：" label-width="100px" prop="price">
-        <el-input v-model="form.price" style="width:160px;" :disabled="disabled" size="mini"></el-input>&nbsp;万
+        <el-input
+          v-model="form.price"
+          style="width: 160px"
+          :disabled="disabled"
+          size="mini"
+        ></el-input
+        >&nbsp;万
       </el-form-item>
       <el-form-item label="期限：" label-width="80px" prop="term">
-        <el-input v-model="form.term" style="width:160px;" :disabled="disabled" size="mini"></el-input>&nbsp;年
+        <el-input
+          v-model="form.term"
+          style="width: 160px"
+          :disabled="disabled"
+          size="mini"
+        ></el-input
+        >&nbsp;年
       </el-form-item>
       <!-- =====发展C端提成设置 和 B端提成设置===== -->
-      <div v-for="(item,index) in form.equities" :key="index">
-        <div style="font-size:14px;color:#409EFF;margin:20px 0px;" v-if="index == 0">发展C端提成设置</div>
+      <div v-for="(item, index) in form.equities" :key="index">
+        <div
+          style="font-size: 14px; color: #409eff; margin: 20px 0px"
+          v-if="index == 0"
+        >
+          发展C端提成设置
+        </div>
         <div
           class="itemsContent"
-          :style="index%2!=0?'border-top:none':'border-bottom:none;margin-top:10px;'"
+          :style="
+            item.level == 2
+              ? 'border-top:none'
+              : item.type == 8
+              ? ''
+              : 'border-bottom:none;margin-top:10px;'
+          "
         >
-          <el-form-item label="0成本购：" label-width="80px" v-if="item.type == 1 && index%2 == 0">
-            <!-- <el-radio-group v-model="item.category" :disabled="disabled" @change="radioChange">
-              <el-radio :label="1">按支付金额年化</el-radio>
-              <el-radio :label="2">按正常购买提成</el-radio>
-            </el-radio-group>-->
-          </el-form-item>
-          <span class="itemTitle title" v-if="item.type == 2 && index%2 == 0">购买待返：</span>
-          <span class="itemTitle title" v-if="item.type == 3 && index%2 == 0">正常购买：</span>
-          <span class="itemTitle title" v-if="item.type == 4 && index%2 == 0">发展钻石合伙人：</span>
-          <span class="itemTitle title" v-if="item.type == 5 && index%2 == 0">待返转让：</span>
-          <span class="itemTitle title" v-if="item.type == 6 && index%2 == 0">购买待返：</span>
-          <div style="display:flex;flex-direction:cloumn">
+          <span class="itemTitle title" v-if="item.type == 9 && item.level == 1"
+            >一折购分期：</span
+          >
+          <span class="itemTitle title" v-if="item.type == 1 && item.level == 1"
+            >0成本购：</span
+          >
+          <span class="itemTitle title" v-if="item.type == 2 && item.level == 1"
+            >购买待返：</span
+          >
+          <span class="itemTitle title" v-if="item.type == 3 && item.level == 1"
+            >正常购买：</span
+          >
+          <span class="itemTitle title" v-if="item.type == 4 && item.level == 1"
+            >发展钻石合伙人：</span
+          >
+          <span class="itemTitle title" v-if="item.type == 5 && item.level == 1"
+            >待返转让：</span
+          >
+          <span class="itemTitle title" v-if="item.type == 6 && item.level == 1"
+            >购买待返：</span
+          >
+          <div style="display: flex; flex-direction: cloumn">
             <el-form-item
               label
               label-width="0px"
-              :prop="'equities.'+index+'.royaltyRate'"
+              :prop="'equities.' + index + '.royaltyRate'"
+              :rules="rules.agentRoyalty8"
+              v-if="item.type == 8"
+            >
+              <span class="itemTitle">邀请新用户首次1折购奖励</span>
+              <el-input
+                v-model="item.royaltyRate"
+                style="width: 80px"
+                :disabled="disabled"
+                size="mini"
+                placeholder="非必填"
+              ></el-input
+              >元
+            </el-form-item>
+            <el-form-item
+              label
+              label-width="0px"
+              :prop="'equities.' + index + '.royaltyRate'"
+              :rules="rules.agentRoyalty9"
+              v-else-if="item.type == 9"
+            >
+              <span class="itemTitle"
+                >{{
+                  item.level == 1 ? "一" : "二"
+                }}级：1折购分期获得商品原价（1折购原价）的</span
+              >
+              <el-input
+                v-model="item.royaltyRate"
+                style="width: 80px"
+                :disabled="disabled"
+                size="mini"
+                placeholder="非必填"
+              ></el-input
+              >%
+            </el-form-item>
+            <el-form-item
+              label
+              label-width="0px"
+              :prop="'equities.' + index + '.royaltyRate'"
               :rules="rules.agentRoyalty"
+              v-else
             >
               <span
                 class="itemTitle"
                 v-if="item.type == 1 && item.category == 1"
-              >{{item.level == 1?'一':'二'}}级：获得支付金额</span>
+                >{{ item.level == 1 ? "一" : "二" }}级：获得支付金额</span
+              >
               <span
                 class="itemTitle"
                 v-if="item.type == 1 && item.category == 2"
-              >{{item.level == 1?'一':'二'}}级：获得原实付价的</span>
-              <span class="itemTitle" v-if="item.type == 2">{{item.level == 1?'一':'二'}}级：获得支付金额</span>
-              <span class="itemTitle" v-if="item.type == 3">{{item.level == 1?'一':'二'}}级：获得原实付价的</span>
-              <span class="itemTitle" v-if="item.type == 4">{{item.level == 1?'一':'二'}}级：获得会员费的</span>
-              <span
-                class="itemTitle"
-                v-if="item.type == 5 || item.type == 6"
-              >{{item.level == 1?'一':'二'}}级：获得手续费的</span>
-              <span class="itemTitle" v-if="item.type == 7">{{item.level == 1?'一':'二'}}级：获得利润的</span>
+                >{{ item.level == 1 ? "一" : "二" }}级：获得原实付价的</span
+              >
+              <span class="itemTitle" v-if="item.type == 2"
+                >{{ item.level == 1 ? "一" : "二" }}级：获得支付金额</span
+              >
+              <span class="itemTitle" v-if="item.type == 3"
+                >{{ item.level == 1 ? "一" : "二" }}级：获得原实付价的</span
+              >
+              <span class="itemTitle" v-if="item.type == 4"
+                >{{ item.level == 1 ? "一" : "二" }}级：获得会员费的</span
+              >
+              <span class="itemTitle" v-if="item.type == 5 || item.type == 6"
+                >{{ item.level == 1 ? "一" : "二" }}级：获得手续费的</span
+              >
+              <span class="itemTitle" v-if="item.type == 7"
+                >{{ item.level == 1 ? "一" : "二" }}级：获得利润的</span
+              >
               <el-input
                 v-model="item.royaltyRate"
-                style="width:80px;"
+                style="width: 80px"
                 :disabled="disabled"
                 size="mini"
                 placeholder="非必填"
               ></el-input>
-              <span v-if="item.type==3 || (item.type == 1 && item.category == 2)">%+</span>
-              <span v-else-if="item.type==1 || item.type == 2">%的年化收益</span>
+              <span
+                v-if="item.type == 3 || (item.type == 1 && item.category == 2)"
+                >%+</span
+              >
+              <span v-else-if="item.type == 1 || item.type == 2"
+                >%的年化收益</span
+              >
               <span v-else>%</span>
             </el-form-item>
             <el-form-item
               label="利润的"
               label-width="55px"
-              v-if="item.type==3 || (item.type == 1 && item.category == 2)"
-              :prop="'equities.'+index+'.profitRate'"
+              v-if="item.type == 3 || (item.type == 1 && item.category == 2)"
+              :prop="'equities.' + index + '.profitRate'"
               :rules="rules.agentRoyalty"
             >
               <el-input
                 v-model="item.profitRate"
-                style="width:80px;"
+                style="width: 80px"
                 :disabled="disabled"
                 size="mini"
                 placeholder="非必填"
-              ></el-input>%
+              ></el-input
+              >%
             </el-form-item>
-            <div style="display:flex;flex-direction:column">
-              <el-form-item label label-width="0px" style="margin-left:20px;">
-                <div style="display:flex">
+            <!-- 多选框内容 -->
+            <div
+              style="display: flex; flex-direction: column"
+              v-if="item.type != 8 && item.type != 9"
+            >
+              <el-form-item label label-width="0px" style="margin-left: 20px">
+                <div style="display: flex">
                   <el-checkbox
                     v-model="item.hasDuration"
                     :disabled="disabled"
-                    @change="timeRadio(item.hasDuration,index)"
-                  >选择持续时间</el-checkbox>
-                  <div style="display:flex;align-items:center">
+                    @change="timeRadio(item.hasDuration, index)"
+                    >选择持续时间</el-checkbox
+                  >
+                  <div style="display: flex; align-items: center">
                     <span v-if="item.hasDuration">&nbsp;&nbsp;持续时间：</span>
                     <el-form-item
                       label-width="0px"
-                      :prop="'equities.'+index+'.duration'"
+                      :prop="'equities.' + index + '.duration'"
                       :rules="rules.duration"
                     >
                       <el-input
                         v-model="item.duration"
-                        style="width:80px;"
+                        style="width: 80px"
                         :disabled="disabled"
                         size="mini"
                         v-if="item.hasDuration"
@@ -114,97 +210,154 @@
                     </el-form-item>
                     <span v-if="item.hasDuration">
                       个月&nbsp;|&nbsp;持续时间后获得
-                      <span v-if="item.type == 1 && item.category == 1">支付金额</span>
-                      <span v-if="item.type == 1 && item.category == 2">原实付价的</span>
+                      <span v-if="item.type == 1 && item.category == 1"
+                        >支付金额</span
+                      >
+                      <span v-if="item.type == 1 && item.category == 2"
+                        >原实付价的</span
+                      >
                       <span v-if="item.type == 2">支付金额</span>
                       <span v-if="item.type == 3">原实付价的</span>
                       <span v-if="item.type == 4">会员费的</span>
-                      <span v-if="item.type == 5 || item.type == 6">手续费</span>
-                      <span v-if="item.type == 7 ||item.type == 8">利润的</span>
+                      <span v-if="item.type == 5 || item.type == 6"
+                        >手续费</span
+                      >
+                      <span v-if="item.type == 7 || item.type == 8"
+                        >利润的</span
+                      >
                     </span>
                     <el-form-item
                       label-width="0px"
-                      :prop="'equities.'+index+'.durationRate'"
+                      :prop="'equities.' + index + '.durationRate'"
                       :rules="rules.agentRoyalty"
                     >
                       <el-input
                         v-model="item.durationRate"
-                        style="width:80px;"
+                        style="width: 80px"
                         :disabled="disabled"
                         size="mini"
                         v-if="item.hasDuration"
                       ></el-input>
                     </el-form-item>
-                    <span v-if="item.hasDuration && item.type == 3">%+利润的</span>
-                    <span v-if="item.hasDuration && item.type == 1 && item.category == 2">%+利润的</span>
-                    <span v-if="item.hasDuration && item.type != 3 && item.category != 2">%的年化收益</span>
+                    <span v-if="item.hasDuration && item.type == 3"
+                      >%+利润的</span
+                    >
+                    <span
+                      v-if="
+                        item.hasDuration && item.type == 1 && item.category == 2
+                      "
+                      >%+利润的</span
+                    >
+                    <span
+                      v-if="
+                        item.hasDuration && item.type != 3 && item.category != 2
+                      "
+                      >%的年化收益</span
+                    >
                     <el-input
                       v-model="item.durationProfitRate"
-                      style="width:80px;"
+                      style="width: 80px"
                       :disabled="disabled"
                       size="mini"
-                      v-if="item.hasDuration && (item.type == 3 || (item.type == 1 && item.category == 2))"
+                      v-if="
+                        item.hasDuration &&
+                        (item.type == 3 ||
+                          (item.type == 1 && item.category == 2))
+                      "
                     ></el-input>
                     <span
-                      v-if="item.hasDuration && (item.type == 3 || (item.type == 1 && item.category == 2))"
-                    >%</span>
+                      v-if="
+                        item.hasDuration &&
+                        (item.type == 3 ||
+                          (item.type == 1 && item.category == 2))
+                      "
+                      >%</span
+                    >
                   </div>
                 </div>
               </el-form-item>
-              <el-form-item label label-width="0px" style="margin-left:20px;">
-                <div style="display:flex">
+              <el-form-item label label-width="0px" style="margin-left: 20px">
+                <div style="display: flex">
                   <el-checkbox
                     v-model="item.hasSupport"
                     :disabled="disabled"
-                    @change="hasSupportRadio(item.hasSupport,index)"
-                  >增加政策扶持</el-checkbox>
-                  <div style="display:flex;align-items:center">
+                    @change="hasSupportRadio(item.hasSupport, index)"
+                    >增加政策扶持</el-checkbox
+                  >
+                  <div style="display: flex; align-items: center">
                     <span v-if="item.hasSupport">
                       &nbsp;&nbsp;增加获得
-                      <span v-if="item.type == 1 && item.category == 1">支付金额</span>
-                      <span v-if="item.type == 1 && item.category == 2">原实付价的</span>
+                      <span v-if="item.type == 1 && item.category == 1"
+                        >支付金额</span
+                      >
+                      <span v-if="item.type == 1 && item.category == 2"
+                        >原实付价的</span
+                      >
                       <span v-if="item.type == 2">支付金额</span>
                       <span v-if="item.type == 3">原实付价的</span>
                       <span v-if="item.type == 4">会员费的</span>
-                      <span v-if="item.type == 5 || item.type == 6">手续费</span>
-                      <span v-if="item.type == 7 ||item.type == 8">利润的</span>
+                      <span v-if="item.type == 5 || item.type == 6"
+                        >手续费</span
+                      >
+                      <span v-if="item.type == 7 || item.type == 8"
+                        >利润的</span
+                      >
                     </span>
                     <el-form-item
                       label-width="0px"
-                      :prop="'equities.'+index+'.supportRate'"
+                      :prop="'equities.' + index + '.supportRate'"
                       :rules="rules.agentRoyalty"
                     >
                       <el-input
                         v-model="item.supportRate"
-                        style="width:80px;"
+                        style="width: 80px"
                         :disabled="disabled"
                         size="mini"
                         v-if="item.hasSupport"
                       ></el-input>
                     </el-form-item>
                     <span
-                      v-if="item.hasSupport && item.type != 3 && item.category != 2"
-                    >%的年化收益&nbsp;|&nbsp;持续时间：开通后</span>
-                    <span v-if="item.hasSupport && item.type == 3">%+利润的</span>
-                    <span v-if="item.hasSupport && item.type == 1 && item.category == 2">%+利润的</span>
+                      v-if="
+                        item.hasSupport && item.type != 3 && item.category != 2
+                      "
+                      >%的年化收益&nbsp;|&nbsp;持续时间：开通后</span
+                    >
+                    <span v-if="item.hasSupport && item.type == 3"
+                      >%+利润的</span
+                    >
+                    <span
+                      v-if="
+                        item.hasSupport && item.type == 1 && item.category == 2
+                      "
+                      >%+利润的</span
+                    >
                     <el-input
                       v-model="item.supportProfitRate"
-                      style="width:80px;"
+                      style="width: 80px"
                       :disabled="disabled"
                       size="mini"
-                      v-if="item.hasSupport && (item.type == 3 || (item.type == 1 && item.category == 2))"
+                      v-if="
+                        item.hasSupport &&
+                        (item.type == 3 ||
+                          (item.type == 1 && item.category == 2))
+                      "
                     ></el-input>
                     <span
-                      v-if="item.hasSupport && (item.type == 3 || (item.type == 1 && item.category == 2))"
-                    >%&nbsp;|&nbsp;持续时间：开通后</span>
+                      v-if="
+                        item.hasSupport &&
+                        (item.type == 3 ||
+                          (item.type == 1 && item.category == 2))
+                      "
+                      >%&nbsp;|&nbsp;持续时间：开通后</span
+                    >
                     <el-form-item
                       label-width="0px"
-                      :prop="'equities.'+index+'.supportDuration'"
+                      :prop="'equities.' + index + '.supportDuration'"
                       :rules="rules.duration"
                     >
                       <el-input
                         v-model="item.supportDuration"
-                        style="width:80px;"
+                        style="width: 80px"
                         :disabled="disabled"
                         size="mini"
                         v-if="item.hasSupport"
@@ -217,31 +370,54 @@
               <el-form-item
                 label
                 label-width="0px"
-                style="margin-left:20px;"
-                v-if="((item.type == 1 && item.category == 1) || item.type == 2) && index < 4 && item.level == 1"
+                style="margin-left: 20px"
+                v-if="
+                  ((item.type == 1 && item.category == 1) || item.type == 2) &&
+                  index < 4 &&
+                  item.level == 1
+                "
               >
-                <div style="display:flex">
+                <div style="display: flex">
                   <el-checkbox
                     v-model="item.hasReward"
                     :disabled="disabled"
-                    @change="hasRewardRadio(item.hasReward,index)"
-                  >阶梯奖励政策</el-checkbox>
-                  <div style="display:flex;flex-direction:cloumn;align-items:center;">
+                    @change="hasRewardRadio(item.hasReward, index)"
+                    >阶梯奖励政策</el-checkbox
+                  >
+                  <div
+                    style="
+                      display: flex;
+                      flex-direction: cloumn;
+                      align-items: center;
+                    "
+                  >
                     <div>
                       <div
-                        v-for="(ite,idx) in item.rewards"
+                        v-for="(ite, idx) in item.rewards"
                         :key="idx"
-                        style="display:flex;flex-direction:cloumn;align-items:center;margin-bottom:10px;"
+                        style="
+                          display: flex;
+                          flex-direction: cloumn;
+                          align-items: center;
+                          margin-bottom: 10px;
+                        "
                       >
                         <span v-if="item.hasReward">&nbsp;&nbsp;业绩达到</span>
                         <el-form-item
                           label-width="0px"
-                          :prop="'equities.'+index+'.rewards.'+idx+'.quota'"
-                          :rules="{required: false, pattern:/^[0-9]\d*$/,message: '仅限正整数数字', trigger: 'blur'}"
+                          :prop="
+                            'equities.' + index + '.rewards.' + idx + '.quota'
+                          "
+                          :rules="{
+                            required: false,
+                            pattern: /^[0-9]\d*$/,
+                            message: '仅限正整数数字',
+                            trigger: 'blur',
+                          }"
                         >
                           <el-input
                             v-model="ite.quota"
-                            style="width:100px;"
+                            style="width: 100px"
                             :disabled="disabled"
                             size="mini"
                             :maxlength="9"
@@ -251,12 +427,14 @@
                         <span v-if="item.hasReward">元增加获得支付金额</span>
                         <el-form-item
                           label-width="0px"
-                          :prop="'equities.'+index+'.rewards.'+idx+'.reward'"
+                          :prop="
+                            'equities.' + index + '.rewards.' + idx + '.reward'
+                          "
                           :rules="rules.reward"
                         >
                           <el-input
                             v-model="ite.reward"
-                            style="width:80px;"
+                            style="width: 80px"
                             :disabled="disabled"
                             size="mini"
                             v-if="item.hasReward"
@@ -264,21 +442,23 @@
                         </el-form-item>
                         <span v-if="item.hasReward">%的年化收益</span>
                         <el-button
-                          style="margin-left:30px;"
+                          style="margin-left: 30px"
                           type="text"
                           v-if="item.hasReward"
-                          @click="deletRewardItems(index,idx)"
+                          @click="deletRewardItems(index, idx)"
                           :disabled="disabled"
-                        >删除</el-button>
+                          >删除</el-button
+                        >
                       </div>
                     </div>
                     <el-button
                       type="text"
-                      style="margin-left:40px;margin-bottom:10px;"
+                      style="margin-left: 40px; margin-bottom: 10px"
                       v-if="item.hasReward"
                       @click="addReward(index)"
                       :disabled="item.rewards.length >= 10 || disabled"
-                    >添加</el-button>
+                      >添加</el-button
+                    >
                   </div>
                 </div>
               </el-form-item>
@@ -288,30 +468,43 @@
             label="独家专享：自己代理的省/市/区下所有的商家，均获得商家出售商品利润的"
             label-width="470px"
             prop="merchantRoyalty"
-            v-if="index == 13"
+            v-if="index == 16"
           >
             <el-input
               v-model="form.merchantRoyalty"
-              style="width:100px;"
+              style="width: 100px"
               :disabled="disabled"
               size="mini"
               placeholder="非必填"
-            ></el-input>%
+            ></el-input
+            >%
           </el-form-item>
         </div>
-        <div style="font-size:14px;color:#409EFF;margin:20px 0px;" v-if="index == 11">发展B端提成设置</div>
+        <div
+          style="font-size: 14px; color: #409eff; margin: 20px 0px"
+          v-if="index == 14"
+        >
+          发展B端提成设置
+        </div>
       </div>
       <!-- =====发展代理商提成设置===== -->
-      <div style="font-size:14px;color:#409EFF;margin:20px 0px;">发展代理商提成设置</div>
-      <div class="itemsContent" style="border:1px solid #333;">
-        <el-form-item label="自行发展自己代理省份/城市下面的代理，获得代理费的" label-width="360px" prop="agentRoyalty">
+      <div style="font-size: 14px; color: #409eff; margin: 20px 0px">
+        发展代理商提成设置
+      </div>
+      <div class="itemsContent" style="border: 1px solid #333">
+        <el-form-item
+          label="自行发展自己代理省份/城市下面的代理，获得代理费的"
+          label-width="360px"
+          prop="agentRoyalty"
+        >
           <el-input
             v-model="form.agentRoyalty"
-            style="width:80px;"
+            style="width: 80px"
             placeholder="非必填"
             :disabled="disabled"
             size="mini"
-          ></el-input>%（仅独家代理有此提成）
+          ></el-input
+          >%（仅独家代理有此提成）
         </el-form-item>
         <el-form-item
           label="他人发展自己代理省份/城市下面的代理，获得代理费的"
@@ -320,37 +513,50 @@
         >
           <el-input
             v-model="form.otherAgentRoyalty"
-            style="width:80px;"
+            style="width: 80px"
             placeholder="非必填"
             :disabled="disabled"
             size="mini"
-          ></el-input>%（仅独家代理有此提成，代理区域必须在市级以上）
+          ></el-input
+          >%（仅独家代理有此提成，代理区域必须在市级以上）
         </el-form-item>
-        <el-form-item label="发展非自己代理省份/城市下面的代理，获得代理费的" label-width="360px" prop="otherAreaRoyalty">
+        <el-form-item
+          label="发展非自己代理省份/城市下面的代理，获得代理费的"
+          label-width="360px"
+          prop="otherAreaRoyalty"
+        >
           <el-input
             v-model="form.otherAreaRoyalty"
-            style="width:80px;"
+            style="width: 80px"
             placeholder="非必填"
             :disabled="disabled"
             size="mini"
-          ></el-input>%
+          ></el-input
+          >%
         </el-form-item>
         <el-form-item label="下级代理发展代理获得代理费的" label-width="210px">
           <el-input
             v-model="form.lowerAgentRoyalty"
-            style="width:80px;"
+            style="width: 80px"
             :disabled="disabled"
             size="mini"
-          ></el-input>%
+          ></el-input
+          >%
         </el-form-item>
       </div>
-      <el-form-item style="margin-top:20px;">
-        <el-button type="primary" style="width:200px;margin-left:160px;" @click="goBack">返回</el-button>
+      <el-form-item style="margin-top: 20px">
         <el-button
           type="primary"
-          style="width:200px;margin-left:160px;"
+          style="width: 200px; margin-left: 160px"
+          @click="goBack"
+          >返回</el-button
+        >
+        <el-button
+          type="primary"
+          style="width: 200px; margin-left: 160px"
           @click="submitForm('form')"
-        >保存</el-button>
+          >保存</el-button
+        >
       </el-form-item>
     </el-form>
   </div>
@@ -395,6 +601,34 @@ export default {
           return callback(new Error("仅限数字，且最多保留两位小数"));
         } else if (value <= 0.1 || value >= 100) {
           return callback(new Error("值区间：大于0.1小于100"));
+        } else {
+          callback();
+        }
+      } else {
+        callback();
+      }
+    };
+    const agentRoyalty8 = (rule, value, callback) => {
+      if (value) {
+        let a = /^-?\d+(\.\d{1,2})?$/;
+        if (!a.test(value)) {
+          return callback(new Error("仅限数字，且最多保留两位小数"));
+        } else if (value < 1 || value > 100) {
+          return callback(new Error("值区间：1-100"));
+        } else {
+          callback();
+        }
+      } else {
+        callback();
+      }
+    };
+    const agentRoyalty9 = (rule, value, callback) => {
+      if (value) {
+        let a = /^(\d+\.\d{1,1}|\d+)$/;
+        if (!a.test(value)) {
+          return callback(new Error("仅限数字，且最多保留1位小数"));
+        } else if (value < 0.1 || value > 1000) {
+          return callback(new Error("值区间：大于0.1小于1000"));
         } else {
           callback();
         }
@@ -474,6 +708,72 @@ export default {
         equities: [
           {
             level: 1,
+            type: 8,
+            category: 1,
+            royaltyRate: "",
+            profitRate: "",
+            hasDuration: false,
+            duration: "",
+            durationProfitRate: "",
+            durationRate: "",
+            hasSupport: false,
+            rewards: [
+              {
+                quota: "",
+                reward: "",
+              },
+            ],
+            supportDuration: "",
+            supportProfitRate: "",
+            supportRate: "",
+            hasReward: false,
+          },
+          {
+            level: 1,
+            type: 9,
+            category: 1,
+            royaltyRate: "",
+            profitRate: "",
+            hasDuration: false,
+            duration: "",
+            durationProfitRate: "",
+            durationRate: "",
+            hasSupport: false,
+            rewards: [
+              {
+                quota: "",
+                reward: "",
+              },
+            ],
+            supportDuration: "",
+            supportProfitRate: "",
+            supportRate: "",
+            hasReward: false,
+          },
+          {
+            level: 2,
+            type: 9,
+            category: 1,
+            royaltyRate: "",
+            profitRate: "",
+            hasDuration: false,
+            duration: "",
+            durationProfitRate: "",
+            durationRate: "",
+            hasSupport: false,
+            rewards: [
+              {
+                quota: "",
+                reward: "",
+              },
+            ],
+            supportDuration: "",
+            supportProfitRate: "",
+            supportRate: "",
+            hasReward: false,
+          },
+          {
+            level: 1,
             type: 1,
             category: 1,
             royaltyRate: "",
@@ -486,13 +786,13 @@ export default {
             rewards: [
               {
                 quota: "",
-                reward: ""
-              }
+                reward: "",
+              },
             ],
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -509,7 +809,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 1,
@@ -525,13 +825,13 @@ export default {
             rewards: [
               {
                 quota: "",
-                reward: ""
-              }
+                reward: "",
+              },
             ],
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -548,7 +848,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 1,
@@ -565,7 +865,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -582,7 +882,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 1,
@@ -599,7 +899,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -616,7 +916,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 1,
@@ -633,7 +933,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -650,7 +950,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 1,
@@ -667,7 +967,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -684,7 +984,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 1,
@@ -701,7 +1001,7 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
+            hasReward: false,
           },
           {
             level: 2,
@@ -718,36 +1018,38 @@ export default {
             supportDuration: "",
             supportProfitRate: "",
             supportRate: "",
-            hasReward: false
-          }
-        ]
+            hasReward: false,
+          },
+        ],
       },
       rules: {
         roleName: [
           { required: true, message: "不能为空", trigger: "blur" },
-          { min: 2, max: 10, message: "字符长度：2-10", trigger: "blur" }
+          { min: 2, max: 10, message: "字符长度：2-10", trigger: "blur" },
         ],
         price: [
           { required: true, message: "不能为空", trigger: "blur" },
           {
             pattern: /^-?\d+(\.\d{1,2})?$/,
             message: "仅限数字，且最多保留两位小数",
-            trigger: "blur"
+            trigger: "blur",
           },
-          { validator: price, trigger: "blur" }
+          { validator: price, trigger: "blur" },
         ],
         term: [
           { required: true, message: "不能为空", trigger: "blur" },
           { pattern: /^-?[0-9]\d*$/, message: "仅限整数数字", trigger: "blur" },
-          { validator: term, trigger: "blur" }
+          { validator: term, trigger: "blur" },
         ],
         merchantRoyalty: [{ validator: merchantRoyalty, trigger: "blur" }],
         agentRoyalty: [{ validator: agentRoyalty, trigger: "blur" }],
+        agentRoyalty8: [{ validator: agentRoyalty8, trigger: "blur" }],
+        agentRoyalty9: [{ validator: agentRoyalty9, trigger: "blur" }],
         duration: [{ validator: duration, trigger: "blur" }],
         reward: [{ validator: reward, trigger: "blur" }],
         otherAgentRoyalty: [{ validator: otherAgentRoyalty, trigger: "blur" }],
-        otherAreaRoyalty: [{ validator: otherAreaRoyalty, trigger: "blur" }]
-      }
+        otherAreaRoyalty: [{ validator: otherAreaRoyalty, trigger: "blur" }],
+      },
     };
   },
   created() {
@@ -765,27 +1067,36 @@ export default {
   methods: {
     // 查询代理商角色详情
     findAgentRoleById(id) {
-      findAgentRoleById(`?id=${id}`).then(res => {
+      findAgentRoleById(`?id=${id}`).then((res) => {
         if (res.data.messageCode == "MSG_1001") {
-          this.form = res.data.content;
-          this.form.equities.forEach(val => {
-            val.hasDuration = val.hasDuration == 1 ? true : false;
-            val.hasSupport = val.hasSupport == 1 ? true : false;
-            val.hasReward = val.hasReward == 1 ? true : false;
+          let content = res.data.content;
+          for (let key in content) {
+            if (key != "equities") {
+              this.form[key] = content[key];
+            }
+          }
+          this.form.equities.forEach((item, index) => {
+            content.equities.forEach((val, idx) => {
+              val.hasDuration = val.hasDuration == 1 ? true : false;
+              val.hasSupport = val.hasSupport == 1 ? true : false;
+              val.hasReward = val.hasReward == 1 ? true : false;
+              if (item.type == val.type && item.level == val.level) {
+                for (let key in val) {
+                  item[key] = val[key];
+                }
+              }
+            });
           });
         } else {
           this.$message.error(res.data.message);
         }
       });
     },
-    // radioChange(value) {
-    //   this.form.equities[1].category = value;
-    // },
     // 添加 阶梯奖励政策
     addReward(index) {
       this.form.equities[index].rewards.push({
         quota: "",
-        reward: ""
+        reward: "",
       });
     },
     // 删除阶梯奖励政策
@@ -815,7 +1126,7 @@ export default {
     // 选择阶梯奖励政策复选框改变事件
     hasRewardRadio(val, index) {
       if (!val) {
-        this.form.equities[index].rewards.forEach(item => {
+        this.form.equities[index].rewards.forEach((item) => {
           item.quota = "";
           item.reward = "";
         });
@@ -829,13 +1140,13 @@ export default {
     },
     // 保存
     submitForm(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
           let form = JSON.parse(JSON.stringify(this.form));
           let a = true;
           let b = true;
           let c = true;
-          form.equities.forEach(val => {
+          form.equities.forEach((val) => {
             val.hasDuration = val.hasDuration ? 1 : 0;
             val.hasSupport = val.hasSupport ? 1 : 0;
             val.hasReward = val.hasReward ? 1 : 0;
@@ -893,7 +1204,7 @@ export default {
             }
             // 如果选择了阶梯奖励政策后面内容不能为空
             if (val.hasReward == 1) {
-              val.rewards.forEach(ite => {
+              val.rewards.forEach((ite) => {
                 if (!ite.quota || !ite.reward) {
                   c = false;
                 }
@@ -912,7 +1223,7 @@ export default {
             this.$message.error("阶梯奖励政策后内容不能为空");
             return;
           }
-          addOrUpdateAgentRole(form).then(res => {
+          addOrUpdateAgentRole(form).then((res) => {
             if (res.data.messageCode == "MSG_1001") {
               this.$message.success("保存成功");
               this.$router.go("-1");
@@ -925,8 +1236,8 @@ export default {
           return false;
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="less" scoped>

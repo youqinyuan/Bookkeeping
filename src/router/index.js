@@ -17,7 +17,7 @@ export default new Router({
     {
       path: '/home',
       name: 'Home',
-      redirect: '/index',
+      // redirect: '/index',
       component: resolve => require(['@/components/home'], resolve),
       children: [{
           path: '/index',
@@ -275,6 +275,11 @@ export default new Router({
           component: resolve => require(['@/components/content_management/forumDetail'], resolve)
         },
         {
+          path: '/forumComments',
+          name: 'forumComments',
+          component: resolve => require(['@/components/content_management/forumComments'], resolve)
+        },
+        {
           path: '/seed_management',
           name: 'seed_management',
           component: resolve => require(['@/components/integral_management/seed_management'], resolve)
@@ -349,6 +354,16 @@ export default new Router({
           component: resolve => require(['@/components/rules_management/addAgent'], resolve)
         },
         {
+          path: '/personalityRule',
+          name: 'personalityRule',
+          component: resolve => require(['@/components/rules_management/personalityRule'], resolve)
+        },
+        {
+          path: '/addPersonalityRule',
+          name: 'addPersonalityRule',
+          component: resolve => require(['@/components/rules_management/addPersonalityRule'], resolve)
+        },
+        {
           path: '/agentApply',
           name: 'agentApply',
           component: resolve => require(['@/components/agent_management/agentApply'], resolve)
@@ -386,7 +401,7 @@ export default new Router({
         {
           path: '/presaleAndPost',
           name: 'presaleAndPost',
-          component: resolve => require(['@/components/rules_management/presaleAndPost'], resolve)
+          component: resolve => require(['@/components/rules_management/presaleAndPost/presaleAndPost'], resolve)
         },
         {
           path: '/noticeManagement',
@@ -434,9 +449,204 @@ export default new Router({
           component: resolve => require(['@/components/homePage_management/module3'], resolve)
         },
         {
+          path: '/module4',
+          name: 'module4',
+          component: resolve => require(['@/components/homePage_management/module4'], resolve)
+        },
+        {
           path: '/homePage_banner',
           name: 'homePage_banner',
           component: resolve => require(['@/components/homePage_management/banner'], resolve)
+        },
+        {
+          path: '/ten-percent_discount',
+          name: 'ten-percent_discount',
+          component: resolve => require(['@/components/rules_management/ten-percent_discount'], resolve)
+        },
+        {
+          path: '/brandLabel',
+          name: 'brandLabel',
+          component: resolve => require(['@/components/goods_management/brandLabel'], resolve)
+        },
+        {
+          path: '/seed_consume',
+          name: 'seed_consume',
+          component: resolve => require(['@/components/integral_management/seed_consume'], resolve)
+        },
+        {
+          path: '/addSeedConsume',
+          name: 'addSeedConsume',
+          component: resolve => require(['@/components/integral_management/addSeedConsume'], resolve)
+        },
+        {
+          path: '/giveOrDeduction',
+          name: 'giveOrDeduction',
+          component: resolve => require(['@/components/integral_management/giveOrDeduction'], resolve)
+        },
+        {
+          path: '/pre_bussiness',
+          name: 'pre_bussiness',
+          component: resolve => require(['@/components/merchant_management/pre_bussiness'], resolve)
+        },
+        {
+          path: '/shortMessage',
+          name: 'shortMessage',
+          component: resolve => require(['@/components/genealogy_set/systemNotice/shortMessage/shortMessage'], resolve)
+        },
+        {
+          path: '/noviceTutorialList',
+          name: 'noviceTutorialList',
+          component: resolve => require(['@/components/genealogy_set/noviceTutorial/noviceTutorialList'], resolve)
+        },
+        {
+          path: '/addNoviceTutorial',
+          name: 'addNoviceTutorial',
+          component: resolve => require(['@/components/genealogy_set/noviceTutorial/addNoviceTutorial'], resolve)
+        },
+        {
+          path: '/dialogList',
+          name: 'dialogList',
+          component: resolve => require(['@/components/moth_management/dialog/dialogList'], resolve)
+        },
+        {
+          path: '/addDialog',
+          name: 'addDialog',
+          component: resolve => require(['@/components/moth_management/dialog/addDialog'], resolve)
+        },
+        {
+          path: '/specialTab',
+          name: 'specialTab',
+          component: resolve => require(['@/components/data/special/specialTab'], resolve)
+        },
+        {
+          path: '/addBannerPage',
+          name: 'addBannerPage',
+          component: resolve => require(['@/components/moth_management/addBannerPage'], resolve)
+        },
+        {
+          path: '/consumeData',
+          name: 'consumeData',
+          component: resolve => require(['@/components/integral_management/consumeData'], resolve)
+        },
+        {
+          path: '/getPetal',
+          name: 'getPetal',
+          component: resolve => require(['@/components/integral_management/getPetal'], resolve)
+        },
+        {
+          path: '/ten-percent_pay',
+          name: 'ten-percent_pay',
+          component: resolve => require(['@/components/rules_management/ten-percent_pay'], resolve)
+        },
+        {
+          path: '/set_meal_goodsList',
+          name: 'set_meal_goodsList',
+          component: resolve => require(['@/components/goods_management/set_meala_goods/set_meal_goodsList'], resolve)
+        },
+        {
+          path: '/add_set_meal_goods',
+          name: 'add_set_meal_goods',
+          component: resolve => require(['@/components/goods_management/set_meala_goods/add_set_meal_goods'], resolve)
+        },
+        {
+          path: '/comment',
+          name: 'comment',
+          component: resolve => require(['@/components/goods_management/set_meala_goods/comment'], resolve)
+        },
+        {
+          path: '/activityList',
+          name: 'activityList',
+          component: resolve => require(['@/components/moth_management/custom_activity/activityList'], resolve)
+        },
+        {
+          path: '/add_custom_activity',
+          name: 'add_custom_activity',
+          component: resolve => require(['@/components/moth_management/custom_activity/add_custom_activity'], resolve)
+        },
+        {
+          path: '/coupon',
+          name: 'coupon',
+          component: resolve => require(['@/components/moth_management/coupon/coupon'], resolve)
+        },
+        {
+          path: '/addCoupon',
+          name: 'addCoupon',
+          component: resolve => require(['@/components/moth_management/coupon/addCoupon'], resolve)
+        },
+        {
+          path: '/nearbyBanner',
+          name: 'nearbyBanner',
+          component: resolve => require(['@/components/nearbyHomePage/banner'], resolve)
+        },
+        {
+          path: '/nearbyIcon',
+          name: 'nearbyIcon',
+          component: resolve => require(['@/components/nearbyHomePage/iconNavigation'], resolve)
+        },
+        {
+          path: '/package_write_off',
+          name: 'package_write_off',
+          component: resolve => require(['@/components/goods_order/package_write_off'], resolve)
+        },
+        {
+          path: '/general_write_off',
+          name: 'general_write_off',
+          component: resolve => require(['@/components/goods_order/general_write_off'], resolve)
+        },
+        {
+          path: '/template1',
+          name: 'template1',
+          component: resolve => require(['@/components/moth_management/custom_activity/template1'], resolve)
+        },
+        {
+          path: '/template2',
+          name: 'template2',
+          component: resolve => require(['@/components/moth_management/custom_activity/template2'], resolve)
+        },
+        {
+          path: '/guessingGameList',
+          name: 'guessingGameList',
+          component: resolve => require(['@/components/moth_management/guessingGame/guessingGameList'], resolve)
+        },
+        {
+          path: '/guessingGameDetail',
+          name: 'guessingGameDetail',
+          component: resolve => require(['@/components/moth_management/guessingGame/guessingGameDetail'], resolve)
+        },
+        {
+          path: '/discussDetail',
+          name: 'discussDetail',
+          component: resolve => require(['@/components/moth_management/guessingGame/discussDetail'], resolve)
+        },
+        {
+          path: '/petalMall',
+          name: 'petalMall',
+          component: resolve => require(['@/components/moth_management/petalMall'], resolve)
+        },
+        {
+          path: '/addPickPoint',
+          name: 'addPickPoint',
+          component: resolve => require(['@/components/merchant_management/addPickPoint'], resolve)
+        },
+        {
+          path: '/userBehaviorData',
+          name: 'userBehaviorData',
+          component: resolve => require(['@/components/brushOrder_management/userBehaviorData'], resolve)
+        },
+        {
+          path: '/contentSet',
+          name: 'contentSet',
+          component: resolve => require(['@/components/insure_management/contentSet'], resolve)
+        },
+        {
+          path: '/addTime',
+          name: 'addTime',
+          component: resolve => require(['@/components/insure_management/addTime'], resolve)
+        },
+        {
+          path: '/insureIntroduction',
+          name: 'insureIntroduction',
+          component: resolve => require(['@/components/insure_management/insureIntroduction'], resolve)
         }
       ]
     }

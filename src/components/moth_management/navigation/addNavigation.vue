@@ -132,7 +132,6 @@ export default {
             this.ruleForm.orderNo = this.ruleForm.orderNo.toString();
             this.radioName = data.pageName;
             this.iconUrl = data.iconUrl;
-            console.log(this.ruleForm);
           }
         } else {
           this.$message.error(res.data.message);
@@ -176,8 +175,6 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          console.log(this.ruleForm);
-          // return;
           addOrUpdateNavigation(this.ruleForm).then(res => {
             if (res.data.messageCode == "MSG_1001") {
               this.$message.success("保存成功");

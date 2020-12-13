@@ -11,7 +11,7 @@
           <span v-if="item.status==1">{{item.statusTime | dateFormat}}</span>
         </span>
       </div>
-      <div class="orderInfoItem">
+      <div class="orderInfoItem" v-if="!isWriteOffOrder">
         订单状态：
         <span v-if="orderObj.latestStatus==1">待支付</span>
         <span v-if="orderObj.latestStatus==2">待发货</span>
@@ -25,8 +25,20 @@
         <span v-if="orderObj.latestStatus==10">交易关闭</span>
         <span v-if="orderObj.latestStatus==11">退款失败</span>
         <span v-if="orderObj.latestStatus==12">已取消</span>
+        <span v-if="orderObj.latestStatus==15">待成团</span>
+        <span v-if="orderObj.latestStatus==16">拼团成功</span>
+        <span v-if="orderObj.latestStatus==17">拼团失败</span>
+        <span v-if="orderObj.latestStatus==18">拼团成功，已使用</span>
+        <span v-if="orderObj.latestStatus==19">已过期</span>
       </div>
-      <div class="orderInfoItem">
+
+      <!-- 核销订单购买方式 -->
+      <div class="orderInfoItem" v-if="isWriteOffOrder">
+        <span v-if="orderObj.buyMode==1">购买方式：普通拼团</span>
+        <span v-if="orderObj.buyMode==2">购买方式：一折拼团</span>
+      </div>
+      <!-- 其他订单购买方式 -->
+      <div class="orderInfoItem" v-else>
         <span v-if="orderObj.orderType==1">购买方式：正常购买</span>
         <span v-if="orderObj.orderType==3">购买方式：新人免费体验订单</span>
         <span v-if="orderObj.orderType==4">购买方式：信用卡用户免费领订单</span>
@@ -50,6 +62,11 @@
         <span v-if="orderObj.orderType == 22">购买方式：商品预售订单</span>
         <span v-if="orderObj.orderType == 23">购买方式：线下商家-普通购买订单</span>
         <span v-if="orderObj.orderType == 24">购买方式：线下商家-0成本购订单</span>
+        <span v-if="orderObj.orderType == 26">购买方式：闪付订单</span>
+        <span v-if="orderObj.orderType == 27">购买方式：一折购分期订单</span>
+        <span v-if="orderObj.orderType == 28">购买方式：普通拼团订单</span>
+        <span v-if="orderObj.orderType == 29">购买方式：一折购拼团订单</span>
+        <span v-if="orderObj.orderType == 30">购买方式：自定义活动-{{orderObj.activityName}}</span>
       </div>
       <div class="orderInfoItem">备注：{{remark?remark:'无'}}</div>
       <div
@@ -84,6 +101,11 @@
         <span>年收益率{{orderObj.forumTopicResponse.annualizedRate}}，</span>
         <span>内容：{{orderObj.forumTopicResponse.content}}</span>
       </div>
+      <div class="orderInfoItem" v-if="orderObj.orderAddressDetail && isWriteOffOrder">
+        <span>自提点：</span>
+        <span>{{orderObj.orderAddressDetail.districtAddress}}</span>
+        <span>{{orderObj.orderAddressDetail.detailedAddress}}</span>
+      </div>
     </div>
     <div class="titleStyle">商品信息</div>
     <div class="orderInfoBox">
@@ -95,14 +117,14 @@
         <span v-else-if="item.period==null"></span>
         <span v-else>
           ，返现：{{item.period}}期 (
-          <span v-if="item.period==item.returnedPeriod">
+          <span v-if="item.period==item.returnedPeriod || item.period < 1">
             {{item.returnedPeriod}}期进行中,
             返现时间：
             <span
               v-for="(ite,inde) in item.orderGoodsCashBackItem"
               :key="inde"
             >
-              <span v-if="ite.period==item.returnedPeriod">{{ite.returnTime | dateFormat}}</span>
+              <span v-if="ite.period==item.returnedPeriod || item.period < 1">{{ite.returnTime | dateFormat}}</span>
             </span>
           </span>
           <span v-else>
@@ -130,8 +152,41 @@
           <span v-if="item.orderGoodsApplyRefund.status == 6">取消退款，</span>
         </span>
         <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio/10:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
+        <span
+          v-if="orderObj.activityName"
+        >，{{orderObj.activityName}}减：{{item.activityRatioAmount + item.activityDiscountAmount}}元</span>
+        <span
+          v-if="item.installmentResponse"
+        >，分期期数：{{item.installmentResponse.stagesNumber}}期，剩余每期应支付：{{item.installmentResponse.issueAmount}}元（已还款{{item.installmentResponse.stagesNumber - item.installmentResponse.stagesNumberReturn}}期）</span>
       </div>
     </div>
+
+    <!-- 赠送内容信息 -->
+    <div class="titleStyle" v-if="orderObj.activityHistory">赠送内容信息</div>
+    <div class="orderInfoBox" v-if="orderObj.activityHistory">
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardSeed == 1">
+        <span>送种子：{{orderObj.activityHistory.rewardSeedDto.param1}}颗</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardCashBack == 1">
+        <span>送返现：返现金额{{orderObj.activityHistory.rewardCashBackDto.param1}}返现期数{{orderObj.activityHistory.rewardCashBackDto.param2}}</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardGoods == 1">
+        <span>赠送商品：</span>
+        <span
+          v-for="(item,index) in orderObj.activityHistory.rewardGoodsDtoList"
+          :key="index"
+        >{{item.goodsName}}+{{item.specDesc}}&nbsp;&nbsp;&nbsp;</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardMember == 1">
+        <span>送身份特权：{{orderObj.activityHistory.rewardMemberDto.param1 == '3'?'合伙人':'钻石合伙人'}}（{{orderObj.activityHistory.rewardMemberDto.param2}}个月）</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardPaymentAmount == 1">
+        <span>减少支付金额：打{{orderObj.activityHistory.rewardPaymentAmountDto.param1}}折，减{{orderObj.activityHistory.rewardPaymentAmountDto.param2}}元</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardExpressFee == 1">包邮</div>
+    </div>
+
+    <!-- 用户信息 -->
     <div class="titleStyle">用户信息</div>
     <div class="orderInfoBox">
       <div class="orderInfoItem">用户编号：{{orderObj.userId}}</div>
@@ -139,7 +194,7 @@
       <div class="orderInfoItem">联系方式：{{orderObj.mobileNumber}}</div>
       <div
         class="orderInfoItem"
-        v-if="orderObj.orderAddressDetail"
+        v-if="orderObj.orderAddressDetail && !isWriteOffOrder"
       >收货信息：收货人：{{orderObj.orderAddressDetail.receiverName}}，手机号码：{{orderObj.orderAddressDetail.mobileNumber}}，所在地区：{{orderObj.orderAddressDetail.districtAddress}}，详细地址：{{orderObj.orderAddressDetail.detailedAddress}}</div>
       <div class="orderInfoItem">上级：{{orderObj.parentName || '无'}}</div>
     </div>
@@ -199,6 +254,25 @@
         <span class="mark">已送达</span>
       </div>
     </div>
+
+    <!-- 用户使用情况 -->
+    <div class="titleStyle" v-if="isWriteOffOrder">用户使用情况</div>
+    <div class="orderInfoBox" v-if="isWriteOffOrder">
+      <div v-if="orderObj.latestStatus==1">待支付</div>
+      <div v-if="orderObj.latestStatus==12">已取消</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==15">待成团</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==16">
+        <span>已上传</span>
+        <span v-if="orderObj.validStatus == 1">（过期待验证）</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==10">
+        <span v-if="orderObj.verificationCode">已上传（已退款）</span>
+        <span v-if="!orderObj.verificationCode">待成团（已退款）</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==17">拼团失败</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==18">已上传（过期已用）</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==19">已上传（过期未用）</div>
+    </div>
     <div
       v-if="orderObj.latestStatus==7 || orderObj.latestStatus==8 || orderObj.latestStatus==10 || orderObj.latestStatus==11"
       class="titleStyle"
@@ -243,10 +317,11 @@
         <p v-if="item.action==2">回复内容：{{item.content}}</p>
       </div>
     </div>
-    <div class="bottom-btn">
+    <!-- 非核销订单按钮 -->
+    <div class="bottom-btn" v-if="!isWriteOffOrder">
       <el-button
         type="danger"
-        v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14"
+        v-if="(orderObj.latestStatus==2 || orderObj.latestStatus==15) && orderObj.transStatementDetail.status!=14"
         @click="changeAddress_dialog = true"
       >修改地址</el-button>
       <el-button
@@ -256,7 +331,7 @@
       >修改地址</el-button>
       <el-button
         type="primary"
-        v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14"
+        v-if="(orderObj.latestStatus==2 || orderObj.latestStatus==15) && orderObj.transStatementDetail.status!=14"
         @click="deliverGoods(orderObj.id)"
       >发货</el-button>
       <el-button
@@ -266,7 +341,7 @@
       >发货</el-button>
       <el-button
         type="primary"
-        v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14"
+        v-if="(orderObj.latestStatus==2 || orderObj.latestStatus==15) && orderObj.transStatementDetail.status!=14"
         @click="noDeliverGoods(orderObj.id)"
       >无需发货</el-button>
       <el-button
@@ -284,11 +359,36 @@
         v-if="orderObj.latestStatus==2 && orderObj.transStatementDetail.status!=14"
         @click="refund(orderObj.id)"
       >退款</el-button>-->
+      <!-- 退款(自定义活动拼团失败-退款) -->
+      <el-button
+        type="primary"
+        v-if="orderObj.latestStatus== 15"
+        @click="refundFailed(orderObj.id)"
+      >退款</el-button>
       <el-button
         type="success"
         v-if="(orderObj.latestStatus==7 || orderObj.latestStatus==8 || orderObj.latestStatus==11) && orderObj.transStatementDetail.status!=14"
         @click="refundEvent(orderObj.id)"
       >退款</el-button>
+    </div>
+    <!-- 核销订单按钮 -->
+    <div class="bottom-btn" v-if="isWriteOffOrder">
+      <el-button
+        type="primary"
+        v-if="orderObj.latestStatus==15"
+        @click="upload_verification_code(orderObj.id)"
+      >上传核销码</el-button>
+      <el-button type="primary" v-if="orderObj.latestStatus==15" @click="refuse(orderObj.id)">拒绝</el-button>
+      <el-button
+        type="primary"
+        v-if="orderObj.latestStatus==16 && orderObj.validStatus == 1"
+        @click="not_used(orderObj.id)"
+      >退款</el-button>
+      <el-button
+        type="primary"
+        v-if="orderObj.latestStatus==16 && orderObj.validStatus == 1"
+        @click="used(orderObj.id)"
+      >完成订单</el-button>
     </div>
     <!-- 发货弹窗 -->
     <el-dialog title="发货" :visible.sync="deliverGoodsState" width="30%">
@@ -430,6 +530,40 @@
         <el-button type="primary" @click="changeAddress">保 存</el-button>
       </div>
     </el-dialog>
+    <!-- 上传核销码弹窗 -->
+    <el-dialog
+      title="上传核销码"
+      :visible.sync="verificationCodeDialog"
+      width="450px"
+      :show-close="false"
+      center
+      :close-on-click-modal="false"
+    >
+      <el-form label-position="right" label-width="100px" :model="codeForm">
+        <el-form-item label="核销凭证：">
+          <el-upload
+            action="/opadmin/fileStore/uploadFile"
+            list-type="picture-card"
+            :headers="myHeaders"
+            :on-success="handleAvatarSuccessImg"
+            :on-error="uploadImgErrorImg"
+            :on-remove="handleRemoveImg"
+            :on-exceed="imgNumber"
+            :limit="1"
+            :file-list="imageUrl"
+          >
+            <i class="el-icon-plus"></i>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="有效截止至：">
+          <el-date-picker v-model="codeForm.validDate" type="datetime" placeholder="选择日期时间"></el-date-picker>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="verificationCodeDialog = false">取 消</el-button>
+        <el-button type="primary" @click="pushVerificationCode">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -444,12 +578,20 @@ import {
   refundAudit,
   getAllCityData,
   updateOrderAddress,
-  noLogistics
+  refundCostomizeActivityOrder,
+  noLogistics,
+  pushVerificationCode,
+  groupFinish,
+  groupRefund,
+  groupRefuse
 } from "@/network/api";
 import shipPop from "./common/shipPop";
+import { getCookie } from "@/common/cookie.js";
 export default {
   data() {
     return {
+      isWriteOffOrder: false, // 是否为核销订单
+      myHeaders: { token: "" },
       orderObj: {},
       isDeliverGoods: false, // 判断商品是否无需发货
       deliverGoodsState: false,
@@ -503,11 +645,27 @@ export default {
       rnform: {
         refundNoTxt: ""
       },
-      modifyNumState: false
+      modifyNumState: false,
+      verificationCodeDialog: false, // 是否显示上传核销码弹窗
+      codeForm: {
+        // 上传核销码参数
+        orderId: "",
+        verificationCode: "",
+        validDate: ""
+      },
+      imageUrl: []
     };
   },
   components: {
     shipPop
+  },
+  created() {
+    // 判断是否为核销订单
+    let isWriteOffOrder = this.$route.query.isWriteOffOrder;
+    if (isWriteOffOrder) {
+      this.isWriteOffOrder = isWriteOffOrder;
+      this.myHeaders.token = getCookie().opadminToken;
+    }
   },
   mounted() {
     this.getOrderList(this.$route.query.orderid);
@@ -520,20 +678,22 @@ export default {
       queryOrder(`?orderId=${id}`).then(res => {
         let data = res.data.content;
         this.orderObj = data;
-        this.remark = data.orderAddressDetail.remark;
-        this.address = data.orderAddressDetail;
-        let districtAddress = data.orderAddressDetail.districtAddress.split(
-          "-"
-        );
+        if (data.orderAddressDetail) {
+          this.remark = data.orderAddressDetail.remark;
+          this.address = data.orderAddressDetail;
+          let districtAddress = data.orderAddressDetail.districtAddress.split(
+            "-"
+          );
+          this.province = districtAddress[0];
+          this.city = districtAddress[1];
+          this.area = districtAddress[2];
+        }
         // 判断商品是否无需发货
         data.orderTimeDetail.forEach(val => {
           if (val.remark == "NO_LOGISTICS") {
             this.isDeliverGoods = true;
           }
         });
-        this.province = districtAddress[0];
-        this.city = districtAddress[1];
-        this.area = districtAddress[2];
       });
     },
     // 获取物流公司列表
@@ -559,28 +719,32 @@ export default {
           return val.name == this.province;
         });
         // console.log(provinceId);
-        let city = data.cityList.filter(val => {
-          return val.provinceId == provinceId[0].id;
-        });
-        this.cityList = city.map(val => {
-          let json = {};
-          json.value = val.id;
-          json.label = val.name;
-          return json;
-        });
+        if (provinceId.length > 0) {
+          let city = data.cityList.filter(val => {
+            return val.provinceId == provinceId[0].id;
+          });
+          this.cityList = city.map(val => {
+            let json = {};
+            json.value = val.id;
+            json.label = val.name;
+            return json;
+          });
+        }
         // 获取初始化区列表
         let cityId = data.cityList.filter((val, index) => {
           return val.name == this.city;
         });
-        let area = data.districtList.filter(val => {
-          return val.cityId == cityId[0].id;
-        });
-        this.districtList = area.map(val => {
-          let json = {};
-          json.value = val.id;
-          json.label = val.name;
-          return json;
-        });
+        if (cityId.length > 0) {
+          let area = data.districtList.filter(val => {
+            return val.cityId == cityId[0].id;
+          });
+          this.districtList = area.map(val => {
+            let json = {};
+            json.value = val.id;
+            json.label = val.name;
+            return json;
+          });
+        }
       });
     },
     // 发货点击事件
@@ -643,6 +807,29 @@ export default {
         });
       }
     },
+    // 退款(自定义活动拼团失败-退款)
+    refundFailed(orderId) {
+      this.$confirm("确定退款吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        center: true,
+        closeOnClickModal: false
+      })
+        .then(() => {
+          let parms = {
+            orderId: orderId
+          };
+          refundCostomizeActivityOrder(this.qs.stringify(parms)).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.$message.success("退款成功");
+              this.searchOrderList(this.pageNumber);
+            } else {
+              this.$message.error(this.$message.error);
+            }
+          });
+        })
+        .catch(() => {});
+    },
     // 退款点击事件
     refund(id) {
       this.$confirm("确定退款吗?", "提示", {
@@ -699,20 +886,22 @@ export default {
         type: "warning"
       })
         .then(() => {
-          cancelOrderMerchant(id).then(res => {
-            this.getOrderList(id);
-            this.$message({
-              type: "success",
-              message: "取消订单成功"
-            });
+          let parms = {
+            orderId: id
+          };
+          cancelOrderMerchant(parms).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.getOrderList(id);
+              this.$message({
+                type: "success",
+                message: "取消订单成功"
+              });
+            } else {
+              this.$message.error(res.data.message);
+            }
           });
         })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消"
-          });
-        });
+        .catch(() => {});
     },
     // 退款点击事件
     refundEvent(id) {
@@ -771,7 +960,6 @@ export default {
         json.label = val.name;
         return json;
       });
-      // console.log(this.cityList);
     },
     // 选择城市
     select_citys(e) {
@@ -790,7 +978,6 @@ export default {
         json.label = val.name;
         return json;
       });
-      // console.log(this.districtList);
     },
     // 选择区
     select_provinces(e) {
@@ -837,7 +1024,126 @@ export default {
           this.$message.error(res.data.message);
         }
       });
+    },
+    // =====核销订单按钮事件=====
+    // 上传核销码成功
+    handleAvatarSuccessImg(response, file, fileList) {
+      this.codeForm.verificationCode = response.content.key;
+    },
+    // 上传核销码失败
+    uploadImgErrorImg(err, file, fileList) {
+      this.$message.error("上传图片失败");
+    },
+    // 删除核销码
+    handleRemoveImg(file, fileList) {
+      this.codeForm.verificationCode = "";
+      this.imageUrl = fileList;
+    },
+    // 上传核销码超出个数限制时的钩子
+    imgNumber() {
+      this.$message.error("最多添加1张图片");
+    },
+    // 打开上传核销码弹窗
+    upload_verification_code(id) {
+      this.codeForm.orderId = id;
+      this.verificationCodeDialog = true;
+    },
+    // 上传核销码保存
+    pushVerificationCode() {
+      let form = JSON.parse(JSON.stringify(this.codeForm));
+      if (!form.verificationCode) {
+        this.$message.error("请上传核销码");
+        return;
+      }
+      if (!form.validDate) {
+        this.$message.error("请选择时间");
+        return;
+      }
+      // 时间格式转换：2020-02-22T16:00:00.000Z 转换格式为: 2020-02-22 16:00:00
+      form.validDate = this.dayjs(form.validDate).format("YYYY-MM-DD HH:mm:ss");
+      pushVerificationCode(this.qs.stringify(form)).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.verificationCodeDialog = false;
+          this.$message.success("操作成功");
+          this.getOrderList(id);
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 拒绝
+    refuse(id) {
+      this.$confirm("", "拒绝成团后将退款给用户", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        center: true,
+        showClose: false,
+        closeOnClickModal: false
+      })
+        .then(() => {
+          let parms = {
+            orderId: id
+          };
+          groupRefuse(this.qs.stringify(parms)).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.$message.success("操作成功");
+              this.getOrderList(id);
+            } else {
+              this.$message.error(res.data.message);
+            }
+          });
+        })
+        .catch(() => {});
+    },
+    // 完成订单
+    used(id) {
+      this.$confirm("（此操作不可撤回）", "确认已使用?", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        center: true,
+        showClose: false,
+        closeOnClickModal: false
+      })
+        .then(() => {
+          let parms = {
+            orderId: id
+          };
+          groupFinish(this.qs.stringify(parms)).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.$message.success("操作成功");
+              this.getOrderList(id);
+            } else {
+              this.$message.error(res.data.message);
+            }
+          });
+        })
+        .catch(() => {});
+    },
+    // 退款
+    not_used(id) {
+      this.$confirm("", "确认未使用后将退款给用户", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        center: true,
+        showClose: false,
+        closeOnClickModal: false
+      })
+        .then(() => {
+          let parms = {
+            orderId: id
+          };
+          groupRefund(this.qs.stringify(parms)).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.$message.success("操作成功");
+              this.getOrderList(id);
+            } else {
+              this.$message.error(res.data.message);
+            }
+          });
+        })
+        .catch(() => {});
     }
+    // ========================================================
   }
 };
 </script>

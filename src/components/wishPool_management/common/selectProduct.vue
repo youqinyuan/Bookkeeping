@@ -1,6 +1,11 @@
 <template>
   <div>
-    <el-dialog title="选择商品" :visible.sync="DialogVisible" width="880px" center>
+    <el-dialog
+      title="选择商品"
+      :visible.sync="DialogVisible"
+      width="880px"
+      center
+    >
       <div>
         <div class="top">
           <span>商品分类</span>
@@ -11,23 +16,32 @@
             :props="defaultParams"
           ></el-cascader>
           <el-input
-            style="width:250px;margin:0 15px"
+            style="width: 250px; margin: 0 15px"
             v-model="goodsName"
             clearable
             placeholder="请输入商品名称或id"
           ></el-input>
           <el-button type="primary" @click="search(1)">搜 索</el-button>
           <el-button type="danger" @click="submit">保 存</el-button>
+          <div v-if="type == '1'">
+            <span>备注留言：</span>
+            <el-input
+              style="width: 500px; margin-top: 10px"
+              v-model="message"
+              clearable
+              :maxlength="40"
+            ></el-input>
+          </div>
         </div>
 
         <el-radio-group
           v-model="checkedData"
-          v-if="tableData.length>0 && type == 1"
+          v-if="tableData.length > 0 && type == 1"
           @change="handleCheckedCitiesChange"
           class="checkboxGroup"
         >
           <el-radio
-            v-for="(item,index) in tableData"
+            v-for="(item, index) in tableData"
             :key="index"
             :label="item.id"
             class="checkboxItem"
@@ -37,8 +51,8 @@
                 <img :src="item.goodsImage" width="80" height="80" />
               </div>
               <div class="center">
-                <div class="name">{{item.name}}</div>
-                <div class="orgPrice">￥{{item.orgPrice}}</div>
+                <div class="name">{{ item.name }}</div>
+                <div class="orgPrice">￥{{ item.orgPrice }}</div>
               </div>
             </div>
           </el-radio>
@@ -47,11 +61,11 @@
         <el-checkbox-group
           v-model="checkedData"
           @change="handleCheckedCitiesChange"
-          v-if="tableData.length>0 && type == 2"
+          v-if="tableData.length > 0 && type == 2"
           class="checkboxGroup"
         >
           <el-checkbox
-            v-for="(item,index) in tableData"
+            v-for="(item, index) in tableData"
             :label="item.id"
             :key="index"
             class="checkboxItem"
@@ -61,8 +75,8 @@
                 <img :src="item.goodsImage" width="80" height="80" />
               </div>
               <div class="center">
-                <div class="name">{{item.name}}</div>
-                <div class="orgPrice">￥{{item.orgPrice}}</div>
+                <div class="name">{{ item.name }}</div>
+                <div class="orgPrice">￥{{ item.orgPrice }}</div>
               </div>
             </div>
           </el-checkbox>
@@ -85,7 +99,7 @@
 <script>
 import {
   queryPlatAndMerchantGoodsList,
-  getGoodsClassRequest
+  getGoodsClassRequest,
 } from "@/network/api";
 export default {
   props: {},
@@ -102,18 +116,19 @@ export default {
         label: "name",
         value: "id",
         children: "nextLevelData",
-        checkStrictly: true
+        checkStrictly: true,
       },
       options_class: [
         {
           id: "",
-          name: "全部"
-        }
+          name: "全部",
+        },
       ],
       selectedOptions_class: [],
       goodsName: "",
+      message: "",
       checkedData: [], //选中的数据
-      goodsArr: "" // 已经添加的商品列表
+      goodsArr: "", // 已经添加的商品列表
     };
   },
   components: {},
@@ -121,19 +136,26 @@ export default {
   watch: {},
   created() {},
   mounted() {
-    this.search(1);
     this.getGoodsCategory();
   },
   methods: {
-    open(type) {
-      console.log(type);
+    open(type, matchedGoodsId) {
+      // console.log(type, matchedGoodsId);
       // type: 1-满足心愿，2-添加商品
+      // matchedGoodsId: 已满足心愿的商品id
       this.type = type;
-      this.DialogVisible = true;
+      // 以满足过心愿的自动加载出满足心愿的商品
+      if (type == 1 && matchedGoodsId) {
+        this.goodsName = matchedGoodsId;
+      } else {
+        this.goodsName = "";
+      }
+      this.message = "";
+      this.search(1);
     },
     // 获取商品分类
     getGoodsCategory() {
-      getGoodsClassRequest().then(res => {
+      getGoodsClassRequest().then((res) => {
         this.options_class = this.options_class.concat(
           this.getTreeData(res.data.content)
         );
@@ -158,10 +180,11 @@ export default {
     handleChangeClass(value) {},
     // 获取自营商品列表
     getplatGoodsList(param) {
-      queryPlatAndMerchantGoodsList({ params: param }).then(res => {
+      queryPlatAndMerchantGoodsList({ params: param }).then((res) => {
         if (res.data.content) {
           this.tableData = res.data.content.items;
           this.pageTotal = res.data.content.totalSize;
+          this.DialogVisible = true;
         } else {
           this.tableData = [];
           this.pageTotal = 0;
@@ -181,7 +204,7 @@ export default {
       this.DialogVisible = false;
       // type: 1-满足心愿，2-添加商品
       if (this.type == 1) {
-        this.$emit("satisfyWish", this.checkedData);
+        this.$emit("satisfyWish", this.checkedData, this.message);
       } else if (this.type == 2) {
         this.$emit("getgoods", this.checkedData);
       }
@@ -206,8 +229,8 @@ export default {
       obj.issueStatus = 1;
       this.getplatGoodsList(obj);
       this.currentPage = 1;
-    }
-  }
+    },
+  },
 };
 </script>
 

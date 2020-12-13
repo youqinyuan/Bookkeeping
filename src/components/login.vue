@@ -4,17 +4,33 @@
       <h3 class="tle">登录</h3>
 
       <el-form-item prop="userName">
-        <el-input type="text" maxlength="20" v-model="form.userName" placeholder="用户名"></el-input>
+        <el-input
+          type="text"
+          maxlength="20"
+          v-model="form.userName"
+          placeholder="用户名"
+        ></el-input>
       </el-form-item>
 
       <el-form-item prop="userPwd">
-        <el-input type="password" maxlength="8" v-model="form.userPwd" placeholder="密码"></el-input>
+        <el-input
+          type="password"
+          maxlength="8"
+          v-model="form.userPwd"
+          placeholder="密码"
+        ></el-input>
       </el-form-item>
 
       <el-checkbox class="rmbPwd" v-model="checked">记住密码</el-checkbox>
 
       <el-form-item class="clear-margin-bot">
-        <el-button class="btn" type="primary" @click="loginFunc" :loading="loading">登录</el-button>
+        <el-button
+          class="btn"
+          type="primary"
+          @click="loginFunc"
+          :loading="loading"
+          >登录</el-button
+        >
       </el-form-item>
     </el-form>
   </div>
@@ -30,7 +46,7 @@ export default {
       // 表单数据
       form: {
         userName: "", // 用户名
-        userPwd: "" // 密码
+        userPwd: "", // 密码
       },
       // 表单验证
       rules: {
@@ -39,28 +55,27 @@ export default {
           {
             required: true,
             message: "请输入账号",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 登录密码验证
         userPwd: [
           {
             required: true,
             message: "请输入密码",
-            trigger: "blur"
-          }
-        ]
+            trigger: "blur",
+          },
+        ],
       },
       checked: true, // 是否记住密码
-      loading: false
+      loading: false,
     };
   },
 
   created() {
-    document.cookie.split("; ").map(item => {
+    document.cookie.split("; ").map((item) => {
       if (item.split("=")[0] === "userName") {
         let cookie = getCookie();
-
         this.form.userName = cookie.userName;
         this.form.userPwd = cookie.userPwd;
       }
@@ -74,7 +89,7 @@ export default {
   methods: {
     // 登录
     loginFunc() {
-      this.$refs.form.validate(valid => {
+      this.$refs.form.validate((valid) => {
         if (valid) {
           this.loading = true;
 
@@ -90,7 +105,7 @@ export default {
       let password = this.form.userPwd;
       let param = {
         loginName,
-        password
+        password,
       };
 
       res = await userLoginRequest(param);
@@ -106,10 +121,11 @@ export default {
         }
 
         this.$router.push({
-          name: "Index",
+          name: "Home",
           params: {
-            name: res.data.content.name
-          }
+            name: res.data.content.name,
+            isLogin: true,
+          },
         });
       } else {
         this.alertTips(res.data.message);
@@ -122,10 +138,10 @@ export default {
     alertTips(msg) {
       this.$alert(msg, "错误", {
         confirmButtonText: "确定",
-        callback: action => {}
+        callback: (action) => {},
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

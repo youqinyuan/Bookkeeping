@@ -1,14 +1,12 @@
 <template>
-  <div class="presaleAndPost">
-    <h3>预售订单发起及待返发帖次数限制</h3>
-    <hr style="margin-top:10px;margin-bottom:20px;" />
+  <div class="returned">
     <el-button type="primary" @click="addLimitRule" :disabled="rules.length >= 10">添加限制规则</el-button>
     <div v-for="(item,index) in rules" :key="index">
       <div class="itemBox">
         <div style="margin-right:20px;">
-          <span>发起预售及待返发帖限制：每天最多发起预售或发卖贴</span>
+          <span>待返发帖限制：每天最多发起预售或发卖贴</span>
           <el-input v-model="item.timesPerDay" style="width:110px;" :disabled="item.disabled"></el-input>
-          <span>次,每月最多发起预售或发卖贴</span>
+          <span>次,每月最多发卖贴</span>
           <el-input v-model="item.timesPerMonth" style="width:110px;" :disabled="item.disabled"></el-input>
           <span>次</span>
         </div>
@@ -32,7 +30,7 @@
       >所有用户</div>
       <div class="userDetail" style="padding:20px 0px;" v-if="item.type == 2">
         <span
-          style="backgroundColor:#ccc;padding:6px 10px;margin:10px;box-sizing:border-box;font-size:14px;"
+          style="display:inline-block;margin:10px;font-size:14px;"
           v-for="(ite,idx) in item.detailList"
           :key="idx"
         >{{ite.nickname}} + {{ite.mobileNumber}}</span>
@@ -94,7 +92,10 @@ export default {
   methods: {
     // 获取限制规则
     getRulesList() {
-      findListOrderAndForum().then(res => {
+      let parms = {
+        category: 1
+      };
+      findListOrderAndForum({ params: parms }).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           let content = res.data.content;
           this.rules = [];
@@ -141,6 +142,7 @@ export default {
         return;
       }
       let parms = {
+        category: 1,
         forumConfigId: data.id ? data.id : "",
         timesPerDay: data.timesPerDay,
         timesPerMonth: data.timesPerMonth
@@ -211,9 +213,9 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.presaleAndPost {
+.returned {
   width: 100%;
-  padding: 20px;
+  // padding: 20px;
   box-sizing: border-box;
   .itemBox {
     display: flex;
@@ -221,8 +223,11 @@ export default {
     margin-top: 20px;
   }
   .userDetail {
-    width: 1000px;
-    background-color: #f2f2f2;
+    width: 100%;
+    max-height: 600px;
+    overflow: auto;
+    background-color: #f5f5f5;
+    color: #666;
     margin-top: 20px;
   }
 }

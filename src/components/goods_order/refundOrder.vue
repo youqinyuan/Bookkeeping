@@ -37,6 +37,8 @@
           <template slot-scope="scope">
             <span v-if="scope.row.cargoStatus == 1">未收到货</span>
             <span v-if="scope.row.cargoStatus == 2">已收到货</span>
+            <span v-if="scope.row.cargoStatus == 3">未到店</span>
+            <span v-if="scope.row.cargoStatus == 4">已到店</span>
           </template>
         </el-table-column>
         <el-table-column prop="refundAmount" label="退款金额" align="center"></el-table-column>
@@ -130,6 +132,14 @@ export default {
         {
           value: "1",
           label: "未收到货"
+        },
+        {
+          value: "3",
+          label: "未到店"
+        },
+        {
+          value: "4",
+          label: "已到店"
         }
       ],
       cargoStatus: "", // 货物状态
@@ -174,8 +184,24 @@ export default {
       orderId: "" // 退款id
     };
   },
-  created() {
-    this.search(1);
+  // 路由进入时 判断是否从详情页返回
+  beforeRouteEnter(to, from, next) {
+    if (from.path === "/refundDetail") {
+      // 查看是否记录了页面
+      let page = sessionStorage.getItem("page");
+      page = page ? JSON.parse(page) : 1;
+      let cargoStatus = sessionStorage.getItem("cargoStatus");
+      let status = sessionStorage.getItem("status");
+      next(vm => {
+        vm.cargoStatus = cargoStatus ? cargoStatus : "";
+        vm.status = status ? status : "";
+        vm.search(page);
+      });
+    } else {
+      next(vm => {
+        vm.search(1);
+      });
+    }
   },
   methods: {
     // 搜索
@@ -214,6 +240,9 @@ export default {
           id: id
         }
       });
+      sessionStorage.setItem("page", this.currentPage);
+      sessionStorage.setItem("cargoStatus", this.cargoStatus);
+      sessionStorage.setItem("status", this.status);
     },
     // 退款审核
     refundAudit(orderId, type, remark) {
@@ -223,7 +252,6 @@ export default {
         type: type,
         remark: remark
       };
-      console.log(params);
       refundAudits(params).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message.success("操作成功");

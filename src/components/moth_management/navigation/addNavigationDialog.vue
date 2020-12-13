@@ -1,6 +1,12 @@
 <template>
   <div class="addNavigation">
-    <el-dialog title="选择页面链接" :visible.sync="centerDialogVisible" width="70%" :show-close="false">
+    <el-dialog
+      title="选择页面链接"
+      :visible.sync="centerDialogVisible"
+      width="70%"
+      :show-close="false"
+      :close-on-click-modal="false"
+    >
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <!-- 系统页面模块 -->
         <el-tab-pane label="系统页面" name="first">
@@ -278,6 +284,41 @@
             </el-table>
           </div>
         </el-tab-pane>
+        <!-- 自定义活动 -->
+        <el-tab-pane label="自定义活动" name="nine">
+          <div class="tableBox">
+            <el-table :data="customActivityData" border style="width: 100%">
+              <el-table-column prop="name" label="页面名称"></el-table-column>
+              <el-table-column prop="status" label="状态">
+                <template slot-scope="scope">
+                  <span v-if="scope.row.status == 1">未开始</span>
+                  <span v-if="scope.row.status == 2">进行中</span>
+                  <span v-if="scope.row.status == 3">已结束</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop>
+                <template slot-scope="scope">
+                  <el-radio
+                    v-model="radioCustomActivity"
+                    :label="scope.row.id"
+                    @change="radioSelectCustomActivity"
+                    v-if="scope.row.status == 2"
+                  >选择此链接</el-radio>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <div style="margin-top:10px;">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="customActivityTotal"
+              :page-size="5"
+              :current-page="customActivityCurrentPage"
+              @current-change="customActivityPageChange($event)"
+            ></el-pagination>
+          </div>
+        </el-tab-pane>
       </el-tabs>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="preservation">保 存</el-button>
@@ -297,7 +338,8 @@ import {
   findPageListH5,
   addOrUpdateH5,
   getOnlineStoreList,
-  getMerchantBusinessList
+  getMerchantBusinessListByUnderLine,
+  findCustomizeActivityList
 } from "@/network/api";
 export default {
   data() {
@@ -313,6 +355,10 @@ export default {
       productDetailData: [],
       productDetailTotal: 0,
       productDetailCurrentPage: 1,
+      customActivityData: [],
+      customActivityTotal: 0,
+      customActivityCurrentPage: 1,
+      radioCustomActivity: "",
       goodsName: "",
       radioData1: "",
       radioData2: "",
@@ -370,7 +416,8 @@ export default {
     this.queryGoodsArea(1);
     this.findPageListH5(1);
     this.getOnlineStoreList(1);
-    this.getMerchantBusinessList();
+    this.getMerchantBusinessListByUnderLine();
+    this.getCustomActivityList(1);
   },
   methods: {
     // 打开dialog
@@ -411,6 +458,7 @@ export default {
       this.radioH5 = "";
       this.radioBusiness = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
     // 系统页面翻页
     systemPageChange(val) {
@@ -492,6 +540,7 @@ export default {
       this.radioH5 = "";
       this.radioBusiness = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
     // 商品详情翻页
     productDetailPageChange(val) {
@@ -533,6 +582,7 @@ export default {
       this.radioH5 = "";
       this.radioBusiness = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
     // 商品分类翻页
     productTypePageChange(val) {
@@ -577,6 +627,7 @@ export default {
       this.radioH5 = "";
       this.radioBusiness = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
     // 新人专区翻页
     newPeoplePageChange(val) {
@@ -616,6 +667,7 @@ export default {
       this.radioH5 = "";
       this.radioBusiness = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
     // 商品专区翻页
     goodsActivitePageChange(val) {
@@ -669,6 +721,7 @@ export default {
       this.radioGoodsActivite = "";
       this.radioBusiness = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
     // H5专区翻页
     H5PageChange(val) {
@@ -707,6 +760,7 @@ export default {
       this.radioGoodsActivite = "";
       this.radioH5 = "";
       this.radioBusinessType = "";
+      this.radioCustomActivity = "";
     },
 
     // 商家详情翻页
@@ -716,8 +770,8 @@ export default {
     },
     // =======================商家分类==============================
     // 请求商家分类数据
-    getMerchantBusinessList() {
-      getMerchantBusinessList().then(res => {
+    getMerchantBusinessListByUnderLine() {
+      getMerchantBusinessListByUnderLine().then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.businessTypeData = res.data.content;
         } else {
@@ -739,8 +793,48 @@ export default {
       this.radioGoodsActivite = "";
       this.radioH5 = "";
       this.radioBusiness = "";
+      this.radioCustomActivity = "";
     },
-    // ================================================================
+    // ========================自定义活动=====================================
+    getCustomActivityList(val) {
+      let parms = {
+        pageNumber: val,
+        pageSize: 10
+      };
+      findCustomizeActivityList({ params: parms }).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          let content = res.data.content;
+          this.customActivityTotal = content.totalSize;
+          this.customActivityData = content.items;
+          this.customActivityCurrentPage = val;
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+
+    // 自定义活动radio改变事件
+    radioSelectCustomActivity(val) {
+      this.category = 9;
+      let arr = this.customActivityData.filter(item => {
+        return item.id == val;
+      });
+      this.radioName = arr[0].name;
+      this.radioData1 = "";
+      this.radioData2 = "";
+      this.radioData3 = "";
+      this.radioNewPeople = "";
+      this.radioGoodsActivite = "";
+      this.radioH5 = "";
+      this.radioBusiness = "";
+      this.radioBusinessType = "";
+    },
+    // 自定义活动翻页
+    customActivityPageChange(val) {
+      this.getCustomActivityList(val);
+      this.customActivityCurrentPage = val;
+    },
+    // =======================================================================
     // tabs选择
     handleClick(tab, event) {
       // console.log(tab.index);
@@ -749,22 +843,34 @@ export default {
     preservation() {
       let category = this.category;
       let radioData = "";
-      if (category == 1) {
-        radioData = this.radioData1;
-      } else if (category == 2) {
-        radioData = this.radioData2;
-      } else if (category == 3) {
-        radioData = this.radioData3;
-      } else if (category == 4) {
-        radioData = this.radioNewPeople;
-      } else if (category == 5) {
-        radioData = this.radioGoodsActivite;
-      } else if (category == 6) {
-        radioData = this.radioH5;
-      } else if (category == 7) {
-        radioData = this.radioBusiness;
-      } else if (category == 8) {
-        radioData = this.radioBusinessType;
+      switch (category) {
+        case 1:
+          radioData = this.radioData1;
+          break;
+        case 2:
+          radioData = this.radioData2;
+          break;
+        case 3:
+          radioData = this.radioData3;
+          break;
+        case 4:
+          radioData = this.radioNewPeople;
+          break;
+        case 5:
+          radioData = this.radioGoodsActivite;
+          break;
+        case 6:
+          radioData = this.radioH5;
+          break;
+        case 7:
+          radioData = this.radioBusiness;
+          break;
+        case 8:
+          radioData = this.radioBusinessType;
+          break;
+        case 9:
+          radioData = this.radioCustomActivity;
+          break;
       }
       if (!radioData) {
         this.$message.error("请选择路径");

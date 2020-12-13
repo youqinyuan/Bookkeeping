@@ -212,9 +212,35 @@ export default {
   },
   computed: {},
   watch: {},
+  // 路由进入时 判断是否从详情页返回
+  beforeRouteEnter(to, from, next) {
+    if (from.path === "/addGoods") {
+      // 查看是否记录了页面
+      let page = sessionStorage.getItem("page");
+      page = page ? JSON.parse(page) : 1;
+      let name = sessionStorage.getItem("name");
+      let value = sessionStorage.getItem("value");
+      let LowerCount = sessionStorage.getItem("LowerCount");
+      let selectedOptions_class = JSON.parse(
+        sessionStorage.getItem("selectedOptions_class")
+      );
+      next(vm => {
+        vm.name = name ? name : "";
+        vm.value = value ? value : "";
+        vm.LowerCount = LowerCount ? LowerCount : "";
+        vm.selectedOptions_class = selectedOptions_class
+          ? selectedOptions_class
+          : "全部";
+        vm.search(page);
+      });
+    } else {
+      next(vm => {
+        vm.search(1);
+      });
+    }
+  },
   created() {},
   mounted() {
-    this.search(1);
     this.getGoodsCategory();
   },
   methods: {
@@ -364,7 +390,7 @@ export default {
       obj.issueStatus = this.value == "全部" ? "" : this.value;
       obj.stock = this.LowerCount;
       this.getplatGoodsList(obj);
-      this.currentPage = 1;
+      this.currentPage = val;
     },
     // 添加
     add() {
@@ -378,7 +404,6 @@ export default {
     // 批量删除
     deletedCheckbox() {
       let multipleSelection = this.multipleSelection;
-      console.log(multipleSelection);
       if (multipleSelection.length == 0) {
         this.$message.error("请选择要删除的商品");
         return;
@@ -415,6 +440,14 @@ export default {
           id: row.id
         }
       });
+      sessionStorage.setItem("page", JSON.stringify(this.currentPage));
+      sessionStorage.setItem("name", this.name);
+      sessionStorage.setItem("value", this.value);
+      sessionStorage.setItem("LowerCount", this.LowerCount);
+      sessionStorage.setItem(
+        "selectedOptions_class",
+        JSON.stringify(this.selectedOptions_class)
+      );
     },
     // 设置自营标签
     setPlatTag() {

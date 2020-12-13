@@ -22,7 +22,25 @@
           <el-button size="mini" @click.stop="deletes(item.id)" type="danger">删 除</el-button>
           <el-button size="mini" @click.stop="addNext(item.id)">添加二级分类</el-button>
           <el-button size="mini" @click.stop="isHide(item.id,2)" v-if="item.status == 1">隐藏</el-button>
-          <el-button size="mini" @click.stop="isHide(item.id,1)" v-if="item.status == 2">解除隐藏</el-button>
+          <el-button
+            size="mini"
+            @click.stop="isHide(item.id,1)"
+            v-if="item.status == 2"
+            type="warning"
+          >解除隐藏</el-button>
+          <el-button
+            size="mini"
+            @click.stop="isHide(item.id,3)"
+            v-if="item.status == 1"
+            type="primary"
+          >下架分类所有商品-ios</el-button>
+          <el-button
+            size="mini"
+            @click.stop="isHide(item.id,1)"
+            v-if="item.status == 3"
+            type="primary"
+            style="background-color:#D5C916;border:none;"
+          >恢复ios下架的商品</el-button>
         </template>
         <!-- 二级分类 -->
         <div class="nextClass" v-for="(nextItem,index2) in item.nextLevelData" :key="index2">
@@ -43,6 +61,26 @@
             @click="modifyNext(nextItem.id,nextItem.name,nextItem.imageKey)"
           >修 改</el-button>
           <el-button size="mini" type="danger" @click="deletes(nextItem.id)">删 除</el-button>
+          <el-button size="mini" @click="isHide(nextItem.id,2)" v-if="nextItem.status == 1">隐藏</el-button>
+          <el-button
+            size="mini"
+            @click="isHide(nextItem.id,1)"
+            v-if="nextItem.status == 2"
+            type="warning"
+          >展示</el-button>
+          <el-button
+            size="mini"
+            @click.stop="isHide(nextItem.id,3)"
+            v-if="nextItem.status == 1"
+            type="primary"
+          >下架分类所有商品-ios</el-button>
+          <el-button
+            size="mini"
+            @click.stop="isHide(nextItem.id,1)"
+            v-if="nextItem.status == 3"
+            type="primary"
+            style="background-color:#D5C916;border:none;"
+          >恢复ios下架的商品</el-button>
         </div>
       </el-collapse-item>
     </el-collapse>
@@ -206,7 +244,6 @@ export default {
       nextLevelData.forEach((item, index) => {
         ids.push(item.id);
       });
-      console.log(ids);
       let parms = {
         ids: ids,
         parentId: parentId
@@ -232,7 +269,6 @@ export default {
       nextLevelData.forEach((item, index) => {
         ids.push(item.id);
       });
-      console.log(ids);
       let parms = {
         ids: ids,
         parentId: parentId

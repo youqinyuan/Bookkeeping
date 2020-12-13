@@ -23,6 +23,10 @@ axios.interceptors.request.use(
         config.headers.token = getCookie().opadminToken
       }
     })
+    // 登录接口添加设备id
+    if (config.url == '/accounts/login') {
+      config.headers.deviceId = '29e0e491-81e5-4e9c-a010-c3e55e180bf4'
+    }
     if (config.url == '/newPeople/queryGoodsQRCode' || config.url == '/mdse/activity/createQrCode') {
       // 此两个接口不添加loading方法
     } else {

@@ -250,7 +250,7 @@ export default {
           this.dgformUnite.logisticsId = 13;
           this.dgformUnite.trackingNumber = "";
           if (path == "/selfSupportOrder" || path == "/businessOrder") {
-            this.$parent.searchOrderList();
+            this.$parent.searchOrderList(this.$parent.pageNumber);
           } else {
             this.$parent.getOrderList(this.$route.query.orderid);
           }
@@ -292,7 +292,7 @@ export default {
           this.MultiplePop = false;
           this.choosePop = false;
           if (path == "/selfSupportOrder" || path == "/businessOrder") {
-            this.$parent.searchOrderList();
+            this.$parent.searchOrderList(this.$parent.pageNumber);
           } else {
             this.$parent.getOrderList(this.$route.query.orderid);
           }

@@ -1,6 +1,11 @@
 import request from './config'
 
+// 账号
 const userLoginRequest = p => request.post('/accounts/login', p) // 登录
+const accessibleMenus = p => request.get('/accounts/accessibleMenus', p) // 查询可访问的菜单
+const validatePermission = p => request.get('/accounts/validatePermission', p) // 验证菜单访问权限
+
+
 const addGoodsRequest = p => request.post('/goodsControl/addGoods', p) // 添加商品（电商/自营商品）
 const upDataGoodsRequest = p => request.post('/goodsControl/updateGoods', p) // 修改商品-（电商/自营商品）
 const queryGoodsDetailRequest = p => request.get('/goodsControl/onlineGoodsDetail', p) // 查询商品详情(电商/自营)
@@ -17,6 +22,19 @@ const queryLogistics = p => request.get('/order/queryLogistics', p) // 查询物
 const cancelOrderMerchant = p => request.post('/order/cancelOrderMerchant', p) // 取消订单
 const queryTobeShippedOrderGoods = p => request.get('/order/queryTobeShippedOrderGoods', p) // 获取待发货的商品信息
 const noLogistics = p => request.post('/order/noLogistics', p) // 无需发货
+const refundCostomizeActivityOrder = p => request.post('/order/refundCustomizeActivityOrder', p) // 退款(自定义活动拼团失败 - 退款)
+const pushVerificationCode = p => request.post('/order/pushVerificationCode', p) // 上传核销码
+const getPackageOrderByExcel = p => request.get('/order/getPackageOrderByExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 核销订单管理-导出套餐拼团信息excel
+const getNormalOrderByExcel = p => request.get('/order/getNormalOrderByExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 核销订单管理-导出普通拼团信息excel
+const groupRefuse = p => request.post('/order/groupRefuse', p) // 核销订单管理-拒绝
+const groupRefund = p => request.post('/order/groupRefund', p) // 核销订单管理-退款
+const groupFinish = p => request.post('/order/groupFinish', p) // 核销订单管理-完成订单
 
 
 // 首页
@@ -68,10 +86,6 @@ const queryOperateOrderRefundList = p => request.get('/orderRefund/queryOperateO
 const refundAudits = p => request.post('/orderRefund/refundAudit', p) // 退款审核
 const queryLogistic = p => request.get('/orderRefund/queryLogistics', p) // 查询物流信息
 const queryOrderRefund = p => request.get('/orderRefund/queryOrderRefund', p) // 查询退款订单详情
-
-
-
-
 const getExcel = ids => request.get('/order/getMerchantAuditListExcel', {
   params: {
     ids
@@ -92,6 +106,11 @@ const getLogisticsExcelTemplet = p => request.get('/order/getLogisticsExcelTempl
 //导入物流信息接口
 
 
+// 保险管理
+const findPageListInsurance = p => request.get('/insurance/userRecord/findPageList', p) // 保险内容设置-分页查询
+const addInsurance = p => request.post('/insurance/userRecord/add', p) // 保险内容设置-添加时长
+const findListImagesInsurance = p => request.post('/insurance/userRecord/findListImages', p) // 保险内容设置-查询保险介绍图
+const addOrUpdateImagesInsurance = p => request.post('/insurance/userRecord/addOrUpdateImage', p) // 保险内容设置-添加或修改保险介绍图
 
 
 // 分期购申请
@@ -134,6 +153,7 @@ const getMerchantApplyDetail = p => request.get('/price/detail', p) // 商户管
 const changeMerchantApplyStatus = p => request.put('/price/status', p) // 商户管理-商户改价更改审核状态
 const getMerchantDrawRecordList = p => request.get('/merchant/manage/drawRecordList', p) // 商户管理-获取提现记录列表
 const updateMerchantSales = p => request.post('/merchant/manage/updateSales', p) // 商户管理-修改销量
+const updateMerchantScore = p => request.post('/merchant/manage/updateScore', p) // 商户管理-修改评分
 const getMerchantOrderList = p => request.get('/delivery/orderList', p) // 商家配送管理-获取平台配送订单
 const getfreightPlatList = p => request.get('/delivery/freightPlatList', p) // 商家配送管理-获取计价方案列表
 const setDeliveryTime = p => request.post('/delivery/plat/hours', p) // 商家配送管理-设置平台配送时间
@@ -154,6 +174,22 @@ const merchantSetAutoAdopt = p => request.post('/merchant/draw/setAutoAdopt', p)
 const getMerchantBlackList = p => request.get('/merchant/draw/blackList', p) // 商家提现管理-管理黑名单
 const merchantAddBlackList = p => request.post('/merchant/draw/addBlackList', p) // 商家提现管理-添加黑名单
 const merchantRemoveBlackList = p => request.post('/merchant/draw/removeBlackList', p) // 商家提现管理-移除黑名单
+const setAutoAdoptByAliPay = p => request.post('/merchant/draw/setAutoAdoptByAliPay', p) // 商家提现管理-设置支付宝自动提现
+const merchantAutoAdoptSetByAliPay = p => request.get('/merchant/draw/autoAdoptSetByAliPay', p) // 商家提现管理-查看支付宝自动提现设置
+const updateParent = p => request.post('/merchant/manage/updateParent', p) // 预入驻商家 - 修改上级
+const updateGoodsQuantity = p => request.post('/merchant/manage/updateGoodsQuantity', p) // 预入驻商家 - 修改商品数量
+const updateDrawQuota = p => request.post('/merchant/manage/updateDrawQuota', p) // 预入驻商家 - 修改提现额度
+const updateDefaultValue = p => request.post('/merchant/manage/updateDefaultValue', p) //修改商家预设值
+const getDefaultValue = p => request.post('/merchant/manage/getDefaultValue', p) // 查询商家预设值
+const updateFlashPaySet = p => request.post('/merchant/manage/updateFlashPaySet', p) // 修改闪付设置
+const getMerchantPickPoint = p => request.get('/merchant/manage/getMerchantPickPoint', p) // 获取商户自提点列表
+const delPickupPoint = p => request.post('/merchant/manage/delPickupPoint', p) // 删除商户自提点
+const addPickupPoint = p => request.post('/merchant/manage/addPickupPoint', p) // 新建商户自提点
+const getMerchantPickPointById = p => request.get('/merchant/manage/getMerchantPickPointById', p) // 获取自提点详情
+const getRecommendStore = p => request.get('/merchant/manage/getRecommendStore', p) // 查询推荐店铺
+const updateRecommendStore = p => request.post('/merchant/manage/updateRecommendStore', p) // 修改推荐店铺
+const getMerchantBusinessListByUnderLine = p => request.get('/merchant/getMerchantBusinessListByUnderLine', p) // 获取商户线下行业分类列表
+const updateContactNumber = p => request.post('/merchant/manage/updateContactNumber', p) // 修改联系电话
 
 
 
@@ -165,6 +201,7 @@ const getAllUnexpectedIncome = p => request.get('/incomeRecord/getAllUnexpectedI
 
 // 充值模块
 const getUserRechargeRecord = p => request.get('/userTradeRecord/getUserRechargeRecord', p) // 充值管理-用户充值管理
+const updateParamConfigMinAmount = p => request.post('/userTradeRecord/updateParamConfigMinAmount', p) // 充值管理-充值设置
 
 
 
@@ -176,6 +213,18 @@ const memberDetail = p => request.get('/member/memberDetail', p) // 用户管理
 const plusMemberDetail = p => request.get('/member/plusMemberDetail', p) // 用户管理-PLUS普通会员详情
 const diamondMemberList = p => request.get('/member/diamondMemberList', p) // 用户管理-钻石合伙人查询列表
 const diamondMemberDetail = p => request.get('/member/diamondMemberDetail', p) // 用户管理-钻石合伙人查询明细
+const memberListByExcel = p => request.get('/member/memberListByExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 银行卡提现列表导出excel
+const plusMemberListByExcel = p => request.get('/member/plusMemberListByExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 银行卡提现列表导出excel
+const diamondMemberListByExcel = p => request.get('/member/diamondMemberListByExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 银行卡提现列表导出excel
 const subtractUserAssets = p => request.post('/member/subtractUserAssets', p) // 减少用户资产
 const exchangeMemberRole = p => request.post('/member/exchangeMemberRole', p) // 用户管理-更新用户身份
 const getWithdrawMoneyAuditList = p => request.get('/member/getWithdrawMoneyAuditList', p) // 用户管理-获取所有的奖励金数据
@@ -217,6 +266,37 @@ const addOrUpdateOrderAndForum = p => request.post('/forum/config/addOrUpdate', 
 const findListOrderAndForum = p => request.get('/forum/config/findList', p) // 发起预售及待返发帖限制 - 获取限制规则
 const addOrUpdateDetailOrderAndForum = p => request.post('/forum/config/addOrUpdateDetail', p) // 发起预售及待返发帖限制 - 新增或者修改受限人群
 const removeOrderAndForum = p => request.post('/forum/config/remove', p) // 发起预售及待返发帖限制 - 删除
+const getParamConfigByKey = p => request.get('/paramConfig/getParamConfigByKey', p) // 获取规则设置
+const findTopicList = p => request.get('/installment/config/findTopicList', p) // 一折购分期支付-主题查询
+const addOrUpdateTopicUser = p => request.post('/installment/config/addOrUpdateTopicUser', p) // 一折购分期支付-添加或者修改受限制人群
+const findConfig = p => request.get('/installment/config/findConfig', p) // 一折购分期支付-规则查询
+const addOrUpdateTopic = p => request.post('/installment/config/addOrUpdateTopic', p) // 一折购分期支付-新增或修改主题
+const removeTopic = p => request.post('/installment/config/removeTopic', p) // 一折购分期支付-删除主题
+const findConfigList = p => request.get('/individualization/config/findConfigList', p) // 个性化规则-查询列表
+const addOrUpdateTopicIndividualization = p => request.post('/individualization/config/addOrUpdateTopic', p) // 个性化规则-添加或者修改
+const findConfigIndividualization = p => request.get('/individualization/config/findConfig', p) // 个性化规则-查询详情
+const removeConfigIndividualization = p => request.post('/individualization/config/removeConfig', p) // 个性化规则-删除
+
+
+// 积分管理
+const findProduct_seed = p => request.get('/integral/seed/config/findProduct', p) // 查询种子获取规则
+const addOrUpdateProduct_seed = p => request.post('/integral/seed/config/addOrUpdateProduct', p) // 新增或修改种子获取规则
+const addOrUpdateOnlineRedEnvelopeUser = p => request.post('/integral/seed/config/addOrUpdateOnlineRedEnvelopeUser', p) // 添加或修改在线种子红包享受人群
+const addOrUpdateVideoUser = p => request.post('/integral/seed/config/addOrUpdateVideoUser', p) // 添加或修改观看视频享受人群
+const addOrUpdateConsumeTopic = p => request.post('/integral/seed/config/addOrUpdateConsumeTopic', p) // 种子消耗-新增或修改规则
+const findConsume = p => request.get('/integral/seed/config/findConsume', p) // 种子消耗-规则查询
+const removeConsumeTopic = p => request.post('/integral/seed/config/removeConsumeTopic', p) // 种子消耗-规则删除
+const findConsumeTopicList = p => request.get('/integral/seed/config/findConsumeTopicList', p) // 种子消耗-查询种子扣除规则列表
+const addOrUpdateConsumeTopicUser = p => request.post('/integral/seed/config/addOrUpdateConsumeTopicUser', p) // 种子消耗-新增或修改受限人群
+const findPageListSeedList = p => request.get('/user/seed/findPageList', p) // 种子明细-查询种子明细
+const getSendSeedRecordList = p => request.get('/user/seed/getSendSeedRecordList', p) // 种子赠送扣除-分页查询
+const getSendSeedRecordListByExcel = p => request.get('/user/seed/getSendSeedRecordListByExcel', {
+  params:p,
+  responseType:'blob'
+}) // 种子赠送扣除-导出操作用户种子明细
+const updateUserSeed = p => request.post('/user/seed/updateUserSeed', p) // 种子赠送扣除-修改用户种子
+const getFlowerRuleList = p => request.get('/flowerRule/getFlowerRuleList', p) // 花瓣获取管理-查询
+const updateFlowerRule = p => request.post('/flowerRule/updateFlowerRule', p) // 花瓣获取管理-修改
 
 
 
@@ -224,6 +304,7 @@ const removeOrderAndForum = p => request.post('/forum/config/remove', p) // 发�
 // 商品管理模块
 const platGoodsList = p => request.get('/goodsControl/platGoodsList', p) // 商品管理-自营商品管理列表
 const queryPlatAndMerchantGoodsList = p => request.get('/goodsControl/queryPlatAndMerchantGoodsList', p) // 商品管理-获取自营商品和商家商品列表
+const queryPlatAndMerchantGoodsStockList = p => request.get('/goodsControl/queryPlatAndMerchantGoodsStockList', p) // 商品管理-获取自营商品和商家商品的商品规格列表
 const updateGoodsIssueStatus = p => request.post('/goodsControl/updateGoodsIssueStatus', p) // 商品管理-更改商品上下架状态
 const deleteGoods = p => request.post('/goodsControl/deleteGoods', p) // 商品管理-批量删除商品
 const addPlatTag = p => request.post('/goodsControl/addPlatTag', p) // 添加自营标签
@@ -240,6 +321,16 @@ const queryGoodsQRCode = p => request.get('/goodsControl/queryGoodsQRCode', {
   params: p,
 }) // 商品管理-查询商品太阳码地址
 const updateGoodsShowStatus = p => request.delete('/goodsCategory/updateStatus', p) // 商品分类-修改状态
+const packageGoodsList = p => request.get('/goodsControl/package/packageGoodsList', p) // 套餐核销商品管理-获取商品数据列表
+const evaluationList = p => request.get('/goodsControl/package/evaluationList', p) // 套餐核销商品管理-获取评论列表
+const addEvaluation = p => request.post('/goodsControl/package/addEvaluation', p) // 套餐核销商品管理-添加虚拟评论
+const evaluationUpdateOrderNo = p => request.post('/goodsControl/package/updateOrderNo', p) // 套餐核销商品管理-修改排序值
+const deleteEvaluation = p => request.post('/goodsControl/package/deleteEvaluation', p) // 套餐核销商品管理-删除评论
+const addEvaluationGoods = p => request.post('/goodsControl/package/addGoods', p) // 套餐核销商品管理-添加商品
+const getEvaluationGoodsDetail = p => request.get('/goodsControl/package/goodsDetail', p) // 套餐核销商品管理-查询商品详情
+const deleteEvaluationGoods = p => request.post('/goodsControl/package/deleteGoods', p) // 套餐核销商品管理-批量删除商品
+const updateEvaluationGoods = p => request.post('/goodsControl/package/updateGoods', p) // 套餐核销商品管理-修改商品
+const updateGoodsSales = p => request.post('/goodsControl/package/updateGoodsGrabbedNumber', p) // 套餐核销商品管理-修改销量
 
 // 营销管理模块
 const getSlideShowByCategory = p => request.get('/slideShow/getSlideShowByCategory', p) // 首页轮播图-获取所有
@@ -288,6 +379,36 @@ const findPageListNavigation = p => request.get('/goodsCategory/findPageList', {
 }) // 导航之商品分类
 const findPageListH5 = p => request.get('/marketing/navigation/resources/findPageList', p) // 导航营销-查询H5链接路径
 const addOrUpdateH5 = p => request.post('/marketing/navigation/resources/addOrUpdate', p) // 导航营销-新增或修改H5链接路径
+const queryPromote = p => request.get('/marketing/navigation/queryPromote', p) // 查询推广物料设置
+const sortBySlideShowIds = p => request.post('/marketing/navigation/sortBySlideShowIds ', p) // 轮播图管理--设为首图
+const updateVisibleType = p => request.post('/marketing/navigation/updateVisibleType ', p) // 轮播图管理--修改显示类型
+const getGuessList = p => request.get('/guess/getGuessList', p) // 竞猜后台-竞猜管理列表
+const addGuess = p => request.post('/guess/addGuess', p) // 竞猜后台-新建竞猜
+const getGuessById = p => request.get('/guess/getGuessById', p) // 竞猜后台-查询竞猜
+const updateGuessById = p => request.put('/guess/updateGuessById', p) // 竞猜后台-修改竞猜
+const deleteGuessById = p => request.put('/guess/deleteGuessById', p) // 竞猜后台-删除竞猜
+const revealAnswerById = p => request.put('/guess/revealAnswerById', p) // 竞猜后台-揭晓答案
+const addOrUpdateGuess = p => request.post('/rule/addOrUpdate', p) // 竞猜后台-新增或修改竞猜规则
+const getRuleGuess = p => request.get('/rule/getRule', p) // 竞猜后台-查询竞猜规则
+const getGuessCostChoose = p => request.get('/costAmount/getGuessCostChoose', p) // 竞猜后台-查询用户下注选项
+const addOrUpdateGuessChoose = p => request.post('/costAmount/addOrUpdateGuessChoose', p) // 竞猜后台-新增或修改用户下注选项
+const getGuessRecordList = p => request.get('/guess/getGuessRecordList', p) // 竞猜后台-投票明细列表
+const appGuess = p => request.post('/guess/appGuess', p) // 竞猜后台-平台投票
+const getGuessDiscussList = p => request.get('/guessDiscuss/getGuessDiscussList', p) // 竞猜后台-查询讨论区明细
+const addGuessDiscuss = p => request.post('/guessDiscuss/addGuessDiscuss', p) // 竞猜后台-添加平台虚拟评论
+const deleteGuessDiscuss = p => request.put('/guessDiscuss/deleteGuessDiscuss', p) // 竞猜后台-删除评论
+const getGoodsFlowerList = p => request.get('/flowerGoods/getGoodsFlowerList', p) // 花瓣商城-花瓣商城管理列表
+const updateSerialNumber = p => request.put('/flowerGoods/updateSerialNumber', p) // 花瓣商城-修改排序号
+const getChangeRecordList = p => request.get('/flowerGoods/getChangeRecordList', p) // 花瓣商城-商品兑换记录列表
+const exportChangeRecordExcel = p => request.get('/flowerGoods/exportChangeRecordExcel', {
+  params:p,
+  responseType:'blob'
+}) // 花瓣商城-导出兑换记录
+const getFlowerGoodsById = p => request.get('/flowerGoods/getGoodsById', p) // 花瓣商城-根据商品编号查询商品
+const addGoodsFlower = p => request.post('/flowerGoods/addGoodsFlower', p) // 花瓣商城-新增商品
+const deleteGoodsFlower = p => request.put('/flowerGoods/deleteGoodsFlower', p) // 花瓣商城-删除商品
+const getTakeGoodsInfo = p => request.get('/flowerGoods/getTakeGoodsInfo', p) // 花瓣商城-查询收货人信息
+const deliverFlowerGoods = p => request.put('/flowerGoods/deliver', p) // 花瓣商城-确认发货
 
 const addNewPeople = p => request.post('/newPeople/add', p) // 新人专区添加活动
 const updateNewPeople = p => request.post('/newPeople/update', p) // 新人专区修改活动
@@ -304,13 +425,43 @@ const goodsAreaFindGoods = p => request.get(`/mdse/activity/findGoodsByActivityI
 const goodsAreaCreateQrCode = p => request.get('/mdse/activity/createQrCode', p) // 商品活动专区生成二维码
 const getGuidePage = p => request.get('/guidePage/query', p) // 用户引导 - 查询内容
 const updateGuidePage = p => request.post('/guidePage/update', p) // 用户引导 - 修改内容
+const addOrUpdate_floating = p => request.post('/floating/navigation/addOrUpdate', p) // 弹浮窗-新增或修改
+const findPageList_floating = p => request.get('/floating/navigation/findPageList', p) // 弹浮窗-分页查询
+const updateStatus_floating = p => request.post('/floating/navigation/updateStatus', p) // 弹浮窗-修改状态
+const remove_floating = p => request.post('/floating/navigation/remove', p) // 弹浮窗-删除
+const updateOrderNo_floating = p => request.post('/floating/navigation/updateOrderNo', p) // 弹浮窗-修改优先级
+const findDetail_floating = p => request.get('/floating/navigation/findDetail', p) // 弹浮窗-查询明细
+const getExcelTemplet_floating = p => request.get('/floating/navigation/getExcelTemplet', {
+  responseType: 'blob'
+}) // 弹浮窗-获取导入用户Excel模板
+const findCustomizeActivityList = p => request.get('/marketing/customizeActivity/findPageList', p) // 自定义活动-查询活动列表
+const updateCustomizeActivityStatus = p => request.post('/marketing/customizeActivity/updateStatus', p) // 自定义活动-修改状态
+const findCustomizeActivityGoodsStockList = p => request.get('/marketing/customizeActivity/findGoodsStockList', p) // 自定义活动-查询活动商品规格列表
+const addOrUpdateCustomizeActivity = p => request.post('/marketing/customizeActivity/addOrUpdate', p) // 自定义活动-添加或者修改活动
+const findCustomizeActivityDetail = p => request.get('/marketing/customizeActivity/findDetail', p) // 自定义活动-查询活动详情
+
+const findPageListCoupon = p => request.get('/marketing/coupon/findPageList', p) // 优惠券-分页查询
+const addOrUpdateCoupon = p => request.post('/marketing/coupon/addOrUpdate', p) // 优惠券-添加或修改优惠券
+const removeCoupon = p => request.post('/marketing/coupon/remove', p) // 优惠券-删除优惠券
+const updateOrderNoCoupon = p => request.get('/marketing/coupon/updateOrderNo', p) // 优惠券-修改排序号
+const check4PresentPersonally = p => request.post('/marketing/coupon/check4PresentPersonally', p) // 优惠券-赠送优惠券-个人赠送-校验
+const presentPersonally = p => request.post('/marketing/coupon/presentPersonally', p) // 优惠券-赠送优惠券-个人赠送
+const getExcelTemplate = p => request.get('/marketing/coupon/excel/getExcelTemplate', {
+  params:p,
+  responseType: 'blob'
+}) // 优惠券-赠送优惠券-下载批量赠送excel模板
+const importExcel4Present = p => request.post('/marketing/coupon/excel/importExcel4Present', p) // 优惠券-赠送优惠券-批量赠送
+const getExcel4PresentResult = p => request.get('/marketing/coupon/excel/getExcel4PresentResult', {
+  params:p,
+  responseType: 'blob'
+}) // 优惠券-赠送优惠券-下载批量赠送结果
 
 
 
 // 心愿池管理模块
 const wishQueryPageList = p => request.get('/wishGoods/queryPageList', p) // 分页查询
 const wishQueryDetail = p => request.get(`/wishGoods/queryDetail${p}`) // 查看详情
-const matchedGoods = p => request.post(`/wishGoods/matchedGoods${p}`) // 满足心愿
+const matchedGoods = p => request.post('/wishGoods/matchedGoods',p) // 满足心愿
 const exportWishGoodsExcel = p => request.get('/wishGoods/exportWishGoodsExcel', {
   params: p,
   responseType: 'blob'
@@ -332,6 +483,13 @@ const queryOrderListOrderDataExcel = p => request.get('order/data/queryOrderList
   responseType: 'blob'
 }) // 导出查询订单数据统计列表
 
+const findSaleTopicPageList = p => request.get('forum/statistics/findSaleTopicPageList', p) // 特殊数据统计 -- 待返卖贴
+const findAdvanceOrderTopicPageList = p => request.get('forum/statistics/findAdvanceOrderTopicPageList', p) // 特殊数据统计 -- 预售订单
+const findGoodsPreSaleProfitTopicPageList = p => request.get('forum/statistics/findGoodsPreSaleProfitTopicPageList', p) // 特殊数据统计 -- 商品卖贴
+const findGoodsPreSaleEconomyTopicPageList = p => request.get('forum/statistics/findGoodsPreSaleEconomyTopicPageList', p) // 特殊数据统计 -- 商品买贴
+const findAdvancePeriodTopicPageList = p => request.get('forum/statistics/findAdvancePeriodTopicPageList', p) // 特殊数据统计 -- 提期
+const findSeedOrderPageList = p => request.get('forum/statistics/findSeedOrderPageList', p) // 特殊数据统计 -- 种子
+
 
 // 内容管理
 const findPageListForum = p => request.get('/forum/topic/findPageList', p) // 分页查询论坛内容
@@ -339,6 +497,20 @@ const removeForum = p => request.post('/forum/topic/remove', p) // 删除贴子
 const findDetailForum = p => request.get('/forum/topic/findDetail', p) // 查询贴子明细
 const removeForumcomment = p => request.post('/forum/comment/remove', p) // 查询贴子评论
 const updateIsTopForum = p => request.post('/forum/topic/updateIsTop', p) // 置顶帖子或取消置顶
+const updateVisibleForum = p => request.post('/forum/topic/updateVisible', p) // 展示或者隐藏贴子
+const findPageListForumComment = p => request.get('/forum/comment/findPageList', p) // 查询贴子评论
+const removeForumComment = p => request.post('/forum/comment/remove', p) // 删除评论
+const removeListForumComment = p => request.post('/forum/comment/removeList', p) // 批量删除评论
+
+// 防刷单管理
+const findListUserBehavior = p => request.get('/user/findList', p) // 关联用户行为数据-查询
+const findChildrenUserBehavior = p => request.get('/user/findChildren', p) // 关联用户行为数据-查询下级
+const updateDealHunter = p => request.post('/user/updateDealHunter', p) // 关联用户行为数据-限制或取消限制
+const exportExcelUserBehavior = p => request.get('/user/exportExcel', {
+  params:p,
+  responseType:'blob'
+}) // 关联用户行为数据-导出excel
+
 
 // 首页管理
 const findByHeroRank = p => request.get('/marketing/navigation/findByHeroRank', p) // 查询英雄榜
@@ -351,6 +523,7 @@ const getHeroListExcel = p => request.get('/hero/getHeroListExcelTemplet', {
   responseType: 'blob'
 }) // 英雄榜-获取导入虚拟信息Excel模板
 const importHeroListExcel = p => request.post('/hero/importHeroListExcel', p) // 英雄榜-导入英雄榜虚拟信息
+const hideOrShowHeroList = p => request.get('/hero/hideOrShow', p) // 英雄榜-显示或者隐藏
 
 
 // 系统管理
@@ -367,15 +540,35 @@ const queryPage = p => request.get(`/page/queryByType${p}`) // 查询页面设�
 const delFile = p => request.post('/page/delFile', p) // 文件删除
 const findNoticeSet = p => request.get(`/wechat/findNoticeSet${p}`) // 查询微信通知设置
 const updateNoticeSet = p => request.post('/wechat/updateNoticeSet', p) // 更新微信通知设置
+const findTemplatePageList = p => request.get('/sms/findTemplatePageList', p) // 查询短信模板
+const addOrUpdateTemplate = p => request.post('/sms/addOrUpdate', p) // 添加或修改短信模板
+const findPageListTemplate = p => request.get('/sms/findPageList', p) // 查询短信列表
+const exportExcelTemplate = p => request.get('/sms/exportExcel', {
+  params: p,
+  responseType: 'blob'
+}) // 短信列表-导出excel
+const addCourseVideo = p => request.post('/courseVideo/addCourseVideo', p) // 新手教程-上传视频
+const deleteCourseVideoById = p => request.delete(`/courseVideo/deleteCourseVideoById${p}`) // 新手教程-删除视频
+const selectCourseVideo = p => request.get('/courseVideo/selectCourseVideo', p) // 新手教程-获取新手视频列表
 
 
 export {
+  accessibleMenus,
+  validatePermission,
+  addCourseVideo,
+  deleteCourseVideoById,
+  selectCourseVideo,
   getDashboard,
   removeForumcomment,
   applyGoodsStages,
   addNewPeople,
   queryActivitiesByOrderType,
   updateNewPeople,
+  updateParent,
+  updateGoodsQuantity,
+  updateDrawQuota,
+  updateDefaultValue,
+  getDefaultValue,
   agentAgents,
   NewPeopleUpdateStatus,
   queryNewPeople,
@@ -386,10 +579,20 @@ export {
   goodsAreaCreateQrCode,
   goodsAreaFindGoods,
   getMentionPeriodParamConfig,
+  groupRefuse,
+  groupRefund,
+  groupFinish,
   queryGoodsArea,
   goodsAreaActivity,
   agentApplyList,
+  setAutoAdoptByAliPay,
+  updateParamConfigMinAmount,
+  getParamConfigByKey,
   newPeopleQueryGoodsQRCode,
+  findListUserBehavior,
+  findChildrenUserBehavior,
+  updateDealHunter,
+  exportExcelUserBehavior,
   exportMerchantDrawRecord,
   agentRole,
   NewPeopleFindGoods,
@@ -397,6 +600,8 @@ export {
   agentApplyBalance,
   queryNewPeopleDetail,
   findByHeroRank,
+  getMerchantBusinessListByUnderLine,
+  updateContactNumber,
   exportInstallmentGoodsExcel,
   findAgentRoleById,
   updateIssueStatusSupport,
@@ -433,66 +638,167 @@ export {
   queryLogistics,
   getAllUnexpectedIncome,
   userLoginRequest,
+  packageGoodsList,
+  evaluationList,
+  addEvaluation,
+  queryPromote,
   addGoodsRequest,
   getUserTransferAuditListAlipay,
+  findPageListSeedList,
+  getSendSeedRecordList,
+  getSendSeedRecordListByExcel,
+  updateUserSeed,
+  getFlowerRuleList,
+  updateFlowerRule,
   upDataGoodsRequest,
   queryGoodsDetailRequest,
   queryofflineGoodsDetail,
   noLogistics,
   getBusinessOptionsRequest,
   addDeliveryMerchantList,
+  findConsumeTopicList,
+  getPackageOrderByExcel,
+  getNormalOrderByExcel,
   getGoodsClassRequest,
   getOrderList,
+  addOrUpdate_floating,
+  getMerchantPickPoint,
+  delPickupPoint,
+  addPickupPoint,
+  getMerchantPickPointById,
+  findPageList_floating,
+  updateStatus_floating,
+  remove_floating,
+  updateOrderNo_floating,
+  findDetail_floating,
+  addEvaluationGoods,
+  getRecommendStore,
+  updateRecommendStore,
+  getEvaluationGoodsDetail,
+  deleteEvaluationGoods,
+  updateGoodsSales,
+  updateEvaluationGoods,
   getLogisticsCompanyList,
   addOrderLogistics,
+  findCustomizeActivityGoodsStockList,
   addMerchantGoodsCategory,
   refundAudit,
+  findTopicList,
+  addOrUpdateTopicUser,
   getMerchantBusinessList,
   queryOrderReason,
   agentResetPassword,
   agentBalance,
   queryOrder,
+  merchantAutoAdoptSetByAliPay,
   applyRefundMerchant,
+  addOrUpdateOnlineRedEnvelopeUser,
+  addOrUpdateVideoUser,
   getMerchantDrawList,
   queryLogistic,
   agentRefuseBalance,
   cancelOrderMerchant,
+  findAdvanceOrderTopicPageList,
+  findAdvancePeriodTopicPageList,
+  findGoodsPreSaleProfitTopicPageList,
+  findGoodsPreSaleEconomyTopicPageList,
+  findSeedOrderPageList,
   agentRenew,
   getExcel,
+  getGuessList,
+  addGuess,
+  getGuessById,
+  updateGuessById,
+  deleteGuessById,
+  revealAnswerById,
+  getRuleGuess,
+  getGuessCostChoose,
+  addOrUpdateGuessChoose,
+  getGuessRecordList,
+  appGuess,
+  getGuessDiscussList,
+  addGuessDiscuss,
+  deleteGuessDiscuss,
+  getGoodsFlowerList,
+  updateSerialNumber,
+  getChangeRecordList,
+  exportChangeRecordExcel,
+  getFlowerGoodsById,
+  addGoodsFlower,
+  deleteGoodsFlower,
+  deliverFlowerGoods,
+  getTakeGoodsInfo,
+  addOrUpdateGuess,
   changeMerchantApplyStatus,
+  getExcelTemplet_floating,
   addOrUpdateAgentRole,
   removeOrderAndForum,
   getLicenseImage,
   platGoodsList,
   getAdvanceOrderParamConfig,
   updateGoodsIssueStatus,
+  updateFlashPaySet,
   addPlatTag,
+  refundCostomizeActivityOrder,
   merchantGoodsList,
+  addOrUpdateConsumeTopicUser,
+  pushVerificationCode,
   getMerchantOrderList,
   updateGoodsAdWeights,
+  evaluationUpdateOrderNo,
+  hideOrShowHeroList,
   updateGoodsGrabbedNumber,
   addClass,
   deleteAllHero,
+  addOrUpdateTopic,
+  findPageListInsurance,
+  addInsurance,
+  findListImagesInsurance,
+  addOrUpdateImagesInsurance,
+  removeTopic,
+  addOrUpdateTopicIndividualization,
+  findConfigIndividualization,
+  removeConfigIndividualization,
+  findConfigList,
   deleteClass,
   updateClass,
   deleteHeroById,
+  sortBySlideShowIds,
   merchantAddBlackList,
   merchantRemoveBlackList,
+  deleteEvaluation,
+  addOrUpdateCustomizeActivity,
+  findCustomizeActivityDetail,
+  findPageListCoupon,
+  addOrUpdateCoupon,
+  removeCoupon,
+  updateOrderNoCoupon,
+  check4PresentPersonally,
+  presentPersonally,
+  getExcelTemplate,
+  importExcel4Present,
+  getExcel4PresentResult,
   sortClass,
   merchantGoodsAuditList,
+  findCustomizeActivityList,
+  updateCustomizeActivityStatus,
   queryHeroList,
+  findSaleTopicPageList,
   updateGoodsAuditStatus,
   getSlideShowByCategory,
   exportOnlinesStoreListExcel,
   addBanner,
   searchGoodsByName,
+  removeConsumeTopic,
   deleteBanner,
+  findConfig,
   updateBanner,
   sortBanner,
   memberList,
   addHeroList,
   plusMemberList,
   exchangeMemberStatus,
+  exportExcelTemplate,
   memberDetail,
   plusMemberDetail,
   subtractUserAssets,
@@ -502,18 +808,23 @@ export {
   setDeliveryTime,
   allProfitsDistributionIdAndName,
   exchangeMemberRole,
+  findConsume,
   getWithdrawMoneyAuditList,
   queryPriceActivity,
   queryPriceActivityList,
   getMerchantApplyDetail,
+  findTemplatePageList,
   deleteActive,
   updatePriceActivityStatus,
   activityDetails,
   addOrUpdatePriceActivity,
   getMerchantGoodsCategory,
+  findProduct_seed,
+  findPageListTemplate,
   getMemberParamConfig,
   agentApprove,
   updateMemberParamConfig,
+  addOrUpdateConsumeTopic,
   updateMerchantParamConfig,
   getProfitsDistributions,
   modifyProfitsDistribution,
@@ -537,18 +848,24 @@ export {
   modifyByDistrictId,
   getDeliveryData,
   getMerchantIncomeDetails,
+  addOrUpdateProduct_seed,
   updateAdWeights,
   changeAuditStatus,
   resetPassword,
   platDeliveryApplyList,
   platDeliveryApply,
   getExportMerchantExcel,
+  addOrUpdateTemplate,
   auditCancelById,
   changeGoodsSetCategory,
   importMerchantForExcel,
   deleteMerchantById,
   getMerchantAuditListByWhereExcel,
   addHeroGrowthRules,
+  updateVisibleForum,
+  removeForumComment,
+  removeListForumComment,
+  findPageListForumComment,
   merchantDrawAdopt,
   updateFastInstallmentConfig,
   findFastInstallmentConfig,
@@ -567,6 +884,7 @@ export {
   addOrUpdateOrderAndForum,
   auditPassedBankCard,
   updateMerchantSales,
+  updateMerchantScore,
   getBankCardInfo,
   getUserTransferAuditListBankCardExcel,
   addOrUpdateServiceMoney,
@@ -584,6 +902,7 @@ export {
   merchantSetAutoAdopt,
   addProduct,
   queryPlatAndMerchantGoodsList,
+  queryPlatAndMerchantGoodsStockList,
   wishQueryPageList,
   wishQueryDetail,
   matchedGoods,
@@ -595,6 +914,9 @@ export {
   queryGoodsQRCode,
   diamondMemberList,
   diamondMemberDetail,
+  memberListByExcel,
+  plusMemberListByExcel,
+  diamondMemberListByExcel,
   deleteGoods,
   updateSeedParamConfig,
   getSeedParamConfig,
@@ -612,5 +934,6 @@ export {
   getGuidePage,
   updateGuidePage,
   findSystemPageListNavigation,
+  updateVisibleType,
   agentRefuse
 }

@@ -14,7 +14,7 @@
         <el-table-column prop="orderNumber" label="订单编号" align="center"></el-table-column>
         <el-table-column prop="merchantId" label="商户编号" align="center" width="100"></el-table-column>
         <el-table-column prop="mobileNumber" label="用户账号" align="center" width="140"></el-table-column>
-        <el-table-column prop="" label="下单时间" align="center" width="180">
+        <el-table-column prop label="下单时间" align="center" width="180">
           <template slot-scope="scope">
             <span>{{scope.row.tradeDate | dateFormat}}</span>
           </template>

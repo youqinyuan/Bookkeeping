@@ -9,8 +9,12 @@
         start-placeholder="开始日期"
         end-placeholder="结束日期"
       ></el-date-picker>
-      <span>电话：</span>
-      <el-input v-model="mobile" style="width:160px;"></el-input>
+      <span style="margin-left:10px;">电话：</span>
+      <el-input v-model="mobile" style="width:140px;"></el-input>
+      <span style="margin-left:10px;">支付宝账号：</span>
+      <el-input v-model="bankCardNumber" style="width:160px;"></el-input>
+      <span style="margin-left:10px;">真实姓名：</span>
+      <el-input v-model="name" style="width:100px;"></el-input>
       <el-button type="primary" style="margin-left:20px;" @click="search(1)">搜索</el-button>
     </div>
     <div class="tableBox">
@@ -45,7 +49,7 @@
             <span style="color:#ccc;" v-else>{{scope.row.mobile}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="time" label="申请时间" align="center">
+        <el-table-column prop="time" label="申请时间" align="center" width="160">
           <template slot-scope="scope">
             <span
               v-if="scope.row.showType == 1 && scope.row.status == 1"
@@ -135,7 +139,8 @@
         </el-table-column>
         <el-table-column prop label="状态" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.status == 1" style="color:red;">未通过</span>
+            <span v-if="scope.row.status == 1 && scope.row.showType == 2" style="color:red;">未通过</span>
+            <span v-if="scope.row.status == 1 && scope.row.showType == 1">未通过</span>
             <span v-if="scope.row.status == 2 && scope.row.showType == 1" style="color:#ccc;">自动通过</span>
             <span v-if="scope.row.status == 2 && scope.row.showType == 2" style="color:#ccc;">手动通过</span>
             <span v-if="scope.row.status == 3" style="color:#ccc;">已取消</span>
@@ -178,6 +183,8 @@ export default {
       currentPage: 1,
       time: "",
       mobile: "",
+      bankCardNumber:"",
+      name:'',
       tableData: []
     };
   },
@@ -197,7 +204,9 @@ export default {
         pageSize: 10,
         mobile: this.mobile,
         beginTime: beginTime,
-        endTime: endTime
+        endTime: endTime,
+        bankCardNumber:this.bankCardNumber,
+        name:this.name
       };
       getUserTransferAuditListAlipay({ params: parms }).then(res => {
         if (res.data.messageCode == "MSG_1001") {

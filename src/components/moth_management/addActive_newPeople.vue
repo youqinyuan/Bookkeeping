@@ -637,7 +637,7 @@ export default {
               }
             }
           }
-          // console.log(this.form);
+          console.log(this.form);
           this.flag = true;
         } else {
           this.flag = true;
@@ -717,7 +717,6 @@ export default {
     },
     // 接收添加商品子组件传递过来的参数
     getGoods(data, number) {
-      console.log(data, number);
       data.forEach(item => {
         this.form.activityAreas[number - 1].goods.push({
           goodsId: item.id,

@@ -7,12 +7,16 @@
       <el-tab-pane label="银行卡提现" name="second">
         <bankCard></bankCard>
       </el-tab-pane>
+      <el-tab-pane label="支付宝提现" name="third">
+        <alipay></alipay>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 <script>
 import weChat from "./weChat";
 import bankCard from "./bankCard";
+import alipay from "./aliPay";
 export default {
   data() {
     return {
@@ -21,7 +25,8 @@ export default {
   },
   components: {
     weChat,
-    bankCard
+    bankCard,
+    alipay
   },
   created() {},
   methods: {

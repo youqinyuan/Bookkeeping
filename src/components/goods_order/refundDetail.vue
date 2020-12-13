@@ -1,5 +1,6 @@
 <template>
   <div class="refundDetail">
+    <!-- 订单信息 -->
     <div class="titleStyle">订单信息</div>
     <div class="orderInfoBox">
       <div class="orderInfoItem">订单编号：{{orderObj.orderNumber}}</div>
@@ -11,7 +12,7 @@
           <span v-if="item.status==1">{{item.statusTime | dateFormat}}</span>
         </span>
       </div>
-      <div class="orderInfoItem">
+      <div class="orderInfoItem" v-if="orderObj.orderType != 28 && orderObj.orderType != 29">
         订单状态：
         <span v-if="orderObj.latestStatus==1">待支付</span>
         <span v-if="orderObj.latestStatus==2">待发货</span>
@@ -25,8 +26,19 @@
         <span v-if="orderObj.latestStatus==10">交易关闭</span>
         <span v-if="orderObj.latestStatus==11">退款失败</span>
         <span v-if="orderObj.latestStatus==12">已取消</span>
+        <span v-if="orderObj.latestStatus==15">待成团</span>
+        <span v-if="orderObj.latestStatus==16">拼团成功</span>
+        <span v-if="orderObj.latestStatus==17">拼团失败</span>
+        <span v-if="orderObj.latestStatus==18">拼团成功，已使用</span>
+        <span v-if="orderObj.latestStatus==19">已过期</span>
       </div>
-      <div class="orderInfoItem">
+      <!-- 核销订单购买方式 -->
+      <div class="orderInfoItem" v-if="orderObj.orderType == 28 || orderObj.orderType == 29">
+        <span v-if="orderObj.buyMode==1">购买方式：普通拼团</span>
+        <span v-if="orderObj.buyMode==2">购买方式：一折拼团</span>
+      </div>
+      <!-- 普通订单购买方式 -->
+      <div class="orderInfoItem" v-if="orderObj.orderType != 28 && orderObj.orderType != 29">
         <span v-if="orderObj.orderType==1">购买方式：正常购买</span>
         <span v-if="orderObj.orderType==3">购买方式：新人免费体验订单</span>
         <span v-if="orderObj.orderType==4">购买方式：信用卡用户免费领订单</span>
@@ -50,6 +62,11 @@
         <span v-if="orderObj.orderType == 22">购买方式：商品预售订单</span>
         <span v-if="orderObj.orderType == 23">购买方式：线下商家-普通购买订单</span>
         <span v-if="orderObj.orderType == 24">购买方式：线下商家-0成本购订单</span>
+        <span v-if="orderObj.orderType == 26">购买方式：闪付订单</span>
+        <span v-if="orderObj.orderType == 27">购买方式：一折购分期订单</span>
+        <span v-if="orderObj.orderType == 28">购买方式：普通拼团订单</span>
+        <span v-if="orderObj.orderType == 29">购买方式：一折购拼团订单</span>
+        <span v-if="orderObj.orderType == 30">购买方式：自定义活动-{{orderObj.activityName}}</span>
       </div>
       <div class="orderInfoItem">备注：{{remark?remark:'无'}}</div>
       <div
@@ -84,7 +101,13 @@
         <span>年收益率{{orderObj.forumTopicResponse.annualizedRate}}，</span>
         <span>内容：{{orderObj.forumTopicResponse.content}}</span>
       </div>
+      <div class="orderInfoItem" v-if="orderObj.orderType == 28 || orderObj.orderType == 29">
+        <span>自提点：</span>
+        <span>{{orderObj.orderAddressDetail.districtAddress}}</span>
+        <span>{{orderObj.orderAddressDetail.detailedAddress}}</span>
+      </div>
     </div>
+    <!-- 商品信息 -->
     <div class="titleStyle">商品信息</div>
     <div class="orderInfoBox">
       <div class="orderInfoItem" v-for="(item,index) in orderObj.orderGoodsDetail" :key="index">
@@ -95,14 +118,14 @@
         <span v-else-if="item.period==null"></span>
         <span v-else>
           ，返现：{{item.period}}期 (
-          <span v-if="item.period==item.returnedPeriod">
-            {{item.returnedPeriod}}进行中,
+          <span v-if="item.period==item.returnedPeriod || item.period < 1">
+            {{item.returnedPeriod}}期进行中,
             返现时间：
             <span
               v-for="(ite,inde) in item.orderGoodsCashBackItem"
               :key="inde"
             >
-              <span v-if="ite.period==item.returnedPeriod">{{ite.returnTime | dateFormat}}</span>
+              <span v-if="ite.period==item.returnedPeriod || item.period < 1">{{ite.returnTime | dateFormat}}</span>
             </span>
           </span>
           <span v-else>
@@ -118,16 +141,41 @@
           ))
         </span>
         <span>购买数量：{{item.quantity}}个，</span>
-        <span>退款状态：</span>
-        <span v-if="item.orderGoodsApplyRefund.status == 1">退款中，</span>
-        <span v-if="item.orderGoodsApplyRefund.status == 2">商家已同意-退款中，</span>
-        <span v-if="item.orderGoodsApplyRefund.status == 3">已发货-退款中，</span>
-        <span v-if="item.orderGoodsApplyRefund.status == 4">退款失败，</span>
-        <span v-if="item.orderGoodsApplyRefund.status == 5">退款成功，</span>
-        <span v-if="item.orderGoodsApplyRefund.status == 6">取消退款，</span>
+        <span v-if="item.orderGoodsApplyRefund">退款状态：</span>
+        <span v-if="item.orderGoodsApplyRefund && item.orderGoodsApplyRefund.status == 1">退款中，</span>
+        <span v-if="item.orderGoodsApplyRefund && item.orderGoodsApplyRefund.status == 2">商家已同意-退款中，</span>
+        <span v-if="item.orderGoodsApplyRefund && item.orderGoodsApplyRefund.status == 3">已发货-退款中，</span>
+        <span v-if="item.orderGoodsApplyRefund && item.orderGoodsApplyRefund.status == 4">退款失败，</span>
+        <span v-if="item.orderGoodsApplyRefund && item.orderGoodsApplyRefund.status == 5">退款成功，</span>
+        <span v-if="item.orderGoodsApplyRefund && item.orderGoodsApplyRefund.status == 6">取消退款，</span>
         <span>优惠金额：钻石合伙人{{item.discountRatio?item.discountRatio/10:0}}折减{{item.discountAmount?item.discountAmount:0}}元，钻石合伙人购物金减{{item.shoppingAmount?item.shoppingAmount:0}}元，积分减{{item.deductionAmount?item.deductionAmount:0}}元</span>
       </div>
     </div>
+    <!-- 赠送内容信息 -->
+    <div class="titleStyle" v-if="orderObj.activityHistory">赠送内容信息</div>
+    <div class="orderInfoBox" v-if="orderObj.activityHistory">
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardSeed == 1">
+        <span>送种子：{{orderObj.activityHistory.rewardSeedDto.param1}}颗</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardCashBack == 1">
+        <span>送返现：返现金额{{orderObj.activityHistory.rewardCashBackDto.param1}}返现期数{{orderObj.activityHistory.rewardCashBackDto.param2}}</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardGoods == 1">
+        <span>赠送商品：</span>
+        <span
+          v-for="(item,index) in orderObj.activityHistory.rewardGoodsDtoList"
+          :key="index"
+        >{{item.goodsName}}+{{item.specDesc}}&nbsp;&nbsp;&nbsp;</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardMember == 1">
+        <span>送身份特权：{{orderObj.activityHistory.rewardMemberDto.param1 == '3'?'合伙人':'钻石合伙人'}}（{{orderObj.activityHistory.rewardMemberDto.param2}}个月）</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardPaymentAmount == 1">
+        <span>减少支付金额：打{{orderObj.activityHistory.rewardPaymentAmountDto.param1}}折，减{{orderObj.activityHistory.rewardPaymentAmountDto.param2}}元</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.activityHistory.rewardExpressFee == 1">包邮</div>
+    </div>
+    <!-- 用户信息 -->
     <div class="titleStyle">用户信息</div>
     <div class="orderInfoBox">
       <div class="orderInfoItem">用户编号：{{orderObj.userId}}</div>
@@ -135,7 +183,7 @@
       <div class="orderInfoItem">联系方式：{{orderObj.mobileNumber}}</div>
       <div
         class="orderInfoItem"
-        v-if="orderObj.orderAddressDetail"
+        v-if="orderObj.orderAddressDetail && orderObj.orderType != 28 && orderObj.orderType != 29"
       >收货信息：收货人：{{orderObj.orderAddressDetail.receiverName}}，手机号码：{{orderObj.orderAddressDetail.mobileNumber}}，所在地区：{{orderObj.orderAddressDetail.districtAddress}}，详细地址：{{orderObj.orderAddressDetail.detailedAddress}}</div>
       <div class="orderInfoItem">上级：{{orderObj.parentName || '无'}}</div>
     </div>
@@ -177,6 +225,26 @@
         <span class="mark">已送达</span>
       </div>
     </div>
+
+    <!-- 用户使用情况 -->
+    <div class="titleStyle" v-if="orderObj.orderType == 28 || orderObj.orderType == 29">用户使用情况</div>
+    <div class="orderInfoBox" v-if="orderObj.orderType == 28 || orderObj.orderType == 29">
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==1">待支付</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==12">已取消</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==15">待成团</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==16">
+        <span>已上传</span>
+        <span v-if="orderObj.validStatus == 1">（过期待验证）</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==10">
+        <span v-if="orderObj.verificationCode">已上传（已退款）</span>
+        <span v-if="!orderObj.verificationCode">待成团（已退款）</span>
+      </div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==17">拼团失败</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==18">已上传（过期已用）</div>
+      <div class="orderInfoItem" v-if="orderObj.latestStatus==19">已上传（过期未用）</div>
+    </div>
+
     <div class="titleStyle">退款信息</div>
     <div class="refundOrderInfoItem">
       <div class="refundItems">
@@ -203,7 +271,7 @@
           <span>申请时间：</span>
           <span>{{orderGoodsApplyRefund.createTime | dateFormat}}</span>
         </div>
-        <div class="items">
+        <div class="items" v-if="orderObj.orderType != 28 && orderObj.orderType != 29">
           <span>货物状态：</span>
           <span v-if="orderGoodsApplyRefund.cargoStatus == 1">未收到货</span>
           <span v-if="orderGoodsApplyRefund.cargoStatus == 2">已收到货</span>
@@ -328,15 +396,18 @@ export default {
             let data = res.data.content;
             this.orderObj = data.orderResponse;
             this.orderGoodsDetail = data.orderGoodsDetail;
-            this.orderGoodsApplyRefund =
-              data.orderGoodsDetail.orderGoodsApplyRefund;
-            this.remark = data.orderResponse.orderAddressDetail.remark;
+            this.orderGoodsApplyRefund = this.orderGoodsDetail.orderGoodsApplyRefund;
+            if (this.orderObj.orderAddressDetail) {
+              this.remark = this.orderObj.orderAddressDetail.remark;
+            }
             // 判断商品是否无需发货
-            this.orderObj.orderTimeDetail.forEach(val => {
-              if (val.remark == "NO_LOGISTICS") {
-                this.isDeliverGoods = true;
-              }
-            });
+            if (this.orderObj.orderTimeDetail) {
+              this.orderObj.orderTimeDetail.forEach(val => {
+                if (val.remark == "NO_LOGISTICS") {
+                  this.isDeliverGoods = true;
+                }
+              });
+            }
           }
         } else {
           this.$message.error(res.data.message);

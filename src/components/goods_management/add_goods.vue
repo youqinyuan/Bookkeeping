@@ -10,19 +10,26 @@
     <el-form :model="form" :rules="rules" ref="form" label-width="110px">
       <el-form-item label="选择上传商家:" v-if="goodsDetailJson.type === 1">
         <el-cascader
+          :options="businessTypeOptions"
+          v-model="businessType"
+          @change="businessTypeChange"
+        ></el-cascader>
+        <el-cascader
           :options="businessOptions"
           v-model="form.businessOptions"
           @change="businessChange"
+          v-if="businessType[0]"
         ></el-cascader>
       </el-form-item>
 
-      <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+      <el-row
+        style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px"
+      >
         <el-col :span="12" class="tle-nav">基本信息</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
-          <el-button
-            @click="changeSave('essentialInfo')"
-            type="text"
-          >{{ goodsDetailJson.essentialInfo.disabled ? '修改' : '保存' }}</el-button>
+          <el-button @click="changeSave('essentialInfo')" type="text">{{
+            goodsDetailJson.essentialInfo.disabled ? "修改" : "保存"
+          }}</el-button>
         </el-col>
       </el-row>
 
@@ -54,7 +61,7 @@
               <!-- 商品图列表 -->
               <div
                 class="img-list"
-                style="width: 148px; height: 148px;"
+                style="width: 148px; height: 148px"
                 v-dragging="{ item: item, list: goodsImgList, group: 'item' }"
                 v-for="(item, index) in goodsImgList"
                 :key="item.key"
@@ -72,7 +79,10 @@
               <div
                 class="add-img"
                 @click="nowAddImgAddr('goodsImgList')"
-                v-show="this.goodsImgList.length < 15 && !goodsDetailJson.essentialInfo.disabled"
+                v-show="
+                  this.goodsImgList.length < 15 &&
+                  !goodsDetailJson.essentialInfo.disabled
+                "
               >
                 <label class="addImgCls">
                   <i class="el-icon-plus"></i>
@@ -85,7 +95,9 @@
                 </label>
               </div>
             </div>
-            <div class="col-999">建议尺寸；750*750像素，你可以拖拽图片调整顺序，最多上传15张</div>
+            <div class="col-999">
+              建议尺寸；750*750像素，你可以拖拽图片调整顺序，最多上传15张
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -93,7 +105,11 @@
       <el-row>
         <el-col :span="6">
           <el-form-item label="视频:">
-            <el-button type="primary" class="filevideo">
+            <el-button
+              type="primary"
+              class="filevideo"
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+            >
               上传视频
               <input
                 :disabled="goodsDetailJson.essentialInfo.disabled"
@@ -109,9 +125,14 @@
                 v-if="!goodsDetailJson.essentialInfo.disabled"
                 @click="deleteVideo"
               />
-              <video :src="videoSrc" accept="video/*" controls="controls" width="300" height="150">
-                您的浏览器不支持 video
-                标签。
+              <video
+                :src="videoSrc"
+                accept="video/*"
+                controls="controls"
+                width="300"
+                height="150"
+              >
+                您的浏览器不支持 video 标签。
               </video>
             </div>
           </el-form-item>
@@ -121,7 +142,26 @@
       <el-row>
         <el-col :span="4">
           <el-form-item label="划线价:" prop="discount">
-            <el-input v-model="form.discount" :disabled="goodsDetailJson.essentialInfo.disabled"></el-input>
+            <el-input
+              v-model="form.discount"
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label="品牌标签:" prop>
+            <el-select
+              v-model="form.brandId"
+              filterable
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+            >
+              <el-option
+                v-for="item in brandList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select>
           </el-form-item>
         </el-col>
       </el-row>
@@ -148,29 +188,76 @@
         </el-col>
         <el-col :span="6">
           <el-form-item label="快递费用:" prop="express">
-            <el-input v-model="form.express" :disabled="goodsDetailJson.essentialInfo.disabled"></el-input>
+            <el-input
+              v-model="form.express"
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row>
+        <el-col :span="24">
+          <el-form-item label="商品类型:" prop="goodsClass" class="goods-class">
+            <el-radio
+              v-model="form.isVirtual"
+              :label="2"
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+              >实物类型（实物必须由人工进行发货）</el-radio
+            >
+            <el-radio
+              v-model="form.isVirtual"
+              :label="1"
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+              >虚拟类型（虚拟商品将可走接口进行自动发货）</el-radio
+            >
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <el-row v-if="form.isVirtual == 1">
+        <el-col :span="24">
+          <el-form-item label="虚拟种类:" prop="goodsClass" class="goods-class">
+            <el-radio
+              v-model="form.virtualType"
+              :label="1"
+              :disabled="goodsDetailJson.essentialInfo.disabled"
+              >话费（当前接口仅支持添加1/2/5/10/20/30/50/100/200/300/500面值）</el-radio
+            >
           </el-form-item>
         </el-col>
       </el-row>
       <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 基本信息 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
 
       <!-- ----------------------------------- -->
-      <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+      <el-row
+        style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px"
+      >
         <el-col :span="12" class="tle-nav">0成本购模式</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
-          <el-button
-            @click="changeSave('freeBuyMode')"
-            type="text"
-          >{{ goodsDetailJson.freeBuyMode.disabled ? '修改' : '保存' }}</el-button>
+          <el-button @click="changeSave('freeBuyMode')" type="text">{{
+            goodsDetailJson.freeBuyMode.disabled ? "修改" : "保存"
+          }}</el-button>
         </el-col>
       </el-row>
 
       <el-row>
         <el-col :span="24">
-          <div style="padding:20px 30px;box-sizing:box-border;">
-            <el-radio-group v-model="form.freeBuyMode">
-              <el-radio :disabled="goodsDetailJson.freeBuyMode.disabled" :label="1">按月返还</el-radio>
-              <el-radio :disabled="goodsDetailJson.freeBuyMode.disabled" :label="2">按天返还</el-radio>
+          <div style="padding: 20px 30px; box-sizing: box-border">
+            <el-radio-group
+              v-model="form.freeBuyMode"
+              @change="selectFreeBuyMode"
+            >
+              <el-radio
+                :disabled="goodsDetailJson.freeBuyMode.disabled"
+                :label="1"
+                >按月返还</el-radio
+              >
+              <el-radio
+                :disabled="goodsDetailJson.freeBuyMode.disabled"
+                :label="2"
+                >按天返还</el-radio
+              >
             </el-radio-group>
           </div>
         </el-col>
@@ -178,13 +265,14 @@
       <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 0成本购模式 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
 
       <!-- ----------------------------------- -->
-      <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+      <el-row
+        style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px"
+      >
         <el-col :span="12" class="tle-nav">价格库存</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
-          <el-button
-            @click="changeSave('stock')"
-            type="text"
-          >{{ goodsDetailJson.stock.disabled ? '修改' : '保存' }}</el-button>
+          <el-button @click="changeSave('stock')" type="text">{{
+            goodsDetailJson.stock.disabled ? "修改" : "保存"
+          }}</el-button>
         </el-col>
       </el-row>
 
@@ -198,12 +286,17 @@
               <el-row class="spec-name">
                 <el-col :span="3">
                   <el-form-item label="规格名:">
-                    <el-input v-model="goodsSpec[index].specName" maxlength="5"></el-input>
+                    <el-input
+                      v-model="goodsSpec[index].specName"
+                      maxlength="5"
+                    ></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
                   <el-form-item>
-                    <el-checkbox v-if="index === 0" v-model="addSpecImg">添加规格图片</el-checkbox>
+                    <el-checkbox v-if="index === 0" v-model="addSpecImg"
+                      >添加规格图片</el-checkbox
+                    >
                     <el-button
                       type="text"
                       @click="delSpecPro(index)"
@@ -216,32 +309,53 @@
               </el-row>
 
               <el-row>
-                <el-col class="spec-num" :span="4" v-for="(ite, dex) in item.specNum" :key="dex">
-                  <div style="position:relative;">
+                <el-col
+                  class="spec-num"
+                  :span="4"
+                  v-for="(ite, dex) in item.specNum"
+                  :key="dex"
+                >
+                  <div style="position: relative">
                     <el-form-item :label="dex === 0 ? '规格值:' : ''">
-                      <el-input v-model="item.specNum[dex]" maxlength="20"></el-input>
+                      <el-input
+                        v-model="item.specNum[dex]"
+                        maxlength="20"
+                      ></el-input>
                     </el-form-item>
                     <el-button
-                      style="position:absolute;top:-18px;right:-6px;"
+                      style="position: absolute; top: -18px; right: -6px"
                       type="text"
-                      @click="delspecProDetail(index,dex)"
+                      @click="delspecProDetail(index, dex)"
                     >
                       <i class="el-icon-remove-outline"></i>
                     </el-button>
                   </div>
-                  <el-row style="padding-left: 10px;" v-show="index === 0 && addSpecImg">
-                    <el-col class="hover-col" style="width: 100%; padding-bottom: 22px;">
+                  <el-row
+                    style="padding-left: 10px"
+                    v-show="index === 0 && addSpecImg"
+                  >
+                    <el-col
+                      class="hover-col"
+                      style="width: 100%; padding-bottom: 22px"
+                    >
                       <div class="img-box" v-show="specImg[dex] != undefined">
-                        <div class="del-img" @click="deleteGoodsImg('specImg', dex)">
+                        <div
+                          class="del-img"
+                          @click="deleteGoodsImg('specImg', dex)"
+                        >
                           <img src="@/assets/icon_del.png" alt />
                         </div>
-                        <img class="img-div" :src="specImg[dex] && specImg[dex].url" alt />
+                        <img
+                          class="img-div"
+                          :src="specImg[dex] && specImg[dex].url"
+                          alt
+                        />
                       </div>
 
                       <div
                         v-show="specImg[dex] == undefined"
                         @click="nowAddImgAddr('specImg', dex)"
-                        style="margin: 0 auto;"
+                        style="margin: 0 auto"
                         class="addImgCls"
                       >
                         <i class="el-icon-plus"></i>
@@ -249,7 +363,9 @@
                           type="file"
                           accept="image/png, image/jpeg"
                           :ref="'specFileRef' + dex"
-                          @change="handleSuccess($event, 'specFileRef' + dex, 200, 200)"
+                          @change="
+                            handleSuccess($event, 'specFileRef' + dex, 200, 200)
+                          "
                         />
                       </div>
                     </el-col>
@@ -261,12 +377,8 @@
                       v-show="!(item.specNum.length > 19)"
                       type="text"
                       @click="addSpecNum(index)"
-                    >添加</el-button>
-                    <!-- <el-button
-                      v-show="item.specNum.length > 1"
-                      type="text"
-                      @click="delSpecNum(index)"
-                    >删除</el-button>-->
+                      >添加</el-button
+                    >
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -275,8 +387,14 @@
             <el-row>
               <el-col :span="4">
                 <el-form-item>
-                  <el-button @click="addSpecPro()" :disabled="goodsSpec.length > 2">添加规格项目</el-button>
-                  <el-button @click="handleGoodsSpec()" type="primary">确认规格</el-button>
+                  <el-button
+                    @click="addSpecPro()"
+                    :disabled="goodsSpec.length > 2"
+                    >添加规格项目</el-button
+                  >
+                  <el-button @click="handleGoodsSpec()" type="primary"
+                    >确认规格</el-button
+                  >
                 </el-form-item>
               </el-col>
             </el-row>
@@ -284,7 +402,9 @@
         </el-row>
 
         <el-row>
-          <el-col :span="24" class="cmmt-spec-tips">如有颜色，尺码等多种规格，请添加商品规格</el-col>
+          <el-col :span="24" class="cmmt-spec-tips"
+            >如有颜色，尺码等多种规格，请添加商品规格</el-col
+          >
         </el-row>
       </div>
 
@@ -295,18 +415,22 @@
         <el-col class="spec-detail-detail">
           <div class="header">
             <div
-              style="width:260px;"
+              style="width: 260px"
               v-for="(item, index) in goodsSpecTle"
               :key="index"
-            >{{item.specName}}</div>
-            <div class="fill">原价</div>
+            >
+              {{ item.specName }}
+            </div>
+            <div class="fill">普通购买原价</div>
+            <div class="fill">1折购原价</div>
             <div class="fill">库存</div>
             <div class="fill">成本价</div>
             <div class="fill">折扣</div>
-            <div>成本调控比例(%)</div>
-            <div>赠送种子(积分)</div>
+            <div>最长期可购买个数</div>
+            <div>超过可购个数扣除原价%种子</div>
             <div>赞助次数</div>
             <div>返现</div>
+            <div>一折购分期支付</div>
             <div>销量</div>
           </div>
 
@@ -314,42 +438,63 @@
             <div
               v-for="(item, index) in RenderGoodsSpec"
               :key="index"
-              style="display: flex; flex-direction: column;"
+              style="display: flex; flex-direction: column"
             >
               <div
-                style="flex-grow: 1;border-top: 1px solid #dddddd; border-left: 1px solid #dddddd;display: flex;align-items:center"
+                style="
+                  flex-grow: 1;
+                  border-top: 1px solid #dddddd;
+                  border-left: 1px solid #dddddd;
+                  display: flex;
+                  align-items: center;
+                "
                 v-for="(ite, dex) in item"
                 :key="dex"
               >
-                <div style="display: flex; align-items: center;width:260px;font-size:14px;">
-                  <div style="margin:0 auto">{{ ite }}</div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    width: 260px;
+                    font-size: 14px;
+                  "
+                >
+                  <div style="margin: 0 auto">{{ ite }}</div>
                 </div>
               </div>
             </div>
 
-            <div v-for="(item, index) in 9" :key="'item' + index">
+            <div v-for="(item, index) in 11" :key="'item' + index">
               <div
-                v-for="(ite, dex) in RenderGoodsSpec[RenderGoodsSpec.length - 1]"
+                v-for="(ite, dex) in RenderGoodsSpec[
+                  RenderGoodsSpec.length - 1
+                ]"
                 :key="'item' + dex"
               >
-                <div v-if="index < 7" style="width:120px;">
+                <div v-if="index < 8" style="width: 120px">
                   <div class="hh">
                     <el-input
                       v-model="userInputSpecDetail[index][dex]"
-                      :maxlength="index === 1 ? '6' : '11'"
+                      :maxlength="index === 2 ? '6' : '11'"
                       :disabled="goodsDetailJson.stock.disabled"
                     ></el-input>
                   </div>
                 </div>
 
-                <div v-if="index === 7" style="width:120px;">
-                  <div class="hh" style="width:100%;text-align: center;min-width:80px">
+                <div v-if="index === 8" style="width: 120px">
+                  <div
+                    class="hh"
+                    style="width: 100%; text-align: center; min-width: 80px"
+                  >
                     <el-button
                       type="text"
-                      style="height:40px"
+                      style="height: 40px"
                       :disabled="cashback[dex].checkset"
                       @click="setCashback(dex)"
-                    >{{ cashback[dex].cashbackList.length > 0 ? '查看' : '设置' }}</el-button>
+                      >{{
+                        cashback[dex].cashbackList.length > 0 ? "查看" : "设置"
+                      }}</el-button
+                    >
                     <el-checkbox
                       v-model="cashback[dex].checkset"
                       :disabled="goodsDetailJson.stock.disabled"
@@ -358,170 +503,229 @@
                   </div>
                 </div>
 
-                <div v-if="index === 8" style="width:120px;border-right:1px solid #ddd;">
+                <div v-if="index === 9" style="width: 120px">
+                  <div
+                    class="hh"
+                    style="width: 100%; text-align: center; min-width: 80px"
+                  >
+                    <el-button type="text" style="height: 40px">开通</el-button>
+                    <el-checkbox
+                      v-model="userInputSpecDetail[8][dex]"
+                      :disabled="
+                        goodsDetailJson.stock.disabled ||
+                        installmentPaymentDisabled
+                      "
+                    ></el-checkbox>
+                  </div>
+                </div>
+
+                <div
+                  v-if="index === 10"
+                  style="width: 120px; border-right: 1px solid #ddd"
+                >
                   <div class="hh">
-                    <div style="text-align: center;line-height: 40px;">{{ salesArr[dex] }}</div>
+                    <div style="text-align: center; line-height: 40px">
+                      {{ salesArr[dex] }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- <el-row class="content">
-            <el-col
-              v-for="(item, index) in RenderGoodsSpec"
-              :key="index"
-              style="display: flex; flex-direction: column;"
-            >
-              <el-row
-                type="flex"
-                style="flex-grow: 1; border-top: 1px solid #dddddd; border-left: 1px solid #dddddd;"
-                v-for="(ite, dex) in item"
-                :key="dex"
-              >
-                <el-col style="display: flex; align-items: center;width:260px;font-size:14px;">
-                  <div style="margin:0 auto">{{ ite }}</div>
-                </el-col>
-              </el-row>
-            </el-col>
-
-            <el-col v-for="(item, index) in 9" :key="'item' + index"> 
-              <el-row
-                v-for="(ite, dex) in RenderGoodsSpec[RenderGoodsSpec.length - 1]"
-                :key="'item' + dex"
-              >
-                <el-col v-if="index < 7" style="width:120px;">
-                  <div class="hh">
-                    <el-input
-                      v-model="userInputSpecDetail[index][dex]"
-                      :maxlength="index === 1 ? '6' : '11'"
-                      :disabled="goodsDetailJson.stock.disabled"
-                    ></el-input>
-                  </div>
-                </el-col>
-
-                <el-col v-if="index === 7" style="width:120px;">
-                  <div class="hh" style="width:100%;text-align: center;min-width:80px">
-                    <el-button
-                      type="text"
-                      style="height:40px"
-                      :disabled="cashback[dex].checkset"
-                      @click="setCashback(dex)"
-                    >{{ cashback[dex].cashbackList.length > 0 ? '查看' : '设置' }}</el-button>
-                    <el-checkbox
-                      v-model="cashback[dex].checkset"
-                      :disabled="goodsDetailJson.stock.disabled"
-                      @change="changeCheck(dex)"
-                    ></el-checkbox>
-                  </div>
-                </el-col>
-
-                <el-col v-if="index === 8" style="width:120px;">
-                  <div class="hh">
-                    <div style="text-align: center;line-height: 40px;">{{ salesArr[dex] }}</div>
-                  </div>
-                </el-col>
-              </el-row>
-            </el-col>
-          </el-row>-->
-
           <el-row class="modify" v-show="!goodsDetailJson.stock.disabled">
-            <el-col style="font-size: 14px; padding-top: 10px; width: 70px !important;">批量设置:</el-col>
-            <el-col style="width: 40px !important;">
+            <div
+              style="font-size: 14px; padding-top: 10px; width: 70px !important"
+            >
+              批量设置:
+            </div>
+            <div style="width: 90px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('batchPrice')">价格</el-button>
+                <el-button type="text" @click="batchOperation('ordOrgPrice')"
+                  >普通购买原价</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="batchPrice.switch">
+            </div>
+            <div v-show="ordOrgPrice.switch">
               <el-form-item>
-                <el-input v-model="batchPrice.moneyNum" style="width:90px;"></el-input>
+                <el-input
+                  v-model="ordOrgPrice.moneyNum"
+                  style="width: 90px !important"
+                ></el-input>
                 <el-button
                   type="text"
-                  @click="batchSave('batchPrice')"
-                  style="margin-right: 10px;"
-                >保存</el-button>
+                  @click="batchSave('ordOrgPrice')"
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col style="width: 40px !important;">
+            </div>
+            <div style="width: 80px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('batchStock')">库存</el-button>
+                <el-button type="text" @click="batchOperation('orgPrice')"
+                  >1折购原价</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="batchStock.switch">
+            </div>
+            <div v-show="orgPrice.switch">
               <el-form-item>
-                <el-input v-model.number="batchStock.moneyNum" style="width:90px;"></el-input>
+                <el-input
+                  v-model="orgPrice.moneyNum"
+                  style="width: 90px !important"
+                ></el-input>
+                <el-button
+                  type="text"
+                  @click="batchSave('orgPrice')"
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
+              </el-form-item>
+            </div>
+            <div style="width: 40px !important">
+              <el-form-item>
+                <el-button type="text" @click="batchOperation('batchStock')"
+                  >库存</el-button
+                >
+              </el-form-item>
+            </div>
+            <div v-show="batchStock.switch">
+              <el-form-item>
+                <el-input
+                  v-model.number="batchStock.moneyNum"
+                  style="width: 90px !important"
+                ></el-input>
                 <el-button
                   type="text"
                   @click="batchSave('batchStock')"
-                  style="margin-right: 10px;"
-                >保存</el-button>
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col style="width: 40px !important;">
+            </div>
+            <div style="width: 40px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('chengben')">成本</el-button>
+                <el-button type="text" @click="batchOperation('chengben')"
+                  >成本</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="chengben.switch">
+            </div>
+            <div v-show="chengben.switch">
               <el-form-item>
-                <el-input v-model="chengben.moneyNum" style="width:90px;"></el-input>
-                <el-button type="text" @click="batchSave('chengben')" style="margin-right: 10px;">保存</el-button>
+                <el-input
+                  v-model="chengben.moneyNum"
+                  style="width: 90px !important"
+                ></el-input>
+                <el-button
+                  type="text"
+                  @click="batchSave('chengben')"
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col style="width: 40px !important;">
+            </div>
+            <div style="width: 40px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('zhekou')">折扣</el-button>
+                <el-button type="text" @click="batchOperation('zhekou')"
+                  >折扣</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="zhekou.switch">
+            </div>
+            <div v-show="zhekou.switch">
               <el-form-item>
-                <el-input v-model="zhekou.moneyNum" style="width:60px;"></el-input>
-                <el-button type="text" @click="batchSave('zhekou')" style="margin-right: 10px;">保存</el-button>
+                <el-input
+                  v-model="zhekou.moneyNum"
+                  style="width: 60px !important"
+                ></el-input>
+                <el-button
+                  type="text"
+                  @click="batchSave('zhekou')"
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col style="width: 90px !important;">
+            </div>
+            <div style="width: 120px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('bili')">成本调控比例</el-button>
+                <el-button
+                  type="text"
+                  @click="batchOperation('maxPeriodNumber')"
+                  >最长期可购买个数</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="bili.switch">
+            </div>
+            <div v-show="maxPeriodNumber.switch">
               <el-form-item>
-                <el-input v-model="bili.moneyNum" style="width:80px;"></el-input>
-                <el-button type="text" @click="batchSave('bili')" style="margin-right: 10px;">保存</el-button>
+                <el-input
+                  v-model="maxPeriodNumber.moneyNum"
+                  style="width: 80px !important"
+                ></el-input>
+                <el-button
+                  type="text"
+                  @click="batchSave('maxPeriodNumber')"
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col style="width: 60px !important;">
+            </div>
+            <div style="width: 200px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('seed')">赠送种子</el-button>
+                <el-button type="text" @click="batchOperation('seedRatio')"
+                  >超过可购个数扣除原价N%种子</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="seed.switch">
+            </div>
+            <div v-show="seedRatio.switch">
               <el-form-item>
-                <el-input v-model="seed.moneyNum" style="width:80px;"></el-input>
-                <el-button type="text" @click="batchSave('seed')" style="margin-right: 10px;">保存</el-button>
+                <el-input
+                  v-model="seedRatio.moneyNum"
+                  style="width: 80px !important"
+                ></el-input>
+                <el-button
+                  type="text"
+                  @click="batchSave('seedRatio')"
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col style="width: 90px !important;">
+            </div>
+            <div style="width: 90px !important">
               <el-form-item>
-                <el-button type="text" @click="batchOperation('supportNum')">赞助次数</el-button>
+                <el-button type="text" @click="batchOperation('supportNum')"
+                  >赞助次数</el-button
+                >
               </el-form-item>
-            </el-col>
-            <el-col v-show="supportNum.switch">
+            </div>
+            <div v-show="supportNum.switch">
               <el-form-item>
-                <el-input v-model="supportNum.moneyNum" style="width:80px;"></el-input>
+                <el-input
+                  v-model="supportNum.moneyNum"
+                  style="width: 80px !important"
+                ></el-input>
                 <el-button
                   type="text"
                   @click="batchSave('supportNum')"
-                  style="margin-right: 10px;"
-                >保存</el-button>
+                  style="margin-right: 10px"
+                  >保存</el-button
+                >
               </el-form-item>
-            </el-col>
+            </div>
 
-            <el-col style="width: 60px !important;">
+            <div style="width: 60px !important">
               <el-form-item>
-                <el-button type="text" @click="fanxianSet" :disabled="batchFx">返现设置</el-button>
+                <el-button type="text" @click="fanxianSet" :disabled="batchFx"
+                  >返现设置</el-button
+                >
               </el-form-item>
-            </el-col>
+            </div>
+
+            <div style="width: 210px !important; margin-left: 20px">
+              <el-button type="text">一折购分期支付（全选开通）</el-button>
+              <el-checkbox
+                v-model="installmentPayment"
+                @change="setInstallmentPayment"
+                :disabled="installmentPaymentDisabled"
+              ></el-checkbox>
+            </div>
           </el-row>
         </el-col>
       </el-row>
@@ -548,12 +752,14 @@
             type="primary"
             @click="addCashback()"
             v-show="!goodsDetailJson.stock.disabled"
-          >添加</el-button>
+            >添加</el-button
+          >
           <el-button
             type="danger"
             v-show="!goodsDetailJson.stock.disabled"
             @click="zeroSet = false"
-          >修改</el-button>
+            >修改</el-button
+          >
         </el-form-item>
         <el-form-item
           :label="item.tle + ':'"
@@ -561,9 +767,13 @@
           :key="index"
         >
           <span>付</span>
-          <el-input style="width: 80px;" :disabled="true" :value="cashbackDetail.money"></el-input>
+          <el-input
+            style="width: 80px"
+            :disabled="true"
+            :value="cashbackDetail.money"
+          ></el-input>
           <span>返</span>
-          <el-input style="width: 80px;" v-model="item.cashbackMoney"></el-input>
+          <el-input style="width: 80px" v-model="item.cashbackMoney"></el-input>
           <i
             class="el-icon-close"
             @click="cashbackDelBtn(index)"
@@ -571,94 +781,132 @@
           ></i>
         </el-form-item>
         <div
-          style="font-size:16px;color:#303133;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:20px;margin-top:60px"
-        >快速0元购设置:</div>
-        <el-form-item :label="form.freeBuyMode == 1? '0元购分期期数':'0元购分期天数'" label-width="130">
+          style="
+            font-size: 16px;
+            color: #303133;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            margin-top: 60px;
+          "
+        >
+          快速0元购设置:
+        </div>
+        <el-form-item
+          :label="form.freeBuyMode == 1 ? '0元购分期期数' : '0元购分期天数'"
+          label-width="130"
+        >
           <el-input
-            style="width: 65px;"
+            style="width: 65px"
             v-model="cashbackDetail.periodScope.minPeriod"
             :disabled="zeroSet"
             @change="setMinPeriod"
           ></el-input>
           <span>至</span>
           <el-input
-            style="width: 65px;"
+            style="width: 65px"
             v-model="cashbackDetail.periodScope.maxPeriod"
             :disabled="zeroSet"
             @change="setMaxPeriod"
           ></el-input>
         </el-form-item>
-        <el-form-item :label="form.freeBuyMode == 1?'用户选择分期数':'用户选择天数'" label-width="130">
+        <el-form-item
+          :label="form.freeBuyMode == 1 ? '用户选择分期数' : '用户选择天数'"
+          label-width="130"
+        >
           <div
-            style="position:relative;display:inline"
-            v-for="(item,index) in cashbackDetail.periodScope.periodItems"
+            style="position: relative; display: inline"
+            v-for="(item, index) in cashbackDetail.periodScope.periodItems"
             :key="index"
           >
             <i
               class="el-icon-close"
-              v-show="!goodsDetailJson.stock.disabled && !zeroSet && index!=0 && index!=1"
-              style="position:absolute;top:-16px;right:-2px;z-index:99999"
+              v-show="
+                !goodsDetailJson.stock.disabled &&
+                !zeroSet &&
+                index != 0 &&
+                index != 1
+              "
+              style="
+                position: absolute;
+                top: -16px;
+                right: -2px;
+                z-index: 99999;
+              "
               @click="deletedZeroUserNum(index)"
             ></i>
             <el-input
-              style="width: 65px;margin-right:4px;"
+              style="width: 65px; margin-right: 4px"
               v-model="item.periods"
-              :disabled="index == 0 || index == 1?true:zeroSet"
+              :disabled="index == 0 || index == 1 ? true : zeroSet"
             ></el-input>
           </div>
-          <el-button type="text" @click="addUserNum" v-if="!zeroSet">添加</el-button>
+          <el-button type="text" @click="addUserNum" v-if="!zeroSet"
+            >添加</el-button
+          >
         </el-form-item>
         <div slot="footer">
           <el-button
             type="primary"
             @click="confirmCashback()"
             v-show="!goodsDetailJson.stock.disabled"
-          >保存</el-button>
+            >保存</el-button
+          >
         </div>
       </el-dialog>
       <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 价格库存 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
 
       <!-- ----------------------------------- -->
-      <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+      <el-row
+        style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px"
+      >
         <el-col :span="12" class="tle-nav">可抵扣</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
-          <el-button
-            @click="changeSave('seed')"
-            type="text"
-          >{{ goodsDetailJson.seed.disabled ? '修改' : '保存' }}</el-button>
+          <el-button @click="changeSave('seed')" type="text">{{
+            goodsDetailJson.seed.disabled ? "修改" : "保存"
+          }}</el-button>
         </el-col>
       </el-row>
 
       <el-row>
         <el-col :span="24">
-          <el-form-item label="正常购买时种子（积分）可抵扣金额的:" label-width="300px">
+          <el-form-item
+            label="正常购买时种子（积分）可抵扣金额的:"
+            label-width="300px"
+          >
             <el-input
               v-model="form.seedDeduction"
               :disabled="goodsDetailJson.seed.disabled"
-              style="width:80px;"
-            ></el-input>%
+              style="width: 80px"
+            ></el-input
+            >%
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="Freebuy购买时种子（积分）可抵扣金额的:" label-width="300px">
+          <el-form-item
+            label="Freebuy购买时种子（积分）可抵扣金额的:"
+            label-width="300px"
+          >
             <el-input
               v-model="form.freeBuySeedDeduction"
               :disabled="goodsDetailJson.seed.disabled"
-              style="width:80px;"
-            ></el-input>%
+              style="width: 80px"
+            ></el-input
+            >%
           </el-form-item>
         </el-col>
       </el-row>
       <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 可抵扣 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
 
       <!-- ----------------------------------- -->
-      <el-row style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+      <el-row
+        style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px"
+      >
         <el-col :span="12" class="tle-nav">比价信息</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
-          <el-button
-            @click="changeSave('parityInfo')"
-            type="text"
-          >{{ goodsDetailJson.parityInfo.disabled ? '修改' : '保存' }}</el-button>
+          <el-button @click="changeSave('parityInfo')" type="text">{{
+            goodsDetailJson.parityInfo.disabled ? "修改" : "保存"
+          }}</el-button>
         </el-col>
       </el-row>
 
@@ -694,20 +942,26 @@
       <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 比价信息 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
 
       <!-- ----------------------------------- -->
-      <el-row class="banner" style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px;">
+      <el-row
+        class="banner"
+        style="background: #f8f8f8; margin-top: 10px; margin-bottom: 22px"
+      >
         <el-col :span="12" class="tle-nav banner-fill">广告图</el-col>
         <el-col :span="12" class="tle-change" v-if="goodsDetailJson.type === 2">
-          <el-button
-            @click="changeSave('bannerImg')"
-            type="text"
-          >{{ goodsDetailJson.bannerImg.disabled ? '修改' : '保存' }}</el-button>
+          <el-button @click="changeSave('bannerImg')" type="text">{{
+            goodsDetailJson.bannerImg.disabled ? "修改" : "保存"
+          }}</el-button>
         </el-col>
       </el-row>
       <el-row>
         <el-col>
           <div class="img-box">
             <!-- 广告图 -->
-            <div class="img-list" v-for="(item, index) in bannerImgList" :key="item.key">
+            <div
+              class="img-list"
+              v-for="(item, index) in bannerImgList"
+              :key="item.key"
+            >
               <div
                 class="del-img"
                 @click="deleteGoodsImg('bannerImgList', index)"
@@ -721,7 +975,10 @@
             <div
               class="addImgCls"
               @click="nowAddImgAddr('bannerImgList')"
-              v-show="this.bannerImgList.length < 1 && !goodsDetailJson.bannerImg.disabled"
+              v-show="
+                this.bannerImgList.length < 1 &&
+                !goodsDetailJson.bannerImg.disabled
+              "
             >
               <i class="el-icon-plus"></i>
               <input
@@ -739,19 +996,32 @@
       <!-- ----------------------------------- -->
       <el-row>
         <el-col>
-          <el-row type="flex" justify="space-between" style="margin: 20px 0; padding: 0 20px;">
-            <el-col style="font-size: 14px; line-height: 40px; color: #333333;">详细信息</el-col>
+          <el-row
+            type="flex"
+            justify="space-between"
+            style="margin: 20px 0; padding: 0 20px"
+          >
+            <el-col style="font-size: 14px; line-height: 40px; color: #333333"
+              >详细信息</el-col
+            >
             <el-col>
-              <div style="display: flex; justify-content: flex-end;">
-                <el-form-item class="form-item-detail" v-if="!goodsDetailJson.detailInfo.disabled">
-                  <el-button type="primary" @click="addBannerTxt = true">添加内容</el-button>
+              <div style="display: flex; justify-content: flex-end">
+                <el-form-item
+                  class="form-item-detail"
+                  v-if="!goodsDetailJson.detailInfo.disabled"
+                >
+                  <el-button type="primary" @click="addBannerTxt = true"
+                    >添加内容</el-button
+                  >
                   <div class="addImgClsBtn" @click="nowAddImgAddr('detailImg')">
                     <div type="primary">添加图片</div>
                     <input
                       type="file"
                       accept="image/png, image/jpeg"
                       ref="detailInfoFileRef"
-                      @change="handleSuccess($event, 'detailInfoFileRef', 750, 1000)"
+                      @change="
+                        handleSuccess($event, 'detailInfoFileRef', 750, 1000)
+                      "
                     />
                   </div>
                 </el-form-item>
@@ -759,22 +1029,38 @@
                   type="text"
                   v-if="goodsDetailJson.type === 2"
                   @click="changeSave('detailInfo')"
-                >{{ goodsDetailJson.detailInfo.disabled ? '修改' : '保存' }}</el-button>
+                  >{{
+                    goodsDetailJson.detailInfo.disabled ? "修改" : "保存"
+                  }}</el-button
+                >
               </div>
             </el-col>
           </el-row>
 
           <div
             class="content-detail"
-            style="position: relative;"
+            style="position: relative"
             v-for="(item, index) in bannerDetail"
             :key="index"
           >
             <p
-              style="color: #333333; font-size: 14px; line-height: 22px; word-wrap: break-word; word-break: normal;"
+              style="
+                color: #333333;
+                font-size: 14px;
+                line-height: 22px;
+                word-wrap: break-word;
+                word-break: normal;
+              "
               v-if="item.resourceType === 1"
-            >{{ item.content }}</p>
-            <img v-else style="display: block; width: 100%; height: auto;" :src="item.content" alt />
+            >
+              {{ item.content }}
+            </p>
+            <img
+              v-else
+              style="display: block; width: 100%; height: auto"
+              :src="item.content"
+              alt
+            />
             <i
               class="el-icon-close banner-detail-close"
               @click="delBannerDetail(index)"
@@ -792,23 +1078,27 @@
               type="textarea"
               maxlength="1000"
               autofocus="true"
-              :autosize="{ minRows: 1, maxRows: 12}"
+              :autosize="{ minRows: 1, maxRows: 12 }"
               placeholder="请输入内容"
               v-model="textareaBanner"
             ></el-input>
             <span slot="footer">
-              <el-button type="primary" @click="addBannerCtt()">确 定</el-button>
+              <el-button type="primary" @click="addBannerCtt()"
+                >确 定</el-button
+              >
             </span>
           </el-dialog>
         </el-col>
       </el-row>
       <!-- ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ 详细信息 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑ -->
 
-      <el-row style="padding-top: 30px;">
-        <el-col style="display: flex; justify-content: center;">
+      <el-row style="padding-top: 30px">
+        <el-col style="display: flex; justify-content: center">
           <div v-if="goodsDetailJson.type === 1">
             <el-button @click="checkMastFill(2)">保存不上架</el-button>
-            <el-button type="primary" @click="checkMastFill(1)">保存并上架</el-button>
+            <el-button type="primary" @click="checkMastFill(1)"
+              >保存并上架</el-button
+            >
           </div>
         </el-col>
       </el-row>
@@ -830,7 +1120,9 @@
           :fixedBox="example.fixedBox"
         ></vueCropper>
         <div class="btn-div">
-          <el-button type="success" plain @click="originalImg()">上传原图</el-button>
+          <el-button type="success" plain @click="originalImg()"
+            >上传原图</el-button
+          >
           <el-button type="success" @click="cropperSub()">确定</el-button>
         </div>
       </div>
@@ -848,13 +1140,13 @@ import {
   getGoodsClassRequest,
   addGoodsRequest,
   queryGoodsDetailRequest,
-  upDataGoodsRequest
+  upDataGoodsRequest,
 } from "@/network/api";
 
 export default {
   components: {
     VueCropper,
-    fanxianPop
+    fanxianPop,
   },
   data() {
     // 检查金额格式
@@ -901,33 +1193,47 @@ export default {
         type: 1,
         // 基本信息
         essentialInfo: {
-          disabled: false
+          disabled: false,
         },
         // 价格库存
         stock: {
-          disabled: false
+          disabled: false,
         },
         // 可抵扣
         seed: {
-          disabled: false
+          disabled: false,
         },
         // 0成本购模式
         freeBuyMode: {
-          disabled: false
+          disabled: false,
         },
         // 比价信息
         parityInfo: {
-          disabled: false
+          disabled: false,
         },
         // 广告图
         bannerImg: {
-          disabled: false
+          disabled: false,
         },
         // 详细信息
         detailInfo: {
-          disabled: false
-        }
+          disabled: false,
+        },
       },
+      businessTypeOptions: [
+        {
+          value: null,
+          label: "自营",
+        },
+        {
+          value: "1",
+          label: "线上商家",
+        },
+        {
+          value: "0",
+          label: "线下商家",
+        },
+      ], // 商家类型列表
       businessOptions: [], // 商家列表
       cropperShow: false, // 裁剪框（显示隐藏）
       addImgType: null, // 存储当前操作的添加图片位置
@@ -938,95 +1244,101 @@ export default {
         editHeadurl: "",
         autoCropWidth: 750,
         autoCropHeight: 750,
-        fixedBox: true
+        fixedBox: true,
       },
       videoSrc: "",
       videoFile: "",
       isDeleteVideo: 2, // 是否个更新视频 1、删除原有视频 2、不删除原有视频（默认值）
+      businessType: [null], // 商家类型
       form: {
         businessOptions: [null], // 商家id
         goodsName: "", // 商品名
         goodsDcb: "", // 分享描述
         discount: null, // 划线价
+        brandId: "", // 品牌标签
         goodsClass: null, // 商品分类
         robbed: 0, // 已抢件数
         express: null, // 快递费用
+        isVirtual: 2, // 商品类型
+        virtualType: 1, // 虚拟种类
         optionVal: "", // 当前分期
         jinDong: null, // 京东价
         tianMao: null, // 天猫价
         yxkl: null, // 严选考拉价
         seedDeduction: "", //正常购买种子抵扣比例
         freeBuySeedDeduction: "", //freeBuy购买种子抵扣比例
-        freeBuyMode: 1 // 0成本购模式
+        freeBuyMode: 1, // 0成本购模式
       },
+      installmentPaymentDisabled: false, // 天天返模式下禁止选择一折购分期
+      brandList: [],
       rules: {
         // 商品名
         goodsName: [
           {
             required: true,
             message: "请输入商品名",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 商品分类
         goodsClass: [
           {
             required: true,
-            message: "不能为空"
-          }
+            message: "不能为空",
+          },
         ],
         // 划线价
         discount: [
           {
             required: true,
             message: "不能为空",
-            trigger: "blur"
+            trigger: "blur",
           },
           {
             validator: checkMoney,
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 划线价
         robbed: [
           {
             validator: robbedNum,
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 快递费用
         express: [
           {
             required: true,
             message: "不能为空",
-            trigger: "blur"
+            trigger: "blur",
           },
           {
             validator: checkExpress,
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 京东价
         jinDong: [
           {
             validator: notReq,
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 天猫
         tianMao: [
           {
             validator: notReq,
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         // 严选考拉价
         yxkl: [
           {
             validator: notReq,
-            trigger: "blur"
-          }
-        ]
+            trigger: "blur",
+          },
+        ],
       },
       goodsClassOptions: [], // 商品分类
       goodsClassValue: "", // 选中的商品分类
@@ -1034,8 +1346,8 @@ export default {
       goodsSpec: [
         {
           specName: "",
-          specNum: [""]
-        }
+          specNum: [""],
+        },
       ],
       goodsSpecTle: [], // 商品规格头部
       specImg: [], // 商品规格图片
@@ -1044,40 +1356,45 @@ export default {
       addSpecImg: true, // 添加规格图片
       userInputSpecDetail: [], // 用户输入的商品规格信息（商品规格详情）
       stockDetailParam: {}, // 库存详细信息参数
-      batchPrice: {
-        // 批量价格
+      ordOrgPrice: {
+        // 普通购买原价
         moneyNum: "", // 价格
-        switch: false // 显示隐藏
+        switch: false, // 显示隐藏
+      },
+      orgPrice: {
+        // 1折购原价
+        moneyNum: "", // 价格
+        switch: false, // 显示隐藏
       },
       batchStock: {
         // 批量库存
         moneyNum: "", // 库存数量
-        switch: false // 显示隐藏
+        switch: false, // 显示隐藏
       },
       chengben: {
         // 批量成本价
         moneyNum: "", // 成本价
-        switch: false // 显示隐藏
+        switch: false, // 显示隐藏
       },
       zhekou: {
         // 批量折扣
         moneyNum: "", // 折扣
-        switch: false // 显示隐藏
+        switch: false, // 显示隐藏
       },
-      bili: {
-        // 成本调控比例
+      maxPeriodNumber: {
+        // 最长期可购买个数
         moneyNum: "", // 比例
-        switch: false // 显示隐藏
+        switch: false, // 显示隐藏
       },
-      seed: {
-        // 赞助次数
-        moneyNum: "", // 次数
-        switch: false // 显示隐藏
+      seedRatio: {
+        // 超过可购次数扣除种子
+        moneyNum: "", // 比例
+        switch: false, // 显示隐藏
       },
       supportNum: {
         // 赞助次数
         moneyNum: "", // 次数
-        switch: false // 显示隐藏
+        switch: false, // 显示隐藏
       },
       batchFx: true, // 是否禁用批量设置返现
       cashback: [], // 返现数据
@@ -1091,7 +1408,8 @@ export default {
       requestLoading: false, // 上传等待
       requestLoadingTxt: "", // 上传等待文字提示
       hh: [],
-      zeroSet: true //是否修改0元购设置
+      zeroSet: true, //是否修改0元购设置
+      installmentPayment: false, //一折购分期支付全选开通
     };
   },
 
@@ -1109,15 +1427,16 @@ export default {
       this.goodsDetailJson.parityInfo.disabled = true;
       this.goodsDetailJson.bannerImg.disabled = true;
       this.goodsDetailJson.detailInfo.disabled = true;
-      this.goodsDetailJson.seed.disabled = true;
       this.goodsDetailJson.freeBuyMode.disabled = true;
 
       this.getGoodsDetail(id);
+      // 获取品牌列表
+      this.getGoodsClassRequest();
     } else {
       // 获取商品分类
       this.getGoodsClass();
-      // 获取商家列表数据
-      this.getBusinessOptions();
+      // 获取品牌列表
+      this.getGoodsClassRequest();
       if (storeId) {
         this.form.businessOptions[0] = storeId;
       }
@@ -1137,12 +1456,35 @@ export default {
       return JSON.parse(d);
     },
 
+    // // 获取商品标签列表
+    getGoodsClassRequest() {
+      let parms = {
+        type: 2,
+      };
+      getGoodsClassRequest({ params: parms }).then((res) => {
+        if (res.data.messageCode == "MSG_1001") {
+          let content = res.data.content;
+          this.brandList.push({
+            value: 0,
+            label: "无",
+          });
+          content.forEach((val) => {
+            let json = {};
+            json.value = val.id;
+            json.label = val.name;
+            this.brandList.push(json);
+          });
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+
     // 选择视频
     videoChange(e) {
-      console.log(e);
       let file = e.target.files[0];
-      const fileSuffix = ["mp4", "rmvb", "avi", "flv", "wmv", "mkv", "mov"];
-      let extension = file.name.split(".")[1];
+      const fileSuffix = ["video/mp4", "video/webm"];
+      let extension = file.type;
       if (fileSuffix.includes(extension)) {
         if (file.size > 20 * 1024 * 1024) {
           this.$message.error("视频不能大于20M");
@@ -1156,7 +1498,6 @@ export default {
           //   reader.onload = (e) =>{
           //     // this.videoSrc= e.target.result;
           //     this.videoSrc= file
-
           //     // console.log(this.videoSrc)
           //   }
         }
@@ -1164,7 +1505,7 @@ export default {
         this.videoSrc = "";
         this.videoFile = "";
         this.isDeleteVideo = 2;
-        this.$message.error("请选择正确的视频格式");
+        this.$message.error("视频格式仅支持mp4/webm");
         return;
       }
     },
@@ -1177,7 +1518,7 @@ export default {
       this.$confirm("是否删除该视频", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           this.videoSrc = "";
@@ -1187,9 +1528,29 @@ export default {
         .catch(() => {});
     },
 
+    // 0成本购模式radio选择
+    selectFreeBuyMode(val) {
+      if (val == 2) {
+        for (let i = 0; i < this.userInputSpecDetail[8].length; i++) {
+          this.userInputSpecDetail[8][i] = false;
+        }
+        this.installmentPayment = false;
+        this.installmentPaymentDisabled = true;
+      } else {
+        this.installmentPaymentDisabled = false;
+      }
+    },
+
+    // 一折购分期支付全选开通
+    setInstallmentPayment() {
+      for (let i = 0; i < this.userInputSpecDetail[8].length; i++) {
+        this.userInputSpecDetail[8][i] = this.installmentPayment;
+      }
+    },
+
     // 设置返现check
     changeCheck(dex) {
-      if (this.cashback.map(e => e.checkset).includes(true)) {
+      if (this.cashback.map((e) => e.checkset).includes(true)) {
         this.batchFx = false;
       } else {
         this.batchFx = true;
@@ -1204,13 +1565,12 @@ export default {
           this.cashback[i].money =
             Math.floor(
               this.userInputSpecDetail[0][i] *
-                this.userInputSpecDetail[3][i] *
+                this.userInputSpecDetail[4][i] *
                 10
             ) / 100;
           cashback2.push(this.cashback[i]);
         }
       }
-      console.log(cashback2);
       this.$refs.fanxian.open(cashback2);
     },
 
@@ -1218,7 +1578,7 @@ export default {
     setMinPeriod() {
       this.cashbackDetail.periodScope.periodItems.splice(0, 1);
       this.cashbackDetail.periodScope.periodItems.splice(0, 0, {
-        periods: this.cashbackDetail.periodScope.minPeriod
+        periods: this.cashbackDetail.periodScope.minPeriod,
       });
     },
 
@@ -1226,7 +1586,7 @@ export default {
     setMaxPeriod() {
       this.cashbackDetail.periodScope.periodItems.splice(1, 1);
       this.cashbackDetail.periodScope.periodItems.splice(1, 0, {
-        periods: this.cashbackDetail.periodScope.maxPeriod
+        periods: this.cashbackDetail.periodScope.maxPeriod,
       });
     },
 
@@ -1255,16 +1615,15 @@ export default {
       if (!periodItems) {
         this.cashbackDetail.periodScope.periodItems = [
           {
-            periods: ""
-          }
+            periods: "",
+          },
         ];
         return;
       } else {
         this.cashbackDetail.periodScope.periodItems.push({
-          periods: ""
+          periods: "",
         });
       }
-      console.log(this.cashbackDetail);
     },
 
     // 0元购设置 - 删除用户选择分期数
@@ -1285,7 +1644,7 @@ export default {
     alertTips(msg) {
       this.$alert(msg, "错误", {
         confirmButtonText: "确定",
-        callback: action => {}
+        callback: (action) => {},
       });
     },
 
@@ -1294,8 +1653,8 @@ export default {
       await this.getGoodsClass();
       let res = await queryGoodsDetailRequest({
         params: {
-          id
-        }
+          id,
+        },
       });
 
       if (res.data.messageCode === "MSG_1001") {
@@ -1313,8 +1672,11 @@ export default {
         this.handleSpecs(content.specs);
         this.handleStockDetail(content.stockDetail);
         this.form.discount = content.markedPrice;
+        this.form.brandId = content.brandId ? content.brandId : 0;
         this.form.robbed = content.grabbed;
         this.form.express = content.expressFee;
+        this.form.isVirtual = content.isVirtual;
+        this.form.virtualType = content.virtualType ? content.virtualType : 1;
         this.bannerDetail = content.introductions;
         this.handleCompetitor(content.competitorPrices);
       }
@@ -1328,7 +1690,7 @@ export default {
       imgArr.map((item, index) => {
         arr.push({
           key: key + index,
-          url: item
+          url: item,
         });
       });
 
@@ -1341,7 +1703,7 @@ export default {
 
       return {
         key,
-        url: img
+        url: img,
       };
     },
 
@@ -1350,9 +1712,9 @@ export default {
       let defaultArr = [];
       let goodsClassOptions = this.goodsClassOptions;
 
-      goodsClassOptions.map(item => {
+      goodsClassOptions.map((item) => {
         item.children &&
-          item.children.map(ite => {
+          item.children.map((ite) => {
             if (ite.value === id) {
               defaultArr.push(item.value);
               return true;
@@ -1372,7 +1734,7 @@ export default {
       specs.map((item, index) => {
         arr.push({
           specName: item.name,
-          specNum: []
+          specNum: [],
         });
 
         item.items.map((ite, dex) => {
@@ -1381,7 +1743,7 @@ export default {
             if (ite.iconUrl !== null) {
               arrImg.push({
                 key: ite.id,
-                url: ite.iconUrl
+                url: ite.iconUrl,
               });
             } else {
               arrImg.push(null);
@@ -1409,18 +1771,20 @@ export default {
       for (let i = 0; i < keyArr.length; i++) {
         let item = keyArr[i];
 
-        this.userInputSpecDetail[0][i] = detail[item].orgPrice;
-        this.userInputSpecDetail[1][i] = detail[item].stock;
-        this.userInputSpecDetail[2][i] = detail[item].dctPrice;
-        this.userInputSpecDetail[3][i] = detail[item].dctRate;
-        this.userInputSpecDetail[4][i] = detail[item].costControlRatio
-          ? detail[item].costControlRatio
-          : null;
-        this.userInputSpecDetail[5][i] = detail[item].sendSeed;
-        this.userInputSpecDetail[6][i] = detail[item].supportCount;
+        this.userInputSpecDetail[0][i] = detail[item].ordOrgPrice;
+        this.userInputSpecDetail[1][i] = detail[item].orgPrice;
+        this.userInputSpecDetail[2][i] = detail[item].stock;
+        this.userInputSpecDetail[3][i] = detail[item].dctPrice;
+        this.userInputSpecDetail[4][i] = detail[item].dctRate;
+        this.userInputSpecDetail[5][i] = detail[item].maxPeriodNumber;
+        this.userInputSpecDetail[6][i] = detail[item].seedRatio;
+        this.userInputSpecDetail[7][i] = detail[item].supportCount;
+        this.userInputSpecDetail[8][i] =
+          detail[item].installmentPayment == 1 ? true : false;
         this.salesArr.push(detail[item].sales);
         this.cashback[i].money =
-          Math.floor(detail[item].orgPrice * detail[item].dctRate * 10) / 100;
+          Math.floor(detail[item].ordOrgPrice * detail[item].dctRate * 10) /
+          100;
         this.cashback[i].specCashBacks = detail[item].specCashBacks;
         this.cashback[i].specId = detail[item].specId;
         this.cashback[i].periodScope =
@@ -1430,9 +1794,9 @@ export default {
                 maxPeriod: "",
                 periodItems: [
                   {
-                    periods: ""
-                  }
-                ]
+                    periods: "",
+                  },
+                ],
               }
             : detail[item].specPeriodScope;
       }
@@ -1443,7 +1807,7 @@ export default {
           item.specCashBacks.map((ite, idx) => {
             item.cashbackList.push({
               cashbackMoney: ite.amount,
-              tle: item.options[ite.month].txt
+              tle: item.options[ite.month].txt,
             });
 
             item.options[ite.month].disabled = true;
@@ -1455,7 +1819,7 @@ export default {
 
     // 处理接口返回比价信息数据
     handleCompetitor(arr) {
-      arr.map(item => {
+      arr.map((item) => {
         switch (item.mallKey) {
           case "jd":
             this.form.jinDong = item.price;
@@ -1505,7 +1869,7 @@ export default {
     saveEsInfo() {
       let goodsImageFiles = this.goodsImgList;
 
-      this.$refs.form.validate(async valid => {
+      this.$refs.form.validate(async (valid) => {
         if (valid) {
           if (!(goodsImageFiles.length > 0)) {
             this.alertTips("未上传商品图");
@@ -1518,31 +1882,37 @@ export default {
             let goodsVideoFiles = this.videoFile; // 商品视频
             let isDeleteVideo = this.isDeleteVideo; // 是否更新视频
             let markedPrice = Number(this.form.discount); // 划线价
+            let brandId = this.form.brandId;
             let categoryId = this.form.goodsClass[
               this.form.goodsClass.length - 1
             ]; // 分类ID
             let grabbed = this.form.robbed; // 已抢件数
             let expressFee = Number(this.form.express); // 快递费
+            let isVirtual = this.form.isVirtual; // 商品种类
+            let virtualType = this.form.virtualType; // 虚拟种类
 
             for (let i = 0; i < this.goodsImgList.length; i++) {
               let item = this.goodsImgList[i];
 
               goodsImageFiles.push({
                 key: item.key,
-                url: await this.cacheImage(item.url)
+                url: await this.cacheImage(item.url),
               });
             }
 
             param = {
               name,
               markedPrice,
+              brandId,
               sharedDesc,
               goodsImageFiles,
               goodsVideoFiles,
               isDeleteVideo,
               categoryId,
               grabbed,
-              expressFee
+              expressFee,
+              isVirtual,
+              virtualType,
             };
 
             await this.upDataGoods(param, "essentialInfo");
@@ -1565,7 +1935,7 @@ export default {
       let param = {
         id: this.$route.query.id,
         seedDeduction: this.form.seedDeduction,
-        freeBuySeedDeduction: this.form.freeBuySeedDeduction
+        freeBuySeedDeduction: this.form.freeBuySeedDeduction,
       };
       this.upDataGoods(param, "seed");
       this.goodsDetailJson.seed.disabled = true;
@@ -1574,7 +1944,7 @@ export default {
     // 0成本购模式修改
     saveFreeBuyMode() {
       let param = {
-        freeBuyMode: this.form.freeBuyMode
+        freeBuyMode: this.form.freeBuyMode,
       };
       this.upDataGoods(param, "freeBuyMode");
       this.goodsDetailJson.freeBuyMode.disabled = true;
@@ -1594,17 +1964,17 @@ export default {
         if (item !== null) {
           specsImageFiles.push({
             key: item.key,
-            url: await this.cacheImage(item.url)
+            url: await this.cacheImage(item.url),
           });
         } else {
           specsImageFiles.push(null);
         }
       }
-      this.cashback.forEach(item => {
+      this.cashback.forEach((item) => {
         item.checkset = false;
       });
 
-      if (this.cashback.map(e => e.checkset).includes(true)) {
+      if (this.cashback.map((e) => e.checkset).includes(true)) {
         this.batchFx = false;
       } else {
         this.batchFx = true;
@@ -1617,12 +1987,13 @@ export default {
       for (let item in stockDetail) {
         if (
           !this.checkSpec(
+            stockDetail[item].ordOrgPrice,
             stockDetail[item].orgPrice,
             stockDetail[item].stock,
             stockDetail[item].dctPrice,
             stockDetail[item].dctRate,
-            stockDetail[item].costControlRatio,
-            stockDetail[item].sendSeed,
+            stockDetail[item].maxPeriodNumber,
+            stockDetail[item].seedRatio,
             stockDetail[item].supportCount
           )
         ) {
@@ -1633,7 +2004,8 @@ export default {
       param = {
         specs,
         specsImageFiles,
-        stockDetail
+        stockDetail,
+        freeBuyMode: this.form.freeBuyMode,
       };
       console.log(param, "param");
       await this.upDataGoods(param, "stock");
@@ -1643,7 +2015,7 @@ export default {
     async savePryInfo() {
       let competitorPrices = this.competitorParam(); // 比价信息
       let param = {
-        competitorPrices
+        competitorPrices,
       };
 
       await this.upDataGoods(param, "parityInfo");
@@ -1661,11 +2033,11 @@ export default {
 
       adImageFile.push({
         key: this.bannerImgList[0].key,
-        url: await this.cacheImage(this.bannerImgList[0].url)
+        url: await this.cacheImage(this.bannerImgList[0].url),
       });
 
       param = {
-        adImageFile: adImageFile[0]
+        adImageFile: adImageFile[0],
       };
 
       await this.upDataGoods(param, "bannerImg");
@@ -1685,7 +2057,7 @@ export default {
         } else {
           introductions.push({
             resourceType: 2,
-            content: await this.cacheImage(item.content)
+            content: await this.cacheImage(item.content),
           });
         }
       }
@@ -1695,13 +2067,13 @@ export default {
 
         introductionsImageFiles.push({
           key: item.key,
-          url: await this.cacheImage(item.url)
+          url: await this.cacheImage(item.url),
         });
       }
 
       param = {
         introductions,
-        introductionsImageFiles
+        introductionsImageFiles,
       };
 
       await this.upDataGoods(param, "detailInfo");
@@ -1746,9 +2118,9 @@ export default {
       if (res.data.messageCode === "MSG_1001") {
         this.$alert("修改成功！", "提示", {
           confirmButtonText: "确定",
-          callback: action => {
+          callback: (action) => {
             _this.goodsDetailJson[key].disabled = true;
-          }
+          },
         });
       } else {
         this.alertTips(res.data.message);
@@ -1758,11 +2130,10 @@ export default {
     // 缓存图片
     async cacheImage(src) {
       var baseImg = null;
-      console.log(src);
 
       if (src.substring(0, 4) === "data") return src;
 
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         let image = new Image();
         image.crossOrigin = "Anonymous";
         image.src = src;
@@ -1770,7 +2141,7 @@ export default {
           let dataURL = this.getBase64Image(image);
           resolve(dataURL);
         };
-      }).then(res => {
+      }).then((res) => {
         baseImg = res;
       });
 
@@ -1793,28 +2164,6 @@ export default {
       return dataURL;
     },
 
-    // 获取商家列表数据
-    async getBusinessOptions() {
-      let businessOptions = [
-        {
-          label: "自营",
-          value: null
-        }
-      ];
-      let res = await getBusinessOptionsRequest();
-
-      if (res.data.messageCode === "MSG_1001") {
-        res.data.content.map(item => {
-          businessOptions.push({
-            label: item.storeName,
-            value: item.id
-          });
-        });
-      }
-
-      this.businessOptions = businessOptions;
-    },
-
     // 获取商品分类数据
     async getGoodsClass() {
       let res = await getGoodsClassRequest();
@@ -1826,13 +2175,13 @@ export default {
           let item = arr[i];
           let obj = {
             label: item.name,
-            value: item.id
+            value: item.id,
           };
 
           if (item.nextLevelData.length > 0) {
             obj = {
               ...obj,
-              children: []
+              children: [],
             };
 
             for (let j = 0; j < item.nextLevelData.length; j++) {
@@ -1840,7 +2189,7 @@ export default {
 
               obj.children.push({
                 label: ite.name,
-                value: ite.id
+                value: ite.id,
               });
             }
 
@@ -1858,7 +2207,7 @@ export default {
     nowAddImgAddr(...obj) {
       this.addImgType = {
         type: obj[0],
-        index: obj[1]
+        index: obj[1],
       };
     },
 
@@ -1884,7 +2233,7 @@ export default {
 
       reader.readAsDataURL(file);
 
-      reader.onloadend = e => {
+      reader.onloadend = (e) => {
         // console.log(e.target.result)
         this.cropperShow = true;
         this.example.editHeadurl = e.target.result;
@@ -1907,7 +2256,7 @@ export default {
       this.$confirm("是否确定删除", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           if (type === "goodsImgList" || type === "bannerImgList") {
@@ -1925,7 +2274,7 @@ export default {
       let _this = this;
 
       // 获取截图的base64 数据
-      this.$refs.cropper.getCropData(data => {
+      this.$refs.cropper.getCropData((data) => {
         _this.completeImg(data);
       });
     },
@@ -1947,12 +2296,12 @@ export default {
       ) {
         this[this.addImgType.type].push({
           url: url,
-          key
+          key,
         });
       } else if (this.addImgType.type === "specImg") {
         this[this.addImgType.type][this.addImgType.index] = {
           url: url,
-          key
+          key,
         };
         this[this.addImgType.type] = this.deepCopy(this[this.addImgType.type]);
       } else if (this.addImgType.type === "detailImg") {
@@ -1960,7 +2309,7 @@ export default {
 
         this.bannerDetail.push({
           resourceType: 2,
-          content: url
+          content: url,
         });
       }
 
@@ -1978,6 +2327,38 @@ export default {
         return true;
       } else {
         return false;
+      }
+    },
+
+    // 商家类型选择
+    businessTypeChange(val) {
+      if (!val[0]) {
+        // 选择自营类型商家
+        this.form.businessOptions = val;
+      } else {
+        // 线下or线上商家
+        let parms = {
+          businessId: val[0],
+        };
+        getBusinessOptionsRequest({ params: parms }).then((res) => {
+          if (res.data.messageCode == "MSG_1001") {
+            let businessOptions = [];
+            res.data.content.map((item) => {
+              businessOptions.push({
+                label: item.storeName,
+                value: item.id,
+              });
+            });
+            this.businessOptions = businessOptions;
+            if (businessOptions[0]) {
+              this.form.businessOptions = [businessOptions[0].value];
+            } else {
+              this.form.businessOptions = "";
+            }
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
       }
     },
 
@@ -2001,18 +2382,11 @@ export default {
         this.specImg.length = this.goodsSpec[index].specNum.length;
     },
 
-    // 删除规格值
-    delSpecNum(index) {
-      this.goodsSpec[index].specNum.pop();
-
-      index === 0 && this.specImg.pop();
-    },
-
     // 添加规格项目
     addSpecPro() {
       let obj = {
         specName: "",
-        specNum: [""]
+        specNum: [""],
       };
 
       this.goodsSpec.push(obj);
@@ -2124,7 +2498,7 @@ export default {
       let arr = [];
       let len = array[array.length - 1].length;
       let val = "";
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 9; i++) {
         ar = [];
         for (let j = 0; j < len; j++) {
           ar.push(val);
@@ -2162,14 +2536,17 @@ export default {
         let key = arr[i];
 
         this.stockDetailParam[key] = {
+          ordOrgPrice: null,
           orgPrice: null,
           dctPrice: null,
           stock: null,
           dctRate: null,
           // specId:null,
-          costControlRatio: null,
+          maxPeriodNumber: null,
+          seedRatio: null,
+          installmentPayment: null,
           specCashBacks: [],
-          periodScope: null
+          periodScope: null,
         };
       }
     },
@@ -2184,45 +2561,27 @@ export default {
       let index = null;
       let arr = [];
 
-      if (type === "batchPrice") {
+      if (type === "ordOrgPrice") {
         index = 0;
-      } else if (type === "batchStock") {
+      } else if (type === "orgPrice") {
         index = 1;
-      } else if (type === "chengben") {
+      } else if (type === "batchStock") {
         index = 2;
-      } else if (type === "zhekou") {
+      } else if (type === "chengben") {
         index = 3;
-      } else if (type === "bili") {
+      } else if (type === "zhekou") {
         index = 4;
-      } else if (type === "seed") {
+      } else if (type === "maxPeriodNumber") {
         index = 5;
-      } else if (type === "supportNum") {
+      } else if (type === "seedRatio") {
         index = 6;
+      } else if (type === "supportNum") {
+        index = 7;
       }
 
       if (this[type].moneyNum === "") {
         this.alertTips("批量更改不能为空");
         return false;
-      } else if (type == "bili") {
-        // 验证成本调控比例输入格式
-        if (
-          !/^-?(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/.test(this[type].moneyNum) ||
-          this[type].moneyNum > 100 ||
-          this[type].moneyNum < -100
-        ) {
-          this.alertTips("成本调控比例格式不正确");
-          return false;
-        }
-      } else if (type === "seed") {
-        // 验证赠送种子输入格式
-        if (this[type].moneyNum > 999999) {
-          this.alertTips("最大可输入999999");
-          return false;
-        }
-        if (!/^[0-9]\d*$/.test(this[type].moneyNum)) {
-          this.alertTips("格式不正确");
-          return false;
-        }
       } else if (this.checkNum(this[type].moneyNum) !== true) {
         this.alertTips("输入格式不正确");
         return false;
@@ -2244,56 +2603,56 @@ export default {
       let optArr = [
         {
           txt: "立返",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "一期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "二期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "三期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "四期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "五期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "六期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "七期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "八期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "九期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "十期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "十一期",
-          disabled: false
+          disabled: false,
         },
         {
           txt: "十二期",
-          disabled: false
-        }
+          disabled: false,
+        },
       ];
 
       this.salesArr = [];
@@ -2302,26 +2661,47 @@ export default {
       for (let i = 0; i < len; i++) {
         this.salesArr.push(0);
 
-        arr.push({
+        // 添加商品返现默认规格
+        // 商品按月返现时 默认0.5 - 48
+        // 商品按天返现时 没有默认值
+        let json = {
           dex: i,
           checkset: false,
           money: 0,
           options: this.deepCopy(optArr),
           cashbackList: [],
           specCashBacks: [],
-          periodScope: {
+          periodScope: {},
+        };
+        if (this.form.freeBuyMode == 1) {
+          json.periodScope = {
             minPeriod: 0.5,
             maxPeriod: 48,
             periodItems: [
               {
-                periods: 0.5
+                periods: 0.5,
               },
               {
-                periods: 48
-              }
-            ]
-          }
-        });
+                periods: 48,
+              },
+            ],
+          };
+        } else {
+          json.periodScope = {
+            minPeriod: "",
+            maxPeriod: "",
+            periodItems: [
+              {
+                periods: "",
+              },
+              {
+                periods: "",
+              },
+            ],
+          };
+        }
+
+        arr.push(json);
       }
       console.log(arr);
       if (this.cashback.length > 0) {
@@ -2336,10 +2716,11 @@ export default {
 
     // 点击设置返现
     setCashback(dex) {
-      let price = this.userInputSpecDetail[0][dex]; // 原价
-      let stock = this.userInputSpecDetail[1][dex]; // 库存
-      let cost = this.userInputSpecDetail[2][dex]; // 成本价
-      let discount = this.userInputSpecDetail[3][dex]; // 折扣
+      let ordOrgPrice = this.userInputSpecDetail[0][dex]; // 普通购买原价
+      let orgPrice = this.userInputSpecDetail[1][dex]; // 1折购原价
+      let stock = this.userInputSpecDetail[2][dex]; // 库存
+      let cost = this.userInputSpecDetail[3][dex]; // 成本价
+      let discount = this.userInputSpecDetail[4][dex]; // 折扣
       let money = null;
 
       if (
@@ -2347,13 +2728,12 @@ export default {
         this.goodsDetailJson.stock.disabled
       )
         return false;
-      if (!this.checkSpec(price, stock, cost, discount)) return false;
+      if (!this.checkSpec(ordOrgPrice, orgPrice, stock, cost, discount))
+        return false;
 
-      money = Math.floor(price * discount * 10) / 100;
-      console.log(this.cashback);
+      money = Math.floor(ordOrgPrice * discount * 10) / 100;
       this.cashbackDetail = this.deepCopy(this.cashback[dex]);
       this.cashbackDetail.money = money;
-      console.log(this.cashbackDetail);
       this.dialogTableVisible = true;
     },
 
@@ -2363,7 +2743,7 @@ export default {
       let value = this.form.optionVal;
       let obj = {
         tle: value,
-        cashbackMoney: ""
+        cashbackMoney: "",
       };
 
       if (value === "" || this.cashbackDetail.cashbackList.length > 3)
@@ -2374,7 +2754,7 @@ export default {
           this.cashbackDetail.options[i].disabled = true;
           this.cashbackDetail.specCashBacks.push({
             month: i,
-            amount: null
+            amount: null,
           });
         }
       }
@@ -2425,14 +2805,18 @@ export default {
           }
         }
       }
-      if (!maxPeriod && minPeriod) {
+      if (!maxPeriod) {
         this.alertTips("请输入最大分期期数");
         return;
-      } else if (!minPeriod && maxPeriod) {
+      } else if (!minPeriod) {
         this.alertTips("请输入最小分期期数");
         return;
       }
       for (let item of periodItems) {
+        if (!item.periods) {
+          this.$message.error("用户选择分期数不能为空");
+          return;
+        }
         if (Number(item.periods) < Number(minPeriod)) {
           this.$message.error("用户选择分期数不能小于最小0元购分期数");
           return;
@@ -2462,7 +2846,7 @@ export default {
 
       let obj = {
         resourceType: 1,
-        content: textareaBanner
+        content: textareaBanner,
       };
 
       this.bannerDetail.push(obj);
@@ -2474,7 +2858,7 @@ export default {
     checkBannerDetail(msg, type) {
       let max = 1;
 
-      this.bannerDetail.map(item => {
+      this.bannerDetail.map((item) => {
         if (item.resourceType === type) max++;
       });
 
@@ -2496,7 +2880,7 @@ export default {
       let _this = this;
       let goodsImageFiles = this.goodsImgList;
 
-      this.$refs.form.validate(valid => {
+      this.$refs.form.validate((valid) => {
         if (valid) {
           if (!(goodsImageFiles.length > 0)) {
             this.alertTips("未上传商品图");
@@ -2518,12 +2902,13 @@ export default {
       let len = this.RenderGoodsSpec.length;
       let lastIndex = null;
       let lastLength = null;
-      let price = null; // 原价
+      let ordOrgPrice = null; // 普通购买原价
+      let orgPrice = null; // 1折购原价
       let stock = null; // 库存
       let cost = null; // 成本价
       let discount = null; // 折扣
-      let costControlRatio = null; //成本调控比例
-      let sendSeed = null; //赠送种子
+      let maxPeriodNumber = null; // 最长期可购买个数
+      let seedRatio = null; // 超过可购个数扣除种子
       let supportCount = null; // 赞助次数
 
       if (!(len > 0)) return true;
@@ -2532,22 +2917,24 @@ export default {
       lastLength = this.RenderGoodsSpec[lastIndex].length;
 
       for (let i = 0; i < lastLength; i++) {
-        price = this.userInputSpecDetail[0][i]; // 原价
-        stock = this.userInputSpecDetail[1][i]; // 库存
-        cost = this.userInputSpecDetail[2][i]; // 成本价
-        discount = this.userInputSpecDetail[3][i]; // 折扣
-        costControlRatio = this.userInputSpecDetail[4][i]; // 成本调控比例
-        sendSeed = this.userInputSpecDetail[5][i]; // 赠送种子
-        supportCount = this.userInputSpecDetail[6][i]; // 赞助次数
+        ordOrgPrice = this.userInputSpecDetail[0][i]; // 普通购买原价
+        orgPrice = this.userInputSpecDetail[1][i]; // 1折购原价
+        stock = this.userInputSpecDetail[2][i]; // 库存
+        cost = this.userInputSpecDetail[3][i]; // 成本价
+        discount = this.userInputSpecDetail[4][i]; // 折扣
+        maxPeriodNumber = this.userInputSpecDetail[5][i]; // 最长期可购买个数
+        seedRatio = this.userInputSpecDetail[6][i]; // 超过可购个数扣除种子
+        supportCount = this.userInputSpecDetail[7][i]; // 赞助次数
 
         if (
           !this.checkSpec(
-            price,
+            ordOrgPrice,
+            orgPrice,
             stock,
             cost,
             discount,
-            costControlRatio,
-            sendSeed,
+            maxPeriodNumber,
+            seedRatio,
             supportCount
           )
         )
@@ -2575,13 +2962,13 @@ export default {
         arr.push({
           id: index,
           name: item.specName,
-          items: []
+          items: [],
         });
 
         item.specNum.map((ite, dex) => {
           arr[index].items.push({
             id: dex,
-            name: ite
+            name: ite,
           });
         });
       });
@@ -2594,18 +2981,23 @@ export default {
       let i = 0;
       console.log(this.stockDetailParam);
       for (let key in this.stockDetailParam) {
-        this.stockDetailParam[key].orgPrice = this.userInputSpecDetail[0][i];
-        this.stockDetailParam[key].stock = this.userInputSpecDetail[1][i];
-        this.stockDetailParam[key].dctPrice = this.userInputSpecDetail[2][i];
-        this.stockDetailParam[key].dctRate = this.userInputSpecDetail[3][i];
+        this.stockDetailParam[key].ordOrgPrice = this.userInputSpecDetail[0][i];
+        this.stockDetailParam[key].orgPrice = this.userInputSpecDetail[1][i];
+        this.stockDetailParam[key].stock = this.userInputSpecDetail[2][i];
+        this.stockDetailParam[key].dctPrice = this.userInputSpecDetail[3][i];
+        this.stockDetailParam[key].dctRate = this.userInputSpecDetail[4][i];
         this.stockDetailParam[key].specId = this.cashback[i].specId;
         this.stockDetailParam[
           key
-        ].costControlRatio = this.userInputSpecDetail[4][i];
-        this.stockDetailParam[key].sendSeed = this.userInputSpecDetail[5][i];
-        this.stockDetailParam[key].supportCount = this.userInputSpecDetail[6][
+        ].maxPeriodNumber = this.userInputSpecDetail[5][i];
+        this.stockDetailParam[key].seedRatio = this.userInputSpecDetail[6][i];
+        this.stockDetailParam[key].supportCount = this.userInputSpecDetail[7][
           i
         ];
+        this.stockDetailParam[key].installmentPayment = this
+          .userInputSpecDetail[8][i]
+          ? 1
+          : 2;
         this.stockDetailParam[key].specCashBacks = this.cashback[
           i
         ].specCashBacks;
@@ -2643,19 +3035,19 @@ export default {
       if (jD !== null) {
         arr.push({
           mallId: 1,
-          price: jD
+          price: jD,
         });
       }
       if (tM !== null) {
         arr.push({
           mallId: 2,
-          price: tM
+          price: tM,
         });
       }
       if (yk !== null) {
         arr.push({
           mallId: 3,
-          price: yk
+          price: yk,
         });
       }
 
@@ -2668,11 +3060,11 @@ export default {
       let detail = this.bannerDetail;
       let key = parseInt(new Date().valueOf() / 1000);
 
-      detail.map(item => {
+      detail.map((item) => {
         if (item.resourceType === 2) {
           arr.push({
             key,
-            url: item.content
+            url: item.content,
           });
         }
       });
@@ -2682,6 +3074,10 @@ export default {
 
     // 整合上传参数
     upParam(type) {
+      if (!this.form.businessOptions) {
+        this.$message.error("请选择商家");
+        return;
+      }
       let merchantId =
         this.form.businessOptions[0] === null
           ? ""
@@ -2689,11 +3085,14 @@ export default {
       let name = this.form.goodsName; // 商品名
       let sharedDesc = this.form.goodsDcb; // 分享描述
       let goodsImageFiles = this.goodsImgList; // 商品图片
-      let goodsVideoFiles = this.videoFile; // 商品图片
+      let goodsVideoFiles = this.videoFile; // 商品视频
       let markedPrice = Number(this.form.discount); // 划线价
+      let brandId = this.form.brandId; // 品牌id
       let categoryId = this.form.goodsClass[this.form.goodsClass.length - 1]; // 分类ID
       let grabbed = this.form.robbed; // 已抢件数
       let expressFee = this.form.express; // 快递费
+      let isVirtual = this.form.isVirtual; // 商品种类
+      let virtualType = this.form.virtualType; // 虚拟种类
       let specs = this.specParam(); // 规格信息
       let specsImageFiles = this.specImgParam; // 规格图片
       let stockDetail = this.stockDetailParam; // 库存详细信息
@@ -2710,12 +3109,15 @@ export default {
         merchantId,
         name,
         markedPrice,
+        brandId,
         sharedDesc,
         goodsImageFiles,
         goodsVideoFiles,
         categoryId,
         grabbed,
         expressFee,
+        isVirtual,
+        virtualType,
         specs,
         specsImageFiles,
         stockDetail,
@@ -2725,7 +3127,7 @@ export default {
         introductionsImageFiles,
         goodsIssueStatus,
         seedDeduction,
-        freeBuySeedDeduction
+        freeBuySeedDeduction,
       };
 
       console.log(param);
@@ -2741,15 +3143,6 @@ export default {
 
       this.requestLoadingTxt = "添加商品上传中...";
       this.requestLoading = true;
-
-      for (let item in param.stockDetail) {
-        console.log(item);
-        if (!param.stockDetail[item].costControlRatio) {
-          param.stockDetail[item].costControlRatio = null;
-        }
-      }
-
-      console.log(param);
       for (let key in param) {
         if (typeof param[key] === "object") {
           if (key == "goodsVideoFiles") {
@@ -2761,16 +3154,15 @@ export default {
           formData.append(key, param[key]);
         }
       }
-      console.log(formData);
 
       res = await addGoodsRequest(formData);
 
       if (res.data.messageCode === "MSG_1001") {
         this.$alert("上传成功！", "提示", {
           confirmButtonText: "确定",
-          callback: action => {
+          callback: (action) => {
             _this.$router.go(0);
-          }
+          },
         });
       } else {
         this.alertTips(res.data.message);
@@ -2781,32 +3173,46 @@ export default {
 
     /**
      * 检查规格填写是否符合
-     * @param {number} price 原价
+     * @param {number} ordOrgPrice 普通购买原价
+     * @param {number} orgPrice 1折购原价
      * @param {number} stock 库存
      * @param {number} cost 成本价
      * @param {number} discount 折扣
-     * @param {number} costControlRatio 成本调控比例
-     * @param {number} sendSeed 赠送种子
+     * @param {number} maxPeriodNumber 最长期可购买个数
+     * @param {number} seedRatio 超过可够个数扣除种子
      * @param {number} supportCount 赞助次数
      *
      */
     checkSpec(
-      price,
+      ordOrgPrice,
+      orgPrice,
       stock,
       cost,
       discount,
-      costControlRatio,
-      sendSeed,
+      maxPeriodNumber,
+      seedRatio,
       supportCount
     ) {
-      if (price === "" || stock === "" || cost === "" || discount === "") {
+      if (
+        ordOrgPrice === "" ||
+        orgPrice === "" ||
+        stock === "" ||
+        cost === "" ||
+        discount === ""
+      ) {
         this.alertTips("商品规格未填写完全");
         return false;
       } else if (/^[0-9]\d*$/.test(stock) !== true) {
         this.alertTips("库存只能输入大于等于0的正整数");
         return false;
-      } else if (!(this.checkNum(price) && this.checkNum(cost))) {
-        this.alertTips("原价和成本价金额范围为0.01~99999999.99之间");
+      } else if (
+        !(
+          this.checkNum(ordOrgPrice) &&
+          this.checkNum(orgPrice) &&
+          this.checkNum(cost)
+        )
+      ) {
+        this.alertTips("价格金额范围为0.01~99999999.99之间");
         return false;
       } else if (/^([1-9]\d{0}|10)(\.\d{1})?$/.test(discount) !== true) {
         this.alertTips("折扣为1-10之间小数点后最多一位");
@@ -2815,19 +3221,19 @@ export default {
         this.alertTips("折扣为1-10之间小数点后最多一位");
         return false;
       } else if (
-        costControlRatio &&
-        (!/^-?(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/.test(costControlRatio) ||
-          costControlRatio > 100 ||
-          costControlRatio < -100)
+        maxPeriodNumber &&
+        (maxPeriodNumber < 0 ||
+          maxPeriodNumber > 10000 ||
+          !/^[0-9]\d*$/.test(maxPeriodNumber))
       ) {
-        this.alertTips("成本调控比例格式不正确");
-        return false;
-      } else if (sendSeed && !/^[0-9]\d*$/.test(sendSeed)) {
-        this.alertTips("赠送种子格式不正确");
-        return false;
-      } else if (sendSeed && sendSeed > 999999) {
-        this.alertTips("赠送种子格式不正确");
-        return false;
+        this.alertTips("最长期可购买个数格式不正确");
+      } else if (
+        seedRatio &&
+        (seedRatio < 0 ||
+          seedRatio > 1000 ||
+          !/^\d+(.\d{1,2})?$/.test(seedRatio))
+      ) {
+        this.alertTips("超过可购个数扣除原价N%种子格式不正确");
       } else if (
         supportCount &&
         (!/^[0-9]\d*$/.test(supportCount) || supportCount > 100)
@@ -2837,8 +3243,8 @@ export default {
       } else {
         return true;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -3182,14 +3588,12 @@ export default {
           display: flex;
           div {
             width: 120px;
-            // flex-grow: 1;
             flex-shrink: 0;
             padding: 10px 0;
             font-size: 14px;
             color: #333333;
             text-align: center;
             box-sizing: border-box;
-            // border:1px solid green;
           }
 
           .fill {
@@ -3223,11 +3627,12 @@ export default {
         }
 
         .modify {
+          width: 100%;
           display: flex;
           padding: 10px 0;
-
-          .el-col {
+          div {
             width: auto !important;
+            flex-shrink: 0;
 
             .el-form-item {
               margin-bottom: 0;

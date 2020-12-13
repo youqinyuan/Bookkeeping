@@ -51,7 +51,7 @@
             <span style="color:#ccc;" v-else>{{scope.row.mobile}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="time" align="center" label="申请提交时间">
+        <el-table-column prop="time" align="center" label="申请提交时间" width="160">
           <template slot-scope="scope">
             <span
               v-if="scope.row.showType == 1 && scope.row.status == 1"
@@ -129,13 +129,14 @@
         </el-table-column>
         <el-table-column prop align="center" label="状态">
           <template slot-scope="scope">
-            <span v-if="scope.row.status == 1" style="color:red;">未通过</span>
+            <span v-if="scope.row.status == 1 && scope.row.showType == 2" style="color:red;">未通过</span>
+            <span v-if="scope.row.status == 1 && scope.row.showType == 1">未通过</span>
             <span v-if="scope.row.status == 2 && scope.row.showType == 1" style="color:#ccc;">自动通过</span>
             <span v-if="scope.row.status == 2 && scope.row.showType == 2" style="color:#ccc;">手动通过</span>
             <span v-if="scope.row.status == 3" style="color:#ccc;">已取消</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" width="160px;">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -143,7 +144,12 @@
               @click="pass(scope.row)"
               v-if="scope.row.status === 1"
             >通过</el-button>
-            <el-button v-else size="mini" type="info" disabled>已通过</el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="refuse(scope.row.id)"
+              v-if="scope.row.status === 1"
+            >拒绝</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -162,7 +168,11 @@
 </template>
 
 <script>
-import { getUserTransferAuditList, auditPassedById } from "@/network/api";
+import {
+  getUserTransferAuditList,
+  auditPassedById,
+  auditCancelById
+} from "@/network/api";
 export default {
   props: {},
   data() {
@@ -246,6 +256,28 @@ export default {
             if (res.data.messageCode == "MSG_1001") {
               this.$message.success(res.data.message);
               this.search(1);
+            } else {
+              this.$message.error(res.data.message);
+            }
+          });
+        })
+        .catch(() => {});
+    },
+
+    // 拒绝
+    refuse(id) {
+      this.$confirm("点击后将余额退还给用户，本次提现取消", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消"
+      })
+        .then(() => {
+          let parms = {
+            id: id
+          };
+          auditCancelById(this.qs.stringify(parms)).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.search(1);
+              this.$message.success("操作成功");
             } else {
               this.$message.error(res.data.message);
             }

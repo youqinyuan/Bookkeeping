@@ -1,7 +1,7 @@
 <template>
   <div id="wangeditor">
-    <div ref="editorElem" style="text-align:left;" class="toolbar"></div>
-    <div ref="editorElem1" style="text-align:left;" class="text"></div>
+    <div ref="editorElem" style="text-align: left" class="toolbar"></div>
+    <div ref="editorElem1" style="text-align: left" class="text"></div>
   </div>
 </template>
 <script>
@@ -13,11 +13,11 @@ export default {
     return {
       myHeaders: { token: "" },
       editor: null,
-      editorContent: ""
+      editorContent: "",
     };
   },
   // catchData是一个类似回调函数，来自父组件，当然也可以自己写一个函数，主要是用来获取富文本编辑器中的html内容用来传递给服务端
-  props: ["catchData", "content"], // 接收父组件的方法
+  props: ["catchData", "content", "isDisabled"], // 接收父组件的方法
   mounted() {
     this.myHeaders.token = getCookie().opadminToken;
     this.editor = new E(this.$refs.editorElem, this.$refs.editorElem1);
@@ -59,10 +59,11 @@ export default {
     // };
     this.editor.customConfig.zIndex = 100;
     // 编辑器的事件，每次改变会获取其html内容
-    this.editor.customConfig.onchange = html => {
-      // console.log(html);
+    this.editor.customConfig.onchange = (html) => {
+      // 获取输入的文本长度
+      let textLength = this.editor.txt.text().length;
       this.editorContent = html;
-      this.$emit("catchData", this.editorContent); // 把这个html通过catchData的方法传入父组件
+      this.$emit("catchData", this.editorContent, textLength); // 把这个html通过catchData的方法传入父组件
     };
     this.editor.customConfig.colors = [
       "#000000",
@@ -75,7 +76,7 @@ export default {
       "#8baa4a",
       "#7b5ba1",
       "#46acc8",
-      "#f9963b"
+      "#f9963b",
     ];
     this.editor.customConfig.menus = [
       // 菜单配置
@@ -98,13 +99,16 @@ export default {
       //"table", // 表格
       //"code", // 插入代码
       "undo", // 撤销
-      "redo" // 重复
+      "redo", // 重复
     ];
     this.editor.create(); // 创建富文本实例
     // 初始化 textarea 的值
     this.editor.txt.html(this.content);
+    // 是否开始/禁用编辑器
+    let isDisabled = this.isDisabled ? !this.isDisabled : true;
+    this.editor.$textElem.attr("contenteditable", isDisabled);
   },
-  methods: {}
+  methods: {},
 };
 </script>
 <style lang="less" scoped>

@@ -60,7 +60,11 @@
       <el-table-column prop="name" label="操作" align="center" width="200">
         <template slot-scope="scope">
           <!-- <span @click="seeDetail(scope.row)" class="handle">查看详情</span> -->
-          <el-button type="text" v-if="scope.row.status == 1" @click="pass(scope.row)">通过</el-button>
+          <el-button
+            type="text"
+            v-if="scope.row.status == 1"
+            @click="openDialogPass(scope.row.id)"
+          >通过</el-button>
           <span v-if="scope.row.status == 2">已通过</span>
           <el-button type="text" v-if="scope.row.status == 1" @click="refuse(scope.row)">驳回</el-button>
           <span v-if="scope.row.status == 3">已驳回</span>
@@ -120,6 +124,28 @@
         style="width:580px;height:420px;text-align:center;line-height:420px;margin:0 auto;"
       >无</div>
     </el-dialog>
+
+    <!-- 审核通过弹窗 -->
+    <el-dialog
+      title="通过后将生成一个新的商家"
+      :visible.sync="dialogPass"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <span>经营模式：</span>
+      <el-select v-model="model" style="width:140px;">
+        <el-option
+          v-for="item in modelOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogPass = false">取 消</el-button>
+        <el-button type="primary" @click="pass">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -140,6 +166,19 @@ export default {
       dialogVisibleTitle: "", // 查看logo和营业执照弹窗标题
       dialogVisibleImgs_logo: "", //logo图片
       dialogVisibleImgs: [], //营业执照图片
+      dialogPass: false,
+      id: "",
+      model: 1,
+      modelOptions: [
+        {
+          value: 1,
+          label: "全托管"
+        },
+        {
+          value: 2,
+          label: "半托管"
+        }
+      ],
       form: {
         pageNumber: "",
         pageSize: 10,
@@ -237,28 +276,27 @@ export default {
         }
       });
     },
+    // 打开审核通过弹窗
+    openDialogPass(id) {
+      this.id = id;
+      this.dialogPass = true;
+    },
     // 通过
-    pass(row) {
-      this.$confirm("通过后将生成一个新的商家", "", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        center: true
-      })
-        .then(() => {
-          let parms = {
-            id: row.id,
-            status: 2
-          };
-          changeAuditStatus(this.qs.stringify(parms)).then(res => {
-            if (res.data.messageCode == "MSG_1001") {
-              this.$message.success(res.data.message);
-              this.search(1);
-            } else {
-              this.$message.error(res.data.message);
-            }
-          });
-        })
-        .catch(() => {});
+    pass() {
+      let parms = {
+        id: this.id,
+        status: 2,
+        model: this.model
+      };
+      changeAuditStatus(this.qs.stringify(parms)).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.dialogPass = false;
+          this.$message.success("操作成功");
+          this.search(1);
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
     },
     // 拒绝
     refuse(row) {

@@ -13,10 +13,8 @@ module.exports = {
       '/api': {
         target: 'https://dev.xuncaoji.net:8085/opadmin', // 接口域名
         // target: 'https://xuncaoji.net:8085/opadmin', // 正式
-        // target: 'https://xuncaoji.yzsaas.cn:8085/opadmin', // 接口域名
-        // target: 'https://xuncj.yzsaas.cn:8085/opadmin', // 正式
-        // target: 'http://132.232.167.245:8081/opadmin', // 接口域名
-        // target: 'http://192.168.1.235:8083/opadmin',  // 接口域名
+        // target: 'http://192.168.0.114:8083/opadmin', // 接口域名
+        // target: 'http://192.168.1.28:8083/opadmin', // 接口域名
         changeOrigin: true, //是否跨域
         pathRewrite: {
           '^/api': '' //需要rewrite重写的,

@@ -1,91 +1,84 @@
 <template>
   <div class="contents">
-    <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="爆品首页页面轮播图" name="tab_1">
-        <div class="banner_content">
-          <div v-for="(item,index) in bannerList" :key="index" class="banners">
-            <div class="title">
-              <i
-                @click="forward(index)"
-                class="el-icon-d-arrow-left"
-                style="cursor: pointer"
-                v-if="index !=0"
-              ></i>
-              <span v-if="index == 0">首图</span>
-              <span
-                @click="setFirst(index)"
-                v-else
-                style="color:#008000;cursor: pointer;margin:0 70px"
-              >设为首图</span>
-              <i
-                @click="backward(index)"
-                class="el-icon-d-arrow-right"
-                style="cursor: pointer"
-                v-if="index !=0 && index != bannerList.length-1"
-              ></i>
-            </div>
-            <el-image
-              class="imgs"
-              style="width: 250px; height: 100px;cursor: pointer;"
-              :src="item.imageKey"
-              fit="contain"
-              @click="open(2,item)"
-            ></el-image>
-            <div class="bot_btn">
-              <el-button type="primary" size="mini" @click="open(2,item)">更换链接</el-button>
-              <div class="name" :title="item.name">{{item.name}}</div>
-              <el-button type="danger" size="mini" @click="deleteBanner(item.id)">删除</el-button>
-            </div>
-          </div>
+    <div class="banner_content">
+      <div v-for="(item,index) in bannerList" :key="index" class="banners">
+        <div class="title">
+          <i
+            @click="forward(index)"
+            class="el-icon-d-arrow-left"
+            style="cursor: pointer"
+            v-if="index !=0"
+          ></i>
+          <span v-if="index == 0">首图</span>
+          <span
+            @click="setFirst(index)"
+            v-else
+            style="color:#008000;cursor: pointer;margin:0 70px"
+          >设为首图</span>
+          <i
+            @click="backward(index)"
+            class="el-icon-d-arrow-right"
+            style="cursor: pointer"
+            v-if="index !=0 && index != bannerList.length-1"
+          ></i>
         </div>
-        <el-button type="primary" @click="open(1,null)" style="margin:50px 0">添加轮播图</el-button>
-      </el-tab-pane>
-    </el-tabs>
-
-    <addBanner ref="banner"></addBanner>
+        <el-image
+          class="imgs"
+          style="width: 350px; height: 140px;cursor: pointer;"
+          :src="item.iconUrl"
+          fit="contain"
+        ></el-image>
+        <div class="bot_btn">
+          <el-button type="primary" size="mini" @click="changeBanner(item)">更换链接</el-button>
+          <div class="name" :title="item.pageName">{{item.pageName}}</div>
+          <div
+            class="name"
+            style="cursor:pointer"
+            v-if="item.visibleType == 1"
+            @click="changeVisible(item.id,3)"
+          >ios端隐藏</div>
+          <div
+            class="name"
+            style="cursor:pointer"
+            v-if="item.visibleType == 3"
+            @click="changeVisible(item.id,1)"
+          >取消ios端隐藏</div>
+          <el-button type="danger" size="mini" @click="deleteBanner(item.id)">删除</el-button>
+        </div>
+      </div>
+    </div>
+    <el-button type="primary" @click="nav_addBanner" style="margin:50px 0">添加轮播图</el-button>
   </div>
 </template>
 
 <script>
 import {
-  getSlideShowByCategory,
-  deleteBanner,
-  sortBanner
+  removeNavigation,
+  sortBySlideShowIds,
+  findNavigation,
+  updateVisibleType
 } from "@/network/api";
-import addBanner from "../moth_management/common/addBanner";
 export default {
   props: {},
   data() {
     return {
-      activeName: "tab_1",
       bannerList: [],
       ids: []
     };
-  },
-  components: {
-    addBanner
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {
-    this.getBanners();
+    this.getBannerList();
   },
   methods: {
-    //切换tab
-    handleClick(tab, event) {},
-
-    // 打开弹窗
-    open(title, item) {
-      this.$refs.banner.open(title, item, 3);
-    },
-
     // 获取轮播图列表
-    getBanners() {
-      getSlideShowByCategory({ params: { category: 3 } }).then(res => {
+    getBannerList() {
+      findNavigation({ navType: 9 }).then(res => {
         this.ids = [];
         if (res.data.messageCode == "MSG_1001") {
-          this.bannerList = res.data.content;
+          this.bannerList = res.data.content.items;
           this.bannerList.forEach((item, index) => {
             this.ids.push(item.id);
           });
@@ -93,6 +86,7 @@ export default {
       });
     },
 
+    // 删除轮播图
     deleteBanner(id) {
       this.$confirm("", "确定删除此图片吗", {
         confirmButtonText: "确定",
@@ -100,13 +94,16 @@ export default {
         center: true
       })
         .then(() => {
-          deleteBanner({ params: { id: id } }).then(res => {
+          let parms = {
+            id: id
+          };
+          removeNavigation(this.qs.stringify(parms)).then(res => {
             if (res.data.messageCode == "MSG_1001") {
               this.$message({
                 message: res.data.message,
                 type: "success"
               });
-              this.getBanners();
+              this.getBannerList();
             } else {
               this.$message.error(res.data.message);
             }
@@ -124,16 +121,16 @@ export default {
     forward(index) {
       this.swapArray(this.ids, index, index - 1);
       let parms = {
-        category: 3,
+        navType: 9,
         ids: this.ids
       };
-      sortBanner(parms).then(res => {
+      sortBySlideShowIds(parms).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message({
             message: res.data.message,
             type: "success"
           });
-          this.getBanners();
+          this.getBannerList();
         } else {
           this.$message.error(res.data.message);
         }
@@ -144,16 +141,16 @@ export default {
     backward(index) {
       this.swapArray(this.ids, index, index + 1);
       let parms = {
-        category: 3,
+        navType: 9,
         ids: this.ids
       };
-      sortBanner(parms).then(res => {
+      sortBySlideShowIds(parms).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message({
             message: res.data.message,
             type: "success"
           });
-          this.getBanners();
+          this.getBannerList();
         } else {
           this.$message.error(res.data.message);
         }
@@ -165,18 +162,53 @@ export default {
       let s = this.ids.splice(index, 1);
       this.ids.unshift(s[0]);
       let parms = {
-        category: 3,
+        navType: 9,
         ids: this.ids
       };
-      sortBanner(parms).then(res => {
+      sortBySlideShowIds(parms).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message({
             message: res.data.message,
             type: "success"
           });
-          this.getBanners();
+          this.getBannerList();
         } else {
           this.$message.error(res.data.message);
+        }
+      });
+    },
+
+    // 更改轮播图在ios端显示或者隐藏
+    changeVisible(id, status) {
+      let parms = {
+        id: id,
+        visibleType: status
+      };
+      updateVisibleType(this.qs.stringify(parms)).then(res => {
+        if (res.data.messageCode == "MSG_1001") {
+          this.$message.success("操作成功");
+          this.getBannerList();
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+    // 添加轮播图
+    nav_addBanner() {
+      this.$router.push({
+        path: "/addBannerPage",
+        query: {
+          navType: 9
+        }
+      });
+    },
+    // 更换链接
+    changeBanner(item) {
+      this.$router.push({
+        path: "/addBannerPage",
+        query: {
+          navType: 9,
+          item: JSON.stringify(item)
         }
       });
     }
@@ -196,7 +228,7 @@ export default {
     margin-right: 50px;
     margin-top: 20px;
     background: LightGray;
-    width: 250px;
+    width: 350px;
     height: auto;
     padding: 10px 15px;
     box-sizing: content-box;
@@ -211,6 +243,7 @@ export default {
       justify-content: space-around;
       align-items: center;
       .name {
+        min-width:80px;
         background: rgba(0, 204, 153, 1);
         color: white;
         font-size: 13px;

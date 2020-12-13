@@ -51,7 +51,7 @@
         </el-table-column>
         <el-table-column prop="name" align="center" label="会员名称">
           <template slot-scope="scope">
-           <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.name}}</span>
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.name}}</span>
             <span
               style="color:red"
               v-else-if="scope.row.showType == 2 && scope.row.status == 1"
@@ -69,14 +69,16 @@
             <span style="color:#ccc;" v-else>{{scope.row.mobile}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="time" align="center" label="申请提交时间">
+        <el-table-column prop="time" align="center" label="申请提交时间" width="160">
           <template slot-scope="scope">
-            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.time}}</span>
+            <span
+              v-if="scope.row.showType == 1 && scope.row.status == 1"
+            >{{scope.row.time | dateFormat}}</span>
             <span
               style="color:red"
               v-else-if="scope.row.showType == 2 && scope.row.status == 1"
-            >{{scope.row.time}}</span>
-            <span style="color:#ccc;" v-else>{{scope.row.time}}</span>
+            >{{scope.row.time | dateFormat}}</span>
+            <span style="color:#ccc;" v-else>{{scope.row.time | dateFormat}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="amount" align="center" label="申请提现金额">
@@ -91,7 +93,9 @@
         </el-table-column>
         <el-table-column prop="poundageAmount" align="center" label="手续费">
           <template slot-scope="scope">
-            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.poundageAmount}}</span>
+            <span
+              v-if="scope.row.showType == 1 && scope.row.status == 1"
+            >{{scope.row.poundageAmount}}</span>
             <span
               style="color:red"
               v-else-if="scope.row.showType == 2 && scope.row.status == 1"
@@ -121,7 +125,9 @@
         </el-table-column>
         <el-table-column prop="withdrawAmount" align="center" label="总计提现金额">
           <template slot-scope="scope">
-            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.withdrawAmount}}</span>
+            <span
+              v-if="scope.row.showType == 1 && scope.row.status == 1"
+            >{{scope.row.withdrawAmount}}</span>
             <span
               style="color:red"
               v-else-if="scope.row.showType == 2 && scope.row.status == 1"
@@ -131,7 +137,9 @@
         </el-table-column>
         <el-table-column prop="bankCardNumber" align="center" label="银行卡卡号">
           <template slot-scope="scope">
-           <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.bankCardNumber}}</span>
+            <span
+              v-if="scope.row.showType == 1 && scope.row.status == 1"
+            >{{scope.row.bankCardNumber}}</span>
             <span
               style="color:red"
               v-else-if="scope.row.showType == 2 && scope.row.status == 1"
@@ -151,7 +159,7 @@
         </el-table-column>
         <el-table-column prop="realName" align="center" label="真实姓名">
           <template slot-scope="scope">
-           <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.realName}}</span>
+            <span v-if="scope.row.showType == 1 && scope.row.status == 1">{{scope.row.realName}}</span>
             <span
               style="color:red"
               v-else-if="scope.row.showType == 2 && scope.row.status == 1"

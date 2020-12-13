@@ -37,7 +37,7 @@
     <div class="tableContent">
       <el-table :data="tableData" style="width: 100%;margin-top:40px;" border>
         <el-table-column label="商品id" prop="goodsId" align="center"></el-table-column>
-        <el-table-column label="商品名称" prop="goodsName" align="center">
+        <el-table-column label="商品名称" prop="goodsName" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <el-button type="text" @click="goAddGoods(scope.row.goodsId)">{{scope.row.goodsName}}</el-button>
           </template>

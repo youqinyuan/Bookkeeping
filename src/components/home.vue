@@ -12,18 +12,27 @@
         <div v-for="(item, index) in navList" :key="index">
           <div
             :name="index"
-            v-if="index === 0"
+            v-if="!item.nav"
             @click="switchNav(index)"
             :class="['el-collapse-item__header', item.active ? 'active' : '']"
-          >{{ item.title }}</div>
+          >
+            {{ item.title }}
+          </div>
 
-          <el-collapse-item v-else :name="index" class="collapse-item" :title="item.title">
+          <el-collapse-item
+            v-else
+            :name="index"
+            class="collapse-item"
+            :title="item.title"
+          >
             <div
               :class="ite.active ? 'active' : ''"
               @click="switchNav(index, dex)"
               v-for="(ite, dex) in item.nav"
               :key="dex"
-            >{{ ite.title }}</div>
+            >
+              {{ ite.title }}
+            </div>
           </el-collapse-item>
         </div>
       </el-collapse>
@@ -54,506 +63,677 @@
 
 <script>
 import { clearCookie } from "@/common/cookie.js";
-
+import { accessibleMenus } from "@/network/api";
 export default {
   data() {
     return {
       navText: "" || sessionStorage.getItem("navText"),
       activeName: 0,
+      isLogin: false, // 是否从登录页面跳转过来
       defaultNavList: [],
-      navList: [
-        {
-          title: "首页",
-          active: true,
-          path: {
-            path: "/index"
-          }
-        },
-        {
-          title: "代理商管理",
-          nav: [
-            {
-              title: "代理商申请",
-              active: false,
-              path: {
-                path: "/agentApply"
-              }
-            },
-            {
-              title: "代理商管理",
-              active: false,
-              path: {
-                path: "/agentManagement"
-              }
-            },
-            {
-              title: "提现申请",
-              active: false,
-              path: {
-                path: "/withdrawalApply"
-              }
-            }
-          ]
-        },
-        {
-          title: "商家管理",
-          nav: [
-            {
-              title: "商家分类管理",
-              active: false,
-              path: {
-                path: "/merchantBusinessList"
-              }
-            },
-            {
-              title: "申请管理",
-              active: false,
-              path: {
-                path: "/appplicationManagement"
-              }
-            },
-            {
-              title: "商户管理",
-              active: false,
-              path: {
-                path: "/businessManagement"
-              }
-            },
-            {
-              title: "商户提现管理",
-              active: false,
-              path: {
-                path: "/withdrawal_bus"
-              }
-            },
-            {
-              title: "商家改价申请",
-              active: false,
-              path: {
-                path: "/changeMoney"
-              }
-            },
-            {
-              title: "商家配送管理",
-              active: false,
-              path: {
-                path: "/delivery"
-              }
-            }
-          ]
-        },
-        {
-          title: "用户管理",
-          nav: [
-            {
-              title: "普通会员管理",
-              active: false,
-              path: {
-                path: "/ordinaryMember"
-              }
-            },
-            {
-              title: "合伙人管理",
-              active: false,
-              path: {
-                path: "/plusMember"
-              }
-            },
-            {
-              title: "钻石合伙人管理",
-              active: false,
-              path: {
-                path: "/diamondPartner"
-              }
-            },
-            {
-              title: "会员提现申请",
-              active: false,
-              path: {
-                path: "/withDrawMethods"
-              }
-            }
-          ]
-        },
-        {
-          title: "商品管理",
-          nav: [
-            {
-              title: "商品分类管理",
-              active: false,
-              path: {
-                path: "/goodsClassManage"
-              }
-            },
-            {
-              title: "自营商品管理",
-              active: false,
-              path: {
-                path: "/selfGoodsManage"
-              }
-            },
-            {
-              title: "商家商品管理",
-              active: false,
-              path: {
-                path: "/businessGoodsManage"
-              }
-            },
-            {
-              title: "商家商品审核管理",
-              active: false,
-              path: {
-                path: "/businessGoodsCheck"
-              }
-            }
-          ]
-        },
-        {
-          title: "订单管理",
-          nav: [
-            {
-              title: "自营订单管理",
-              active: false,
-              path: {
-                path: "/selfSupportOrder"
-              }
-            },
-            {
-              title: "商家订单管理",
-              active: false,
-              path: {
-                path: "/businessOrder"
-              }
-            },
-            {
-              title: "退款订单管理",
-              active: false,
-              path: {
-                path: "/refundOrder"
-              }
-            }
-          ]
-        },
-        {
-          title: "分期购管理",
-          nav: [
-            {
-              title: "分期购申请",
-              active: false,
-              path: {
-                path: "/stagesApply"
-              }
-            }
-          ]
-        },
-        {
-          title: "心愿池管理",
-          nav: [
-            {
-              title: "心愿池管理",
-              active: false,
-              path: {
-                path: "/wishPool_management"
-              }
-            }
-          ]
-        },
-        {
-          title: "奖励金管理",
-          nav: [
-            {
-              title: "奖金管理",
-              active: false,
-              path: {
-                path: "/reward"
-              }
-            }
-          ]
-        },
-        {
-          title: "规则管理",
-          nav: [
-            {
-              title: "会员规则设置",
-              active: false,
-              path: {
-                path: "/setMembershiprules"
-              }
-            },
-            {
-              title: "城市合伙人规则设置",
-              active: false,
-              path: {
-                path: "/cityPartner"
-              }
-            },
-            {
-              title: "商家规则设置",
-              active: false,
-              path: {
-                path: "/merchantrules"
-              }
-            },
-            // {
-            //   title: "利润分成设置",
-            //   active: false,
-            //   path: {
-            //     path: "/profitrules"
-            //   }
-            // },
-            {
-              title: "快速分期购设置",
-              active: false,
-              path: {
-                path: "/fastBuy"
-              }
-            },
-            {
-              title: "手续费设置",
-              active: false,
-              path: {
-                path: "/cashWithdrawal"
-              }
-            },
-            {
-              title: "预售订单管理",
-              active: false,
-              path: {
-                path: "/advanceOrder"
-              }
-            },
-            {
-              title: "代理商规则设置",
-              active: false,
-              path: {
-                path: "/agentRule"
-              }
-            },
-            {
-              title: "freeBuy提期",
-              active: false,
-              path: {
-                path: "/freeBuyReduceNum"
-              }
-            },
-            {
-              title: "发起预售及待返发帖限制",
-              active: false,
-              path: {
-                path: "/presaleAndPost"
-              }
-            }
-          ]
-        },
-        {
-          title: "充值管理",
-          nav: [
-            {
-              title: "用户充值管理",
-              active: false,
-              path: {
-                path: "/userRecharge"
-              }
-            },
-            {
-              title: "充值设置",
-              active: false,
-              path: {
-                path: "/rechargeSet"
-              }
-            }
-          ]
-        },
-        {
-          title: "积分管理",
-          nav: [
-            {
-              title: "种子管理",
-              active: false,
-              path: {
-                path: "/seed_management"
-              }
-            }
-          ]
-        },
-        {
-          title: "首页管理",
-          nav: [
-            {
-              title: "图标导航",
-              active: false,
-              path: {
-                path: "/navigationList"
-              }
-            },
-            {
-              title: "英雄榜",
-              active: false,
-              path: {
-                path: "/hero_list"
-              }
-            },
-            {
-              title: "轮播图",
-              active: false,
-              path: {
-                path: "/homePage_banner"
-              }
-            },
-            {
-              title: "模块1",
-              active: false,
-              path: {
-                path: "/module1"
-              }
-            },
-            {
-              title: "模块2",
-              active: false,
-              path: {
-                path: "/module2"
-              }
-            },
-            {
-              title: "模块3",
-              active: false,
-              path: {
-                path: "/module3"
-              }
-            },
-            {
-              title: "公告管理",
-              active: false,
-              path: {
-                path: "/noticeManagement"
-              }
-            }
-          ]
-        },
-        {
-          title: "营销管理",
-          nav: [
-            {
-              title: "轮播图管理",
-              active: false,
-              path: {
-                path: "/bannerManage"
-              }
-            },
-            {
-              title: "电商活动管理",
-              active: false,
-              path: {
-                path: "/activitiesManage"
-              }
-            },
-            {
-              title: "FreeBuy活动页",
-              active: false,
-              path: {
-                path: "/freeBuy"
-              }
-            },
-            {
-              title: "图标导航",
-              active: false,
-              path: {
-                path: "/navigation_icon"
-              }
-            },
-            {
-              title: "活动导航",
-              active: false,
-              path: {
-                path: "/navigation_activits"
-              }
-            },
-            {
-              title: "公告管理",
-              active: false,
-              path: {
-                path: "/notice"
-              }
-            },
-            {
-              title: "新用户引导页",
-              active: false,
-              path: {
-                path: "/newUser"
-              }
-            }
-          ]
-        },
-        {
-          title: "数据统计",
-          nav: [
-            {
-              title: "订单数据统计",
-              active: false,
-              path: {
-                path: "/orderData"
-              }
-            }
-          ]
-        },
-        {
-          title: "内容管理",
-          nav: [
-            {
-              title: "论坛管理",
-              active: false,
-              path: {
-                path: "/forum_management"
-              }
-            }
-          ]
-        },
-        {
-          title: "系统管理",
-          nav: [
-            // {
-            //   title: '物流设置',
-            //   active: false,
-            //   path: {
-            //     path: '/logisticsSet'
-            //   }
-            // },
-            {
-              title: "城市区域设置",
-              active: false,
-              path: {
-                path: "/citySet"
-              }
-            },
-            {
-              title: "平台介绍页面设置",
-              active: false,
-              path: {
-                path: "/setPlatformIntroduction"
-              }
-            },
-            {
-              title: "合伙人页面设置",
-              active: false,
-              path: {
-                path: "/setPartnerPage"
-              }
-            },
-            {
-              title: "系统通知",
-              active: false,
-              path: {
-                path: "/systemNotice"
-              }
-            }
-          ]
-        }
-      ]
+      navList: [],
+      // navList: [
+      //   {
+      //     title: "首页",
+      //     active: true,
+      //     path: {
+      //       path: "/index",
+      //     },
+      //   },
+      //   {
+      //     title: "代理商管理",
+      //     nav: [
+      //       {
+      //         title: "代理商申请",
+      //         active: false,
+      //         path: {
+      //           path: "/agentApply",
+      //         },
+      //       },
+      //       {
+      //         title: "代理商管理",
+      //         active: false,
+      //         path: {
+      //           path: "/agentManagement",
+      //         },
+      //       },
+      //       {
+      //         title: "提现申请",
+      //         active: false,
+      //         path: {
+      //           path: "/withdrawalApply",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "商家管理",
+      //     nav: [
+      //       {
+      //         title: "商家分类管理",
+      //         active: false,
+      //         path: {
+      //           path: "/merchantBusinessList",
+      //         },
+      //       },
+      //       {
+      //         title: "申请管理",
+      //         active: false,
+      //         path: {
+      //           path: "/appplicationManagement",
+      //         },
+      //       },
+      //       {
+      //         title: "商户管理",
+      //         active: false,
+      //         path: {
+      //           path: "/businessManagement",
+      //         },
+      //       },
+      //       {
+      //         title: "商户提现管理",
+      //         active: false,
+      //         path: {
+      //           path: "/withdrawal_bus",
+      //         },
+      //       },
+      //       {
+      //         title: "商家改价申请",
+      //         active: false,
+      //         path: {
+      //           path: "/changeMoney",
+      //         },
+      //       },
+      //       {
+      //         title: "商家配送管理",
+      //         active: false,
+      //         path: {
+      //           path: "/delivery",
+      //         },
+      //       },
+      //       {
+      //         title: "预入驻商家",
+      //         active: false,
+      //         path: {
+      //           path: "/pre_bussiness",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "用户管理",
+      //     nav: [
+      //       {
+      //         title: "普通会员管理",
+      //         active: false,
+      //         path: {
+      //           path: "/ordinaryMember",
+      //         },
+      //       },
+      //       {
+      //         title: "合伙人管理",
+      //         active: false,
+      //         path: {
+      //           path: "/plusMember",
+      //         },
+      //       },
+      //       {
+      //         title: "钻石合伙人管理",
+      //         active: false,
+      //         path: {
+      //           path: "/diamondPartner",
+      //         },
+      //       },
+      //       {
+      //         title: "会员提现申请",
+      //         active: false,
+      //         path: {
+      //           path: "/withDrawMethods",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "商品管理",
+      //     nav: [
+      //       {
+      //         title: "商品分类管理",
+      //         active: false,
+      //         path: {
+      //           path: "/goodsClassManage",
+      //         },
+      //       },
+      //       {
+      //         title: "自营商品管理",
+      //         active: false,
+      //         path: {
+      //           path: "/selfGoodsManage",
+      //         },
+      //       },
+      //       {
+      //         title: "商家商品管理",
+      //         active: false,
+      //         path: {
+      //           path: "/businessGoodsManage",
+      //         },
+      //       },
+      //       {
+      //         title: "商家商品审核管理",
+      //         active: false,
+      //         path: {
+      //           path: "/businessGoodsCheck",
+      //         },
+      //       },
+      //       {
+      //         title: "套餐核销商品管理",
+      //         active: false,
+      //         path: {
+      //           path: "/set_meal_goodsList",
+      //         },
+      //       },
+      //       {
+      //         title: "品牌标签管理",
+      //         active: false,
+      //         path: {
+      //           path: "/brandLabel",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "订单管理",
+      //     nav: [
+      //       {
+      //         title: "自营订单管理",
+      //         active: false,
+      //         path: {
+      //           path: "/selfSupportOrder",
+      //         },
+      //       },
+      //       {
+      //         title: "商家订单管理",
+      //         active: false,
+      //         path: {
+      //           path: "/businessOrder",
+      //         },
+      //       },
+      //       {
+      //         title: "退款订单管理",
+      //         active: false,
+      //         path: {
+      //           path: "/refundOrder",
+      //         },
+      //       },
+      //       {
+      //         title: "套餐核销订单管理",
+      //         active: false,
+      //         path: {
+      //           path: "/package_write_off",
+      //         },
+      //       },
+      //       {
+      //         title: "普通核销订单管理",
+      //         active: false,
+      //         path: {
+      //           path: "/general_write_off",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "分期购管理",
+      //     nav: [
+      //       {
+      //         title: "分期购申请",
+      //         active: false,
+      //         path: {
+      //           path: "/stagesApply",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "心愿池管理",
+      //     nav: [
+      //       {
+      //         title: "心愿池管理",
+      //         active: false,
+      //         path: {
+      //           path: "/wishPool_management",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "奖励金管理",
+      //     nav: [
+      //       {
+      //         title: "奖金管理",
+      //         active: false,
+      //         path: {
+      //           path: "/reward",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "规则管理",
+      //     nav: [
+      //       {
+      //         title: "会员规则设置",
+      //         active: false,
+      //         path: {
+      //           path: "/setMembershiprules",
+      //         },
+      //       },
+      //       {
+      //         title: "城市合伙人规则设置",
+      //         active: false,
+      //         path: {
+      //           path: "/cityPartner",
+      //         },
+      //       },
+      //       {
+      //         title: "商家规则设置",
+      //         active: false,
+      //         path: {
+      //           path: "/merchantrules",
+      //         },
+      //       },
+      //       // {
+      //       //   title: "利润分成设置",
+      //       //   active: false,
+      //       //   path: {
+      //       //     path: "/profitrules"
+      //       //   }
+      //       // },
+      //       {
+      //         title: "快速分期购设置",
+      //         active: false,
+      //         path: {
+      //           path: "/fastBuy",
+      //         },
+      //       },
+      //       {
+      //         title: "手续费设置",
+      //         active: false,
+      //         path: {
+      //           path: "/cashWithdrawal",
+      //         },
+      //       },
+      //       {
+      //         title: "预售订单管理",
+      //         active: false,
+      //         path: {
+      //           path: "/advanceOrder",
+      //         },
+      //       },
+      //       {
+      //         title: "代理商规则设置",
+      //         active: false,
+      //         path: {
+      //           path: "/agentRule",
+      //         },
+      //       },
+      //       {
+      //         title: "freeBuy提期",
+      //         active: false,
+      //         path: {
+      //           path: "/freeBuyReduceNum",
+      //         },
+      //       },
+      //       {
+      //         title: "发起预售及待返发帖限制",
+      //         active: false,
+      //         path: {
+      //           path: "/presaleAndPost",
+      //         },
+      //       },
+      //       {
+      //         title: "一折购最长期限购买限制",
+      //         active: false,
+      //         path: {
+      //           path: "/ten-percent_discount",
+      //         },
+      //       },
+      //       {
+      //         title: "一折购分期支付规则",
+      //         active: false,
+      //         path: {
+      //           path: "/ten-percent_pay",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "充值管理",
+      //     nav: [
+      //       {
+      //         title: "用户充值管理",
+      //         active: false,
+      //         path: {
+      //           path: "/userRecharge",
+      //         },
+      //       },
+      //       {
+      //         title: "充值设置",
+      //         active: false,
+      //         path: {
+      //           path: "/rechargeSet",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "积分管理",
+      //     nav: [
+      //       {
+      //         title: "种子获取管理",
+      //         active: false,
+      //         path: {
+      //           path: "/seed_management",
+      //         },
+      //       },
+      //       {
+      //         title: "种子扣除规则",
+      //         active: false,
+      //         path: {
+      //           path: "/seed_consume",
+      //         },
+      //       },
+      //       {
+      //         title: "种子数据管理",
+      //         active: false,
+      //         path: {
+      //           path: "/consumeData",
+      //         },
+      //       },
+      //       {
+      //         title: "种子赠送扣除",
+      //         active: false,
+      //         path: {
+      //           path: "/giveOrDeduction",
+      //         },
+      //       },
+      //       {
+      //         title: "花瓣获取管理",
+      //         active: false,
+      //         path: {
+      //           path: "/getPetal",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "附近主页管理",
+      //     nav: [
+      //       {
+      //         title: "轮播图",
+      //         active: false,
+      //         path: {
+      //           path: "/nearbyBanner",
+      //         },
+      //       },
+      //       {
+      //         title: "图标导航",
+      //         active: false,
+      //         path: {
+      //           path: "/nearbyIcon",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "首页管理",
+      //     nav: [
+      //       {
+      //         title: "图标导航",
+      //         active: false,
+      //         path: {
+      //           path: "/navigationList",
+      //         },
+      //       },
+      //       {
+      //         title: "英雄榜",
+      //         active: false,
+      //         path: {
+      //           path: "/hero_list",
+      //         },
+      //       },
+      //       {
+      //         title: "轮播图",
+      //         active: false,
+      //         path: {
+      //           path: "/homePage_banner",
+      //         },
+      //       },
+      //       {
+      //         title: "模块1",
+      //         active: false,
+      //         path: {
+      //           path: "/module1",
+      //         },
+      //       },
+      //       {
+      //         title: "模块2",
+      //         active: false,
+      //         path: {
+      //           path: "/module2",
+      //         },
+      //       },
+      //       {
+      //         title: "模块3",
+      //         active: false,
+      //         path: {
+      //           path: "/module3",
+      //         },
+      //       },
+      //       {
+      //         title: "模块4",
+      //         active: false,
+      //         path: {
+      //           path: "/module4",
+      //         },
+      //       },
+      //       {
+      //         title: "公告管理",
+      //         active: false,
+      //         path: {
+      //           path: "/noticeManagement",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "营销管理",
+      //     nav: [
+      //       {
+      //         title: "轮播图管理",
+      //         active: false,
+      //         path: {
+      //           path: "/bannerManage",
+      //         },
+      //       },
+      //       {
+      //         title: "电商活动管理",
+      //         active: false,
+      //         path: {
+      //           path: "/activitiesManage",
+      //         },
+      //       },
+      //       {
+      //         title: "FreeBuy活动页",
+      //         active: false,
+      //         path: {
+      //           path: "/freeBuy",
+      //         },
+      //       },
+      //       {
+      //         title: "图标导航",
+      //         active: false,
+      //         path: {
+      //           path: "/navigation_icon",
+      //         },
+      //       },
+      //       {
+      //         title: "活动导航",
+      //         active: false,
+      //         path: {
+      //           path: "/navigation_activits",
+      //         },
+      //       },
+      //       {
+      //         title: "公告管理",
+      //         active: false,
+      //         path: {
+      //           path: "/notice",
+      //         },
+      //       },
+      //       {
+      //         title: "一折购优惠券",
+      //         active: false,
+      //         path: {
+      //           path: "/coupon",
+      //         },
+      //       },
+      //       {
+      //         title: "新用户引导页",
+      //         active: false,
+      //         path: {
+      //           path: "/newUser",
+      //         },
+      //       },
+      //       {
+      //         title: "弹浮窗管理",
+      //         active: false,
+      //         path: {
+      //           path: "/dialogList",
+      //         },
+      //       },
+      //       {
+      //         title: "竞猜游戏",
+      //         active: false,
+      //         path: {
+      //           path: "/guessingGameList",
+      //         },
+      //       },
+      //       {
+      //         title: "花瓣商城",
+      //         active: false,
+      //         path: {
+      //           path: "/petalMall",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "数据统计",
+      //     nav: [
+      //       {
+      //         title: "订单数据统计",
+      //         active: false,
+      //         path: {
+      //           path: "/orderData",
+      //         },
+      //       },
+      //       {
+      //         title: "特殊交易数据",
+      //         active: false,
+      //         path: {
+      //           path: "/specialTab",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "内容管理",
+      //     nav: [
+      //       {
+      //         title: "论坛管理",
+      //         active: false,
+      //         path: {
+      //           path: "/forum_management",
+      //         },
+      //       },
+      //       {
+      //         title: "贴子评论管理",
+      //         active: false,
+      //         path: {
+      //           path: "/forumComments",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "防刷单管理",
+      //     nav: [
+      //       {
+      //         title: "关联用户行为数据",
+      //         active: false,
+      //         path: {
+      //           path: "/userBehaviorData",
+      //         },
+      //       },
+      //     ],
+      //   },
+      //   {
+      //     title: "系统管理",
+      //     nav: [
+      //       // {
+      //       //   title: '物流设置',
+      //       //   active: false,
+      //       //   path: {
+      //       //     path: '/logisticsSet'
+      //       //   }
+      //       // },
+      //       {
+      //         title: "城市区域设置",
+      //         active: false,
+      //         path: {
+      //           path: "/citySet",
+      //         },
+      //       },
+      //       {
+      //         title: "平台介绍页面设置",
+      //         active: false,
+      //         path: {
+      //           path: "/setPlatformIntroduction",
+      //         },
+      //       },
+      //       {
+      //         title: "合伙人页面设置",
+      //         active: false,
+      //         path: {
+      //           path: "/setPartnerPage",
+      //         },
+      //       },
+      //       {
+      //         title: "系统通知",
+      //         active: false,
+      //         path: {
+      //           path: "/systemNotice",
+      //         },
+      //       },
+      //       {
+      //         title: "新手教程",
+      //         active: false,
+      //         path: {
+      //           path: "/noviceTutorialList",
+      //         },
+      //       },
+      //     ],
+      //   },
+      // ],
     };
   },
 
   created() {
-    this.defaultNav();
+    // 判断是否是从登录页面跳转过来
+    let isLogin = this.$route.params.isLogin;
+    if (isLogin) {
+      this.isLogin = true;
+    }
+    this.accessibleMenus();
     this.$store.commit("showMask", false);
   },
 
@@ -565,11 +745,11 @@ export default {
     },
     isMask() {
       return this.$store.state.isMask;
-    }
+    },
   },
 
   watch: {
-    $route: "setNavInfo"
+    $route: "setNavInfo",
   },
 
   methods: {
@@ -580,10 +760,86 @@ export default {
       return JSON.parse(strData);
     },
 
+    // 请求菜单
+    accessibleMenus() {
+      accessibleMenus().then((res) => {
+        if (res.data.messageCode == "MSG_1001") {
+          let content = res.data.content;
+          let navList = [];
+          content.forEach((val, index) => {
+            let json = {};
+            if (!val.subItems) {
+              json = {
+                title: val.title,
+                active: false,
+                path: {
+                  path: val.path,
+                },
+              };
+            } else {
+              json = {
+                title: val.title,
+                nav: [],
+              };
+              val.subItems.forEach((item) => {
+                let json2 = {
+                  title: item.title,
+                  active: false,
+                  path: {
+                    path: item.path,
+                  },
+                };
+                json.nav.push(json2);
+              });
+            }
+            navList.push(json);
+          });
+          navList[0].nav
+            ? (navList[0].nav[0].active = true)
+            : (navList[0].active = true);
+          // #######################
+          navList[9].nav.push({
+            active:false,
+            path:{
+              path:'/personalityRule'
+            },
+            title:'个性化规则'
+          })
+          navList.splice(6,0,{
+            title:'保险管理',
+            nav:[{
+              active:false,
+              path:{
+                path:'/contentSet'
+              },
+              title:'保险内容设置'
+            }]
+          })
+          console.log(navList);
+          // #########################
+          this.navList = navList;
+          this.defaultNav();
+          // 如果从登录页面进入跳转到该账号可访问的菜单中的第一个页面
+          if (this.isLogin) {
+            let path = navList[0].nav
+              ? navList[0].nav[0].path.path
+              : navList[0].path.path;
+            this.$router.replace(path);
+          }
+        } else {
+          this.$message.error(res.data.message);
+        }
+      });
+    },
+
     // 储存原始导航栏数据
     defaultNav() {
       this.defaultNavList = this.cloneDeep(this.navList);
-      this.defaultNavList[0].active = false;
+      if (!this.defaultNavList[0].nav) {
+        this.defaultNavList[0].active = false;
+      } else {
+        this.defaultNavList[0].nav[0].active = false;
+      }
 
       this.setNavInfo();
     },
@@ -619,7 +875,7 @@ export default {
       let defaultNavList = this.cloneDeep(this.defaultNavList);
       let href = null;
 
-      if (index === 0) {
+      if (!defaultNavList[index].nav) {
         defaultNavList[0].active = true;
         href = defaultNavList[0].path;
       } else {
@@ -642,8 +898,8 @@ export default {
     quitLogin() {
       clearCookie("opadminToken");
       this.$router.replace("/");
-    }
-  }
+    },
+  },
 };
 </script>
 

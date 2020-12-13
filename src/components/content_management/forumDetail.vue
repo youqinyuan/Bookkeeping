@@ -13,11 +13,11 @@
             v-if="content.type == 7 && content.role == 2"
           />
           <span class="label" v-if="content.type == 1">普通贴</span>
-          <span class="label" v-if="content.type == 2">卖贴</span>
-          <span class="label" v-if="content.type == 3">买贴</span>
+          <span class="label" v-if="content.type == 2">返现卖贴</span>
+          <span class="label" v-if="content.type == 3">返现买贴</span>
           <span class="label" v-if="content.type == 4">预售订单</span>
-          <span class="label" v-if="content.type == 5">赚钱订单</span>
-          <span class="label" v-if="content.type == 6">省钱订单</span>
+          <span class="label" v-if="content.type == 5">商品卖贴</span>
+          <span class="label" v-if="content.type == 6">商品买贴</span>
           <span class="label" v-if="content.type == 7">提期贴</span>
         </div>
         <div class="detail">{{content.content}}</div>
@@ -142,14 +142,27 @@
         </div>
       </div>
     </div>
-    <el-button type="primary" style="margin:40px 0px;margin-left:260px;" @click="deletedForum">删除贴子</el-button>
+    <!-- <el-button type="primary" style="margin:40px 0px;margin-left:260px;" @click="deletedForum">删除贴子</el-button> -->
+    <el-button
+      type="primary"
+      style="margin:40px 0px;margin-left:260px;"
+      v-if="content.visible == 1"
+      @click="changeVisible(2)"
+    >隐藏贴子</el-button>
+    <el-button
+      type="primary"
+      style="margin:40px 0px;margin-left:260px;"
+      v-if="content.visible == 2"
+      @click="changeVisible(1)"
+    >展示贴子</el-button>
   </div>
 </template>
 <script>
 import {
   findDetailForum,
   removeForum,
-  removeForumcomment
+  removeForumcomment,
+  updateVisibleForum
 } from "@/network/api";
 export default {
   data() {
@@ -208,20 +221,45 @@ export default {
         })
         .catch(() => {});
     },
+
     // 删除贴子
-    deletedForum() {
-      this.$confirm("确定删除吗？", "", {
+    // deletedForum() {
+    //   this.$confirm("确定删除吗？", "", {
+    //     confirmButtonText: "确定",
+    //     cancelButtonText: "取消"
+    //   })
+    //     .then(() => {
+    //       let data = {
+    //         id: this.id
+    //       };
+    //       removeForum(this.qs.stringify(data)).then(res => {
+    //         if (res.data.messageCode == "MSG_1001") {
+    //           this.$router.go(-1);
+    //           this.$message.success("删除成功");
+    //         } else {
+    //           this.$message.error(res.data.message);
+    //         }
+    //       });
+    //     })
+    //     .catch(() => {});
+    // }
+
+    // 展示或者隐藏贴子
+    changeVisible(visible) {
+      let type = visible == 1 ? "展示" : "隐藏";
+      this.$confirm(`确定${type}该贴子吗?`, "", {
         confirmButtonText: "确定",
         cancelButtonText: "取消"
       })
         .then(() => {
           let data = {
-            id: this.id
+            id: this.id,
+            visible: visible
           };
-          removeForum(this.qs.stringify(data)).then(res => {
+          updateVisibleForum(data).then(res => {
             if (res.data.messageCode == "MSG_1001") {
-              this.$router.go(-1);
-              this.$message.success("删除成功");
+              this.findDetailForum();
+              this.$message.success(`${type}成功`);
             } else {
               this.$message.error(res.data.message);
             }

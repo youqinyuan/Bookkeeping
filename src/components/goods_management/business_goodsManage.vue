@@ -72,7 +72,7 @@
             <img :src="scope.row.goodsImage" width="40" height="40" class="head_pic" />
           </template>
         </el-table-column>
-        <el-table-column prop="grabbedNumber" label="以抢数量">
+        <el-table-column prop="grabbedNumber" label="已抢数量">
           <template slot-scope="scope">
             <span
               @click="openChangeCount(scope.row.id,scope.row.grabbedNumber)"
@@ -162,8 +162,8 @@ export default {
       tableData: [],
       currentPage: 1,
       pageTotal: "",
-      goodsName: null, // 商品名称
-      businessName: null, // 所属商家
+      goodsName: "", // 商品名称
+      businessName: "", // 所属商家
       Category: [], // 分类行业
       valueCategory: "", // 已选行业分类ID
       defaultParams: {
@@ -184,9 +184,33 @@ export default {
   },
   computed: {},
   watch: {},
+  // 路由进入时 判断是否从详情页返回
+  beforeRouteEnter(to, from, next) {
+    if (from.path === "/addGoods") {
+      // 查看是否记录了页面
+      let page = sessionStorage.getItem("page");
+      page = page ? JSON.parse(page) : 1;
+      let goodsName = sessionStorage.getItem("goodsName");
+      let businessName = sessionStorage.getItem("businessName");
+      let valueCategory = JSON.parse(sessionStorage.getItem("valueCategory"));
+      let selectedGoodsId = JSON.parse(
+        sessionStorage.getItem("selectedGoodsId")
+      );
+      next(vm => {
+        vm.goodsName = goodsName ? goodsName : "";
+        vm.businessName = businessName ? businessName : "";
+        vm.valueCategory = valueCategory ? valueCategory : "";
+        vm.selectedGoodsId = selectedGoodsId ? selectedGoodsId : "全部";
+        vm.search(page);
+      });
+    } else {
+      next(vm => {
+        vm.search(1);
+      });
+    }
+  },
   created() {},
   mounted() {
-    this.search(1);
     this.getMerchantBusinessList();
     this.getGoodsCategory();
   },
@@ -279,7 +303,7 @@ export default {
           ? ""
           : this.selectedGoodsId[this.selectedGoodsId.length - 1];
       this.getMerchantGoodsList(obj);
-      this.currentPage = 1;
+      this.currentPage = val;
     },
 
     // 打开广告弹窗
@@ -342,6 +366,17 @@ export default {
           id: row.id
         }
       });
+      sessionStorage.setItem("page", JSON.stringify(this.currentPage));
+      sessionStorage.setItem("goodsName", this.goodsName);
+      sessionStorage.setItem("businessName", this.businessName);
+      sessionStorage.setItem(
+        "valueCategory",
+        JSON.stringify(this.valueCategory)
+      );
+      sessionStorage.setItem(
+        "selectedGoodsId",
+        JSON.stringify(this.selectedGoodsId)
+      );
     },
 
     // 更改商品状态
@@ -403,7 +438,6 @@ export default {
 
     // 二维码下载
     EWCodedownLoad(id, name) {
-      console.log(id, name);
       this.$refs.code.open(id, name);
     }
   }

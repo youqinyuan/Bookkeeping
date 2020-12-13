@@ -92,11 +92,12 @@
         border
         ref="multipleTable"
         style="width: 100%"
+        v-loading="loading"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="orderNumber" label="订单编号" width="200"></el-table-column>
         <el-table-column prop="userName" label="用户名"></el-table-column>
-        <el-table-column prop="mobileNumber" label="联系方式" width="120">
+        <el-table-column prop="mobileNumber" label="联系方式" width="110">
           <template slot-scope="scope">
             <!-- 判断号码是否为虚拟号码，如果是字体颜色为红 -->
             <span
@@ -106,8 +107,12 @@
             <span v-else>{{scope.row.mobileNumber}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="orderAmount" label="订单金额" width="120"></el-table-column>
-        <el-table-column prop label="购买方式" width="160" align="center">
+        <el-table-column prop="orderAmount" label="订单金额" width="110"></el-table-column>
+        <el-table-column prop label="购买方式" align="center" show-overflow-tooltip width="160">
+          <!-- <template slot-scope="scope">
+            <span v-if="scope.row.orderType == 30">自定义活动-{{scope.row.activityName}}</span>
+            <span v-else>{{scope.row.orderType | orderType}}</span>
+          </template> -->
           <template slot-scope="scope">
             <span v-if="scope.row.orderType==1">正常购买</span>
             <span v-if="scope.row.orderType==3">新人免费体验订单</span>
@@ -132,6 +137,11 @@
             <span v-if="scope.row.orderType == 22">商品预售订单</span>
             <span v-if="scope.row.orderType == 23">线下商家-普通购买订单</span>
             <span v-if="scope.row.orderType == 24">线下商家-0成本购订单</span>
+            <span v-if="scope.row.orderType == 26">闪付订单</span>
+            <span v-if="scope.row.orderType == 27">一折购分期订单</span>
+            <span v-if="scope.row.orderType == 28">普通拼团订单</span>
+            <span v-if="scope.row.orderType == 29">一折购拼团订单</span>
+            <span v-if="scope.row.orderType == 30">自定义活动-{{scope.row.activityName}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="totalDiscount" label="总优惠金额" width="120"></el-table-column>
@@ -139,13 +149,13 @@
         <el-table-column prop="orderAddressDetail.detailedAddress" label="收货地址" width="220"></el-table-column>
         <el-table-column label="物流" width="120">
           <template slot-scope="scope">
-            <span v-if="scope.row.orderLogisticsDetailList==''">
+            <div v-if="scope.row.orderLogisticsDetailList == ''">
               <span v-if="scope.row.isDeliverGoods">此商品无需发货</span>
               <span v-else>未发货</span>
-            </span>
-            <span
-              v-if="scope.row.orderLogisticsDetailList !=''"
-            >{{scope.row.orderLogisticsDetailList[0].companyName}}</span>
+            </div>
+            <div v-if="scope.row.orderLogisticsDetailList != ''">
+              <span>{{scope.row.orderLogisticsDetailList?scope.row.orderLogisticsDetailList[0].companyName:''}}</span>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="下单时间" width="160">
@@ -168,6 +178,11 @@
             <span v-if="scope.row.latestStatus==10">交易关闭</span>
             <span v-if="scope.row.latestStatus==11">退款失败</span>
             <span v-if="scope.row.latestStatus==12">已取消</span>
+            <span v-if="scope.row.latestStatus==15">待成团</span>
+            <span v-if="scope.row.latestStatus==16">拼团成功</span>
+            <span v-if="scope.row.latestStatus==17">拼团失败</span>
+            <span v-if="scope.row.latestStatus==18">拼团成功，已使用</span>
+            <span v-if="scope.row.latestStatus==19">已过期</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="240">
@@ -175,7 +190,7 @@
             <el-button type="text" @click="toOrderDetail(scope.row.id)">查看</el-button>
             <el-button
               type="text"
-              v-if="scope.row.latestStatus==2"
+              v-if="(scope.row.latestStatus==2 || scope.row.latestStatus==15) && scope.row.transStatementDetail.status != 14"
               @click="deliverGoods(scope.row.id)"
             >发货</el-button>
             <el-button
@@ -185,7 +200,7 @@
             >发货</el-button>
             <el-button
               type="text"
-              v-if="scope.row.latestStatus==2"
+              v-if="(scope.row.latestStatus==2 || scope.row.latestStatus==15) && scope.row.transStatementDetail.status != 14"
               @click="noDeliverGoods(scope.row.id)"
             >无需发货</el-button>
             <el-button
@@ -203,11 +218,19 @@
               v-if="scope.row.latestStatus==11"
               @click="lookRefundTxt(scope.row.id)"
             >拒绝原因</el-button>
+
             <!-- <el-button
               type="text"
               v-if="scope.row.latestStatus==2 && scope.row.transStatementDetail.status!=14"
               @click="refund(scope.row.id)"
             >退款</el-button>-->
+
+            <!-- 退款(自定义活动拼团失败-退款) -->
+            <el-button
+              type="text"
+              v-if="scope.row.latestStatus== 15"
+              @click="refundFailed(scope.row.id)"
+            >退款</el-button>
             <el-button
               type="text"
               v-if="(scope.row.latestStatus==7 || scope.row.latestStatus==8 || scope.row.latestStatus==11) && scope.row.transStatementDetail.status != 14"
@@ -226,6 +249,7 @@
         layout="prev, pager, next"
         :total="pageTotal"
         :page-size="10"
+        :current-page="pageNumber"
         @current-change="pageChange($event)"
       ></el-pagination>
     </div>
@@ -304,13 +328,15 @@ import {
   queryActivitiesByOrderType,
   getMerchantAuditListByWhereExcel,
   applyRefundMerchant,
-  noLogistics
+  noLogistics,
+  refundCostomizeActivityOrder
 } from "@/network/api";
 import shipPop from "./common/shipPop";
 import logisticsport from "./common/logisticsport";
 export default {
   data() {
     return {
+      loading: true,
       orderId: "",
       userPhone: "",
       multipleSelection: [],
@@ -377,6 +403,26 @@ export default {
         {
           value: 12,
           label: "已取消"
+        },
+        {
+          value: 15,
+          label: "待成团"
+        },
+        {
+          value: 16,
+          label: "拼团成功"
+        },
+        {
+          value: 17,
+          label: "拼团失败"
+        },
+        {
+          value: 18,
+          label: "拼团成功，已使用"
+        },
+        {
+          value: 19,
+          label: "已过期"
         }
       ],
       buyModeList: [
@@ -471,6 +517,18 @@ export default {
         {
           value: 24,
           label: "线下商家-0成本购订单"
+        },
+        {
+          value: 26,
+          label: "闪付订单"
+        },
+        {
+          value: 27,
+          label: "一折购分期订单"
+        },
+        {
+          value: 30,
+          label: "自定义活动"
         }
       ],
       buyMode: "",
@@ -492,24 +550,57 @@ export default {
       rnform: {
         refundNoTxt: ""
       },
-      checkAll: false,
-      loadinginstace: false //elementui菊花图
+      checkAll: false
     };
   },
   components: {
     shipPop,
     logisticsport
   },
-  mounted() {
-    this.searchOrderList();
-    this.getBusinessList();
-    this.getLogisticsList();
+  // 路由进入时 判断是否从详情页返回
+  beforeRouteEnter(to, from, next) {
+    if (from.path === "/orderDetail") {
+      // 查看是否记录了页面
+      let page = sessionStorage.getItem("page");
+      page = page ? JSON.parse(page) : 1;
+      let userPhone = sessionStorage.getItem("userPhone");
+      let selStatus = sessionStorage.getItem("selStatus");
+      let buyMode = sessionStorage.getItem("buyMode");
+      let dateChangeVal = sessionStorage.getItem("dateChangeVal");
+      let selIndustryClass = sessionStorage.getItem("selIndustryClass");
+      let businessName = sessionStorage.getItem("businessName");
+      next(vm => {
+        vm.userPhone = userPhone ? JSON.parse(userPhone) : "";
+        vm.selStatus = selStatus ? JSON.parse(selStatus) : "";
+        vm.buyMode = buyMode ? JSON.parse(buyMode) : "";
+        vm.dateChangeVal = dateChangeVal ? JSON.parse(dateChangeVal) : "";
+        vm.selIndustryClass = selIndustryClass
+          ? JSON.parse(selIndustryClass)
+          : "";
+        vm.businessName = businessName ? JSON.parse(businessName) : "";
+        vm.orderStartTime = dateChangeVal
+          ? vm.getDateShow(JSON.parse(dateChangeVal)[0])
+          : "";
+        vm.orderEndTime = dateChangeVal
+          ? vm.getDateShow(JSON.parse(dateChangeVal)[1])
+          : "";
+        vm.searchOrderList(page);
+        vm.getLogisticsList();
+        vm.getBusinessList();
+      });
+    } else {
+      next(vm => {
+        vm.searchOrderList(1);
+        vm.getLogisticsList();
+        vm.getBusinessList();
+      });
+    }
   },
   methods: {
     // 订单列表查询事件
-    searchOrderList() {
+    searchOrderList(val) {
       let param = {};
-      param.pageNumber = this.pageNumber;
+      param.pageNumber = val;
       param.pageSize = 10;
       param.orderChannelType = 2;
       if (this.orderId) {
@@ -547,6 +638,7 @@ export default {
         if (res.data.content) {
           this.tableData = res.data.content.items;
           this.pageTotal = res.data.content.totalSize;
+          this.pageNumber = val;
           // 判断商品是否是无需发货
           this.tableData.forEach(val => {
             val.isDeliverGoods = false;
@@ -565,7 +657,7 @@ export default {
         }
         this.checkAll = false;
         this.checkList = [];
-        this.loadinginstace.close();
+        this.loading = false;
       });
     },
     // 设置选中的方法
@@ -642,11 +734,6 @@ export default {
     getBusinessList() {
       getMerchantBusinessList().then(res => {
         this.industryClassList = res.data.content;
-        this.loadinginstace = this.$loading({
-          lock: true,
-          text: "请求中……",
-          background: "rgba(0, 0, 0, 0.7)"
-        });
       });
     },
     // 获取物流公司列表
@@ -658,23 +745,28 @@ export default {
     // 分页改变事件
     pageChange(val) {
       this.pageNumber = val;
-      this.searchOrderList();
+      this.searchOrderList(val);
     },
     // 行业分类改变事件
     industryClassChange(val) {
       this.selIndustryClass = val;
-      this.searchOrderList();
+      this.searchOrderList(1);
     },
     // 订单状态改变事件
     selStatusChange(val) {
       this.selStatus = val;
-      this.searchOrderList();
+      this.searchOrderList(1);
     },
     // 搜索时间改变事件
     dateChange(val) {
-      this.orderStartTime = this.getDateShow(val[0]);
-      this.orderEndTime = this.getDateShow(val[1]);
-      this.searchOrderList();
+      if (val) {
+        this.orderStartTime = this.getDateShow(val[0]);
+        this.orderEndTime = this.getDateShow(val[1]);
+      } else {
+        this.orderStartTime = "";
+        this.orderEndTime = "";
+      }
+      this.searchOrderList(1);
     },
     // 时间格式处理函数
     getDateShow(value) {
@@ -683,10 +775,9 @@ export default {
     },
     // 根据购买方式搜索订单列表
     buyModeChange(e) {
-      console.log(e);
       this.buyMode = e;
       this.activityId = "";
-      this.searchOrderList();
+      this.searchOrderList(1);
       if (e >= 15) {
         this.queryActivitiesByOrderType(e);
       }
@@ -698,7 +789,6 @@ export default {
       };
       queryActivitiesByOrderType({ params: parms }).then(res => {
         if (res.data.messageCode == "MSG_1001") {
-          // console.log(res.data.content);
           if (res.data.content) {
             this.activityList = [];
             res.data.content.forEach(val => {
@@ -716,22 +806,20 @@ export default {
     },
     // 选择活动名称
     activityChange(e) {
-      // console.log(e);
       this.activityId = e;
-      this.searchOrderList();
+      this.searchOrderList(1);
     },
     // 搜索事件
     searchEvent() {
       this.pageNumber = 1;
-
       if (this.userPhone) {
         if (/^1[3456789]\d{9}$/.test(this.userPhone)) {
-          this.searchOrderList();
+          this.searchOrderList(1);
         } else {
           this.$message("请输入正确的手机号");
         }
       } else {
-        this.searchOrderList();
+        this.searchOrderList(1);
       }
     },
     // 发货点击事件
@@ -753,7 +841,7 @@ export default {
       } else {
         addOrderLogistics(this.dgform).then(res => {
           if (res.data.messageCode === "MSG_1001") {
-            this.searchOrderList();
+            this.searchOrderList(this.pageNumber);
             this.deliverGoodsState = false;
           }
         });
@@ -767,11 +855,34 @@ export default {
       noLogistics(this.qs.stringify(parms)).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message.success("操作成功");
-          this.searchOrderList();
+          this.searchOrderList(this.pageNumber);
         } else {
           this.$message.error(res.data.message);
         }
       });
+    },
+    // 退款(自定义活动拼团失败-退款)
+    refundFailed(orderId) {
+      this.$confirm("确定退款吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        center: true,
+        closeOnClickModal: false
+      })
+        .then(() => {
+          let parms = {
+            orderId: orderId
+          };
+          refundCostomizeActivityOrder(this.qs.stringify(parms)).then(res => {
+            if (res.data.messageCode == "MSG_1001") {
+              this.$message.success("退款成功");
+              this.searchOrderList(this.pageNumber);
+            } else {
+              this.$message.error(this.$message.error);
+            }
+          });
+        })
+        .catch(() => {});
     },
     // 退款点击事件
     refundEvent(id) {
@@ -786,7 +897,7 @@ export default {
       refundAudit(param).then(res => {
         if (res.data.messageCode == "MSG_1001") {
           this.$message.success(res.data.message);
-          this.searchOrderList();
+          this.searchOrderList(this.pageNumber);
           this.refundState = false;
         } else {
           this.$message(res.data.message);
@@ -803,7 +914,7 @@ export default {
         .then(() => {
           applyRefundMerchant({ orderId: id }).then(res => {
             if (res.data.messageCode === "MSG_1001") {
-              this.searchOrderList(id);
+              this.searchOrderList(this.pageNumber);
               this.$message({
                 type: "success",
                 message: "退款成功"
@@ -839,7 +950,7 @@ export default {
         param.remark = this.rnform.refundNoTxt;
         refundAudit(param).then(res => {
           if (res.data.statusCode === 200) {
-            this.searchOrderList();
+            this.searchOrderList(this.pageNumber);
             this.refundNoState = false;
           }
         });
@@ -856,6 +967,19 @@ export default {
     // 跳转订单详情
     toOrderDetail(id) {
       this.$router.push({ path: "/orderDetail", query: { orderid: id } });
+      sessionStorage.setItem("page", JSON.stringify(this.pageNumber));
+      sessionStorage.setItem("userPhone", JSON.stringify(this.userPhone));
+      sessionStorage.setItem(
+        "selIndustryClass",
+        JSON.stringify(this.selIndustryClass)
+      );
+      sessionStorage.setItem("selStatus", JSON.stringify(this.selStatus));
+      sessionStorage.setItem("buyMode", JSON.stringify(this.buyMode));
+      sessionStorage.setItem("businessName", JSON.stringify(this.businessName));
+      sessionStorage.setItem(
+        "dateChangeVal",
+        JSON.stringify(this.dateChangeVal)
+      );
     },
     // 导出事件
     exportExcel() {

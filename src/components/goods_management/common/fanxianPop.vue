@@ -139,7 +139,7 @@ export default {
       ],
       payMoney: "", // 取出父组件传过来的最小值
       cashbackArr: [], // 父组件传过来的值
-      cashbackDetail: { cashbackList: [], specCashBacks: [],periodScope:{} }
+      cashbackDetail: { cashbackList: [], specCashBacks: [], periodScope: {} }
     };
   },
   components: {},
@@ -149,12 +149,15 @@ export default {
   mounted() {},
   methods: {
     open(cashback) {
-      console.log(cashback)
       this.cashbackArr = cashback;
       this.dialogTableVisible = true;
       this.cashbackDetail.cashbackList = [];
       this.cashbackDetail.specCashBacks = [];
-      this.cashbackDetail.periodScope = {minPeriod:'',maxPeriod:'',periodItems:[{periods:''}]};
+      this.cashbackDetail.periodScope = {
+        minPeriod: "",
+        maxPeriod: "",
+        periodItems: [{ periods: "" }]
+      };
       let moneyArr = [];
       cashback.forEach(item => {
         if (item.checkset == true) {
@@ -222,31 +225,41 @@ export default {
     },
 
     // 0元购设置 - 设置最小分期期数
-    setMinPeriod(){
-      this.cashbackDetail.periodScope.periodItems.splice(0,1);
-      this.cashbackDetail.periodScope.periodItems.splice(0,0,{ periods: this.cashbackDetail.periodScope.minPeriod });
+    setMinPeriod() {
+      this.cashbackDetail.periodScope.periodItems.splice(0, 1);
+      this.cashbackDetail.periodScope.periodItems.splice(0, 0, {
+        periods: this.cashbackDetail.periodScope.minPeriod
+      });
     },
 
     // 0元购设置 - 设置最大分期期数
-    setMaxPeriod(){
-      this.cashbackDetail.periodScope.periodItems.splice(1,1);
-      this.cashbackDetail.periodScope.periodItems.splice(1,0,{ periods: this.cashbackDetail.periodScope.maxPeriod });
+    setMaxPeriod() {
+      this.cashbackDetail.periodScope.periodItems.splice(1, 1);
+      this.cashbackDetail.periodScope.periodItems.splice(1, 0, {
+        periods: this.cashbackDetail.periodScope.maxPeriod
+      });
     },
-
 
     // 0元购设置 - 添加用户选择分期数
     addUserNum() {
       if (!this.cashbackDetail.periodScope.periodItems) {
-        this.cashbackDetail.periodScope.periodItems = [{ periods: '' }];
+        this.cashbackDetail.periodScope.periodItems = [{ periods: "" }];
         return;
       }
-      this.cashbackDetail.periodScope.periodItems.push({ periods: '' });
-      console.log(this.cashbackDetail);
+      this.cashbackDetail.periodScope.periodItems.push({ periods: "" });
+    },
+
+    // 0元购设置 - 删除用户选择分期数
+    deletedZeroUserNum(index) {
+      this.cashbackDetail.periodScope.periodItems.splice(index, 1);
     },
 
     // 确定
     confirmCashback() {
       let list = this.cashbackDetail.cashbackList;
+      let periodItems = this.cashbackDetail.periodScope.periodItems;
+      let minPeriod = this.cashbackDetail.periodScope.minPeriod;
+      let maxPeriod = this.cashbackDetail.periodScope.maxPeriod;
       if (list.length > 0) {
         for (let i = 0; i < list.length; i++) {
           let item = list[i];
@@ -265,8 +278,27 @@ export default {
             return false;
           }
         }
-      } else {
+      }
+      if (!maxPeriod) {
+        this.$message.error("请输入最大分期期数");
         return;
+      } else if (!minPeriod) {
+        this.$message.error("请输入最小分期期数");
+        return;
+      }
+      for (let item of periodItems) {
+        if (!item.periods) {
+          this.$message.error("用户选择分期数不能为空");
+          return;
+        }
+        if (Number(item.periods) < Number(minPeriod)) {
+          this.$message.error("用户选择分期数不能小于最小0元购分期数");
+          return;
+        }
+        if (Number(item.periods) > Number(maxPeriod)) {
+          this.$message.error("用户选择分期数不能大于最大0元购分期数");
+          return;
+        }
       }
       this.cashbackDetail.specCashBacks.forEach((item, index) => {
         this.cashbackDetail.specCashBacks[
@@ -281,7 +313,7 @@ export default {
           this.cashbackArr[i].periodScope = this.cashbackDetail.periodScope;
         }
       }
-      console.log(this.cashbackArr)
+      console.log(this.cashbackArr);
       // return;
       this.dialogTableVisible = false;
     }

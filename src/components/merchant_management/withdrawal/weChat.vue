@@ -39,7 +39,7 @@
     <div class="tabelBox" style="margin-top:40px;">
       <el-table :data="tableData" border style="width: 100%">
         <el-table-column prop="id" label="编号" align="center" width="100"></el-table-column>
-        <el-table-column prop="storeName" label="店铺名称" align="center"></el-table-column>
+        <el-table-column prop="storeName" label="店铺名称" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="mobileNumber" label="电话" align="center"></el-table-column>
         <el-table-column prop="createTime" label="申请提交时间" align="center">
           <template slot-scope="scope">
@@ -182,8 +182,6 @@ export default {
     search(val) {
       let form = this.form;
       form.pageNumber = val;
-      console.log(this.time);
-      console.log(form);
       if (this.time) {
         form.startTime = this.time[0].getTime();
         form.endTime = this.time[1].getTime();
@@ -262,6 +260,12 @@ export default {
     },
     // 加入黑名单
     addBlackList() {
+      let regEn = /[`~!@#$%^&*()_+<>?:"{},.\\/;'[\]]/im,
+        regCn = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/im;
+      if (regEn.test(this.merchantId) || regCn.test(this.merchantId)) {
+        this.$message.error("商品编号格式不正确");
+        return false;
+      }
       let obj = {
         merchantId: this.merchantId
       };
@@ -277,6 +281,12 @@ export default {
     },
     // 移除黑名单
     deletBlackList() {
+      let regEn = /[`~!@#$%^&*()_+<>?:"{},.\\/;'[\]]/im,
+        regCn = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/im;
+      if (regEn.test(this.merchantId) || regCn.test(this.merchantId)) {
+        this.$message.error("商品编号格式不正确");
+        return false;
+      }
       let obj = {
         type: 2,
         id: this.merchantId
